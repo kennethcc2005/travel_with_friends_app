@@ -8,4 +8,5 @@ const HomePage = () => (
   </Card>
 );
 
+
 export default HomePage;
