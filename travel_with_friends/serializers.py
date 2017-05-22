@@ -15,6 +15,9 @@ class OutsideTripSearchSerializer(serializers.Serializer):
     n_days = serializers.CharField()
     direction = serializers.CharField()
 
+class CityStateSearchSerializer(serializers.Serializer):
+    city_state = serializers.CharField()
+    
 # class UserSerializer(serializers.ModelSerializer):
 #     snippets = serializers.PrimaryKeyRelatedField(many=True, queryset=FullTripTable.objects.all())
 #     class Meta:

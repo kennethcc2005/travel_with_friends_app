@@ -65,3 +65,7 @@ a:hover {
   padding: 0 16px;
   color: green;
 }
+
+.searchInputField {
+  width: 256px;
+}

@@ -20,6 +20,7 @@ brew tap osgeo/osgeo4mac
 brew install gdal2
 brew install --upgrade gdal
 CREATE EXTENSION postgis;
+CREATE EXTENSION pg_trgm;
 ALTER TABLE poi_detail_table_v2 ADD COLUMN geom geometry(POINT,4326);
 UPDATE poi_detail_table_v2 SET geom = ST_SetSRID(ST_MakePoint(coord_long,coord_lat),4326);
 CREATE INDEX idx_poi_geom ON poi_detail_table_v2 USING GIST(geom);
@@ -27,6 +28,14 @@ CREATE INDEX idx_poi_geom ON poi_detail_table_v2 USING GIST(geom);
 SELECT name, city, state
 FROM poi_detail_table_v2
 WHERE ST_Distance_Sphere(geom, ST_MakePoint(-122.6659597,45.5083437)) <= 100 * 1609.34
+
+
+Create new table for city_coords with state_abb
+create table city_state_coords_table as select a.*, b.state_abb 
+    from all_cities_coords_table as a left join 
+    (select distinct state, state_abb from county_table order by state_abb) as b 
+    on a.state = b.state order by a.index;
+update city_state_coords_table set state_abb = 'DC' where state_abb is null;
 '''
 
 from __future__ import unicode_literals

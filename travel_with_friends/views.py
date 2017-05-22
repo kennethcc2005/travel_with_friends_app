@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 # from snippets.serializers import SnippetSerializer
 from rest_framework import generics, status
 from django.contrib.auth.models import User
-from travel_with_friends.serializers import UserSerializer, FullTripSearchSerializer, OutsideTripSearchSerializer
+from travel_with_friends.serializers import UserSerializer, FullTripSearchSerializer, OutsideTripSearchSerializer,CityStateSearchSerializer
 from rest_framework import permissions
 from travel_with_friends.permissions import IsOwnerOrReadOnly, IsStaffOrTargetUser
 from rest_framework.decorators import api_view
@@ -53,11 +53,14 @@ def create_auth(request):
 class FullTripSearch(APIView):
     def get_permissions(self):
         '''
+        myurl = 'http://127.0.0.1:8000/full_trip_search/?state=California&city=San_Francisco&n_days=1'
         response = requests.get(myurl, headers={'Authorization': 'Token {}'.format(mytoken)})
+        response.json()
         '''
+
         # return (permissions.IsAuthenticated()),
         return (AllowAny() if self.request.method == 'GET'
-                else permissions.IsAuthenticated()),
+            else permissions.IsAuthenticated()),
 
     def get(self, request):
         # Validate the incoming input (provided through query parameters)
@@ -68,7 +71,9 @@ class FullTripSearch(APIView):
         city = data["city"]
         state = data["state"]
         n_days = data["n_days"]
+        state = abb_to_full_state(state)
         valid_state = check_valid_state(state)
+        print 'valid_state2', valid_state
         if not valid_state:
             return Response({
             "invalid state result": '%s is not a valid state name' %(state),
@@ -116,6 +121,32 @@ class OutsideTripSearch(APIView):
         return Response({
             "outside_trip_id": outside_trip_id,
             "outside_trip_details": details,
+        })
+
+class CityStateSearch(APIView):
+    # def get_permissions(self):
+    #     '''
+    #     response = requests.get(myurl, headers={'Authorization': 'Token {}'.format(mytoken)})
+    #     '''
+    #     return (permissions.IsAuthenticated()),
+        # return (AllowAny() if self.request.method == 'POST'
+        #         else permissions.IsAuthenticated()),
+    def get(self, request):
+        # Validate the incoming input (provided through query parameters)
+        serializer = CityStateSearchSerializer(data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+        # Get the model input
+        data = serializer.validated_data
+        city_state = data["city_state"]
+        city_state = serach_city_state(city_state)
+        city = [i[0] for i in city_state]
+        state = [i[1] for i in city_state]
+        city_and_state = [i[-1] for i in city_state]
+
+        return Response({
+            "city_state": city_and_state,
+            "city": city,
+            "state": state
         })
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):

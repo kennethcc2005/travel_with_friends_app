@@ -8,6 +8,43 @@ with open('api_key_list.config') as key_file:
     api_key_list = json.load(key_file)
 api_key = api_key_list["distance_api_key_list"]
 conn_str = api_key_list["conn_str"]
+
+def abb_to_full_state(state):
+    '''
+    Convert state_abb to full state name
+    '''
+    conn = psycopg2.connect(conn_str)
+    cur = conn.cursor()
+    cur.execute("SELECT distinct state from city_state_coords_table where state_abb = '{}';".format(state))
+    full_state = cur.fetchone()[0]
+    conn.close()
+    return full_state
+
+
+def serach_city_state(city_state):
+    '''
+    Only valid within the U.S.
+    Create new table for city_coords with state_abb
+    create table city_state_coords_table as select a.*, b.state_abb 
+        from all_cities_coords_table as a left join 
+        (select distinct state, state_abb from county_table order by state_abb) as b 
+        on a.state = b.state order by a.index;
+    update city_state_coords_table set state_abb = 'DC' where state_abb is null;
+    '''
+    conn = psycopg2.connect(conn_str)
+    cur = conn.cursor()
+    if ',' in city_state:
+        city = city_state.split(',')[0].strip()
+        state = city_state.split(',')[1].strip()
+        # cur.execute("SELECT city, state_abb from city_state_coords_table where city % '{0}' and (state % '{1}' or state_abb % '{1}') order by similarity(city, '{0}') desc limit 5;".format(city,state))
+        cur.execute("SELECT city, state_abb, concat_ws(', ',city::text, state_abb::text) from city_state_coords_table where city % '{0}' and (state % '{1}' or state_abb % '{1}') order by similarity(city, '{0}') desc limit 5;".format(city,state))
+    else:
+        city = city_state.strip()
+        cur.execute("SELECT city, state_abb, concat_ws(', ',city::text, state_abb::text) from city_state_coords_table where city % '{0}' order by similarity(city, '{0}') desc limit 5;".format(city))
+    c = cur.fetchall()
+    conn.close()
+    return c
+
 def check_valid_state(state):
     '''
     Only valid within the U.S.
@@ -17,6 +54,7 @@ def check_valid_state(state):
     state = state.replace('_',' ')
     cur.execute("select distinct state from poi_detail_table_v2 where state = '%s';" %(state.title()))
     c = cur.fetchone()
+    conn.close()
     return bool(c)
     
 def check_valid_city(city,state):

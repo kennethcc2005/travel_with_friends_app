@@ -39,6 +39,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'webpack_loader',
     'travel_with_friends.apps.TravelWithFriendsConfig',
     'snippets.apps.SnippetsConfig',
@@ -54,6 +55,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -62,6 +65,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'tutorial.urls'
 
@@ -154,14 +159,14 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 }
 
-STATICFILES_DIRS = (
-    #This lets Django's collectstatic store our bundles
-    os.path.join(BASE_DIR, 'assets'), 
-)
+# STATICFILES_DIRS = (
+#     #This lets Django's collectstatic store our bundles
+#     os.path.join(BASE_DIR, 'client'), 
+# )
 
-WEBPACK_LOADER = {
-    'DEFAULT': {
-        'BUNDLE_DIR_NAME': 'bundles/',
-        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
-    }
-}
+# WEBPACK_LOADER = {
+#     'DEFAULT': {
+#         'BUNDLE_DIR_NAME': 'bundles/',
+#         'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
+#     }
+# }
