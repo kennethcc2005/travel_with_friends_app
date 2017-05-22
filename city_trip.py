@@ -11,6 +11,7 @@ def get_fulltrip_data(state, city, n_days, full_day = True, regular = True, debu
         full_trip_id = '-'.join([str(state.upper()), str(county.upper().replace(' ','-')),str(int(regular)), str(n_days)])
     else:
         full_trip_id = '-'.join([str(state.upper()), str(city.upper().replace(' ','-')),str(int(regular)), str(n_days)])
+    print full_trip_id
     if not check_full_trip_id(full_trip_id, debug):
         trip_location_ids, full_trip_details =[],[]
         county_list_info = db_start_location(county, state, city)
@@ -97,7 +98,6 @@ def get_fulltrip_data(state, city, n_days, full_day = True, regular = True, debu
         conn.commit()
         conn.close()
         print "finish update %s, %s into database" %(state, county)
-        return full_trip_id, full_trip_details
     else:
         print "%s, %s already in database" %(state, county) 
         conn = psycopg2.connect(conn_str)
@@ -106,4 +106,8 @@ def get_fulltrip_data(state, city, n_days, full_day = True, regular = True, debu
         details = cur.fetchone()[0]        
         conn.close()
         full_trip_details = ast.literal_eval(details)
-        return full_trip_id, full_trip_details
+    for index, detail in enumerate(full_trip_details):
+        full_trip_details[index] = ast.literal_eval(detail)
+        full_trip_details[index]['address'] = full_trip_details[index]['address'].strip(', ').replace(', ,',',')
+        print full_trip_details[index]['address']
+    return full_trip_id, full_trip_details

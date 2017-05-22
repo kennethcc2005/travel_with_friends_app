@@ -29152,82 +29152,7 @@ LoginForm.propTypes = {
 exports.default = LoginForm;
 
 /***/ }),
-/* 297 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _react = __webpack_require__(1);
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = __webpack_require__(229);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- * The input is used to create the `dataSource`, so the input always matches three entries.
- */
-var SearchBox = function (_Component) {
-  _inherits(SearchBox, _Component);
-
-  function SearchBox() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
-    _classCallCheck(this, SearchBox);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = SearchBox.__proto__ || Object.getPrototypeOf(SearchBox)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-      dataSource: []
-    }, _this.handleUpdateInput = function (value) {
-      _this.setState({
-        dataSource: [value, value + value, value + value + value + 'a']
-      });
-    }, _temp), _possibleConstructorReturn(_this, _ret);
-  }
-
-  _createClass(SearchBox, [{
-    key: 'render',
-    value: function render() {
-      return _react2.default.createElement(
-        'div',
-        null,
-        _react2.default.createElement(_materialUi.AutoComplete, {
-          hintText: 'City, State',
-          dataSource: this.state.dataSource,
-          onUpdateInput: this.handleUpdateInput,
-          floatingLabelText: 'Location',
-          fullWidth: false
-        })
-      );
-    }
-  }]);
-
-  return SearchBox;
-}(_react.Component);
-
-exports.default = SearchBox;
-;
-
-/***/ }),
+/* 297 */,
 /* 298 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -29465,21 +29390,21 @@ var _react2 = _interopRequireDefault(_react);
 
 var _Card = __webpack_require__(78);
 
-var _SearchBox = __webpack_require__(297);
-
-var _SearchBox2 = _interopRequireDefault(_SearchBox);
-
-var _SearchCityState = __webpack_require__(303);
+var _SearchCityState = __webpack_require__(813);
 
 var _SearchCityState2 = _interopRequireDefault(_SearchCityState);
 
-var _MenuItemDays = __webpack_require__(302);
+var _MenuItemDays = __webpack_require__(815);
 
 var _MenuItemDays2 = _interopRequireDefault(_MenuItemDays);
 
-var _FullTripSearchButton = __webpack_require__(812);
+var _FullTripSearchButton = __webpack_require__(814);
 
 var _FullTripSearchButton2 = _interopRequireDefault(_FullTripSearchButton);
+
+var _FullTripList = __webpack_require__(816);
+
+var _FullTripList2 = _interopRequireDefault(_FullTripList);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -29513,17 +29438,15 @@ var HomePage = function (_React$Component) {
       var valid_city_input = encodeURIComponent(city);
       var valid_state_input = encodeURIComponent(state);
       var myUrl = dbLocationURI + 'city=' + valid_city_input + '&state=' + valid_state_input + '&n_days=' + _this2.state.daysValue;
-      console.log(myUrl);
       if (_this2.state.searchInputValue !== '') {
-        console.log(myUrl);
         $.ajax({
           type: "GET",
           url: myUrl
         }).done(function (res) {
-          console.log(res);
-          // _this.setState({
-          //   dataSource : res.city_state
-          // });
+          _this.setState({
+            fullTripDetails: res.full_trip_details,
+            fullTripId: res.full_trip_id
+          });
         });
       };
     };
@@ -29531,9 +29454,11 @@ var HomePage = function (_React$Component) {
     _this2.state = {
       place: "",
       days: "",
-      dataSource: [],
+      cityStateDataSource: [],
       searchInputValue: '',
-      daysValue: '1'
+      daysValue: '1',
+      fullTripDetails: [],
+      fullTripId: ''
     };
     _this2.performSearch = _this2.performSearch.bind(_this2);
     _this2.onUpdateInput = _this2.onUpdateInput.bind(_this2);
@@ -29556,9 +29481,8 @@ var HomePage = function (_React$Component) {
           type: "GET",
           url: myUrl
         }).done(function (res) {
-          console.log(res);
           _this.setState({
-            dataSource: res.city_state
+            cityStateDataSource: res.city_state
           });
         });
       };
@@ -29578,7 +29502,7 @@ var HomePage = function (_React$Component) {
       return _react2.default.createElement(
         _Card.Card,
         { className: 'container' },
-        _react2.default.createElement(_Card.CardTitle, { title: 'React Application', subtitle: 'This is the home page.' }),
+        _react2.default.createElement(_Card.CardTitle, { title: 'Travel with Friends!', subtitle: 'This is the home page.' }),
         _react2.default.createElement(
           _Card.CardActions,
           null,
@@ -29590,7 +29514,7 @@ var HomePage = function (_React$Component) {
               { className: 'col-md-5' },
               _react2.default.createElement(_SearchCityState2.default, { searchText: this.state.searchInputValue,
                 floatingLabelText: 'Location',
-                dataSource: this.state.dataSource,
+                dataSource: this.state.cityStateDataSource,
                 onUpdateInput: this.onUpdateInput })
             ),
             _react2.default.createElement(
@@ -29602,6 +29526,12 @@ var HomePage = function (_React$Component) {
               'div',
               { className: 'col-md-2' },
               _react2.default.createElement(_FullTripSearchButton2.default, { onFullTripSubmit: this.onFullTripSubmit })
+            ),
+            _react2.default.createElement('br', null),
+            _react2.default.createElement(
+              'div',
+              { className: 'col-md-12 ' },
+              this.state.fullTripDetails.length > 0 && _react2.default.createElement(_FullTripList2.default, { daysValue: this.state.daysValue, fullTripDetails: this.state.fullTripDetails })
             )
           )
         )
@@ -29783,111 +29713,8 @@ LoginPage.contextTypes = {
 exports.default = LoginPage;
 
 /***/ }),
-/* 302 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _react = __webpack_require__(1);
-
-var _react2 = _interopRequireDefault(_react);
-
-var _SelectField = __webpack_require__(216);
-
-var _SelectField2 = _interopRequireDefault(_SelectField);
-
-var _MenuItem = __webpack_require__(94);
-
-var _MenuItem2 = _interopRequireDefault(_MenuItem);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// encodeURIComponent(myUrl)
-var MenuItemDays = function MenuItemDays(_ref) {
-  var daysValue = _ref.daysValue,
-      handleDaysOnChange = _ref.handleDaysOnChange;
-
-  var boundType = handleDaysOnChange.bind(undefined);
-  return _react2.default.createElement(
-    'div',
-    null,
-    _react2.default.createElement(
-      _SelectField2.default,
-      {
-        floatingLabelText: 'Days',
-        value: daysValue,
-        onChange: boundType
-      },
-      _react2.default.createElement(_MenuItem2.default, { value: '1', primaryText: '1' }),
-      _react2.default.createElement(_MenuItem2.default, { value: '2', primaryText: '2' }),
-      _react2.default.createElement(_MenuItem2.default, { value: '3', primaryText: '3' }),
-      _react2.default.createElement(_MenuItem2.default, { value: '4', primaryText: '4' }),
-      _react2.default.createElement(_MenuItem2.default, { value: '5', primaryText: '5' })
-    )
-  );
-};
-
-MenuItemDays.propTypes = {
-  daysValue: _react.PropTypes.string.isRequired,
-  handleDaysOnChange: _react.PropTypes.func.isRequired
-};
-
-exports.default = MenuItemDays;
-
-/***/ }),
-/* 303 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _react = __webpack_require__(1);
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = __webpack_require__(229);
-
-var _throttleDebounce = __webpack_require__(650);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// encodeURIComponent(myUrl)
-var SearchCityState = function SearchCityState(_ref) {
-  var searchText = _ref.searchText,
-      floatingLabelText = _ref.floatingLabelText,
-      dataSource = _ref.dataSource,
-      onUpdateInput = _ref.onUpdateInput;
-
-  return _react2.default.createElement(_materialUi.AutoComplete, {
-    searchText: searchText,
-    floatingLabelText: floatingLabelText,
-    filter: _materialUi.AutoComplete.noFilter,
-    openOnFocus: true,
-    dataSource: dataSource,
-    onUpdateInput: (0, _throttleDebounce.debounce)(300, onUpdateInput),
-    className: 'searchInputField'
-  });
-};
-
-SearchCityState.propTypes = {
-  searchText: _react.PropTypes.string.isRequired,
-  floatingLabelText: _react.PropTypes.string.isRequired,
-  dataSource: _react.PropTypes.array.isRequired,
-  onUpdateInput: _react.PropTypes.func.isRequired
-};
-
-exports.default = SearchCityState;
-
-/***/ }),
+/* 302 */,
+/* 303 */,
 /* 304 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -83903,13 +83730,61 @@ module.exports = function(module) {
 /* 657 */,
 /* 658 */,
 /* 659 */,
-/* 660 */,
+/* 660 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = !!(typeof window !== 'undefined' && window.document && window.document.createElement);
+module.exports = exports['default'];
+
+/***/ }),
 /* 661 */,
 /* 662 */,
 /* 663 */,
 /* 664 */,
 /* 665 */,
-/* 666 */,
+/* 666 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _inDOM = __webpack_require__(660);
+
+var _inDOM2 = _interopRequireDefault(_inDOM);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var on = function on() {};
+if (_inDOM2.default) {
+  on = function () {
+
+    if (document.addEventListener) return function (node, eventName, handler, capture) {
+      return node.addEventListener(eventName, handler, capture || false);
+    };else if (document.attachEvent) return function (node, eventName, handler) {
+      return node.attachEvent('on' + eventName, function (e) {
+        e = e || window.event;
+        e.target = e.target || e.srcElement;
+        e.currentTarget = node;
+        handler.call(node, e);
+      });
+    };
+  }();
+}
+
+exports.default = on;
+module.exports = exports['default'];
+
+/***/ }),
 /* 667 */,
 /* 668 */,
 /* 669 */,
@@ -83919,7 +83794,37 @@ module.exports = function(module) {
 /* 673 */,
 /* 674 */,
 /* 675 */,
-/* 676 */,
+/* 676 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _inDOM = __webpack_require__(660);
+
+var _inDOM2 = _interopRequireDefault(_inDOM);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var off = function off() {};
+if (_inDOM2.default) {
+  off = function () {
+    if (document.addEventListener) return function (node, eventName, handler, capture) {
+      return node.removeEventListener(eventName, handler, capture || false);
+    };else if (document.attachEvent) return function (node, eventName, handler) {
+      return node.detachEvent('on' + eventName, handler);
+    };
+  }();
+}
+
+exports.default = off;
+module.exports = exports['default'];
+
+/***/ }),
 /* 677 */,
 /* 678 */,
 /* 679 */,
@@ -83933,7 +83838,122 @@ module.exports = function(module) {
 /* 687 */,
 /* 688 */,
 /* 689 */,
-/* 690 */,
+/* 690 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.animationEnd = exports.animationDelay = exports.animationTiming = exports.animationDuration = exports.animationName = exports.transitionEnd = exports.transitionDuration = exports.transitionDelay = exports.transitionTiming = exports.transitionProperty = exports.transform = undefined;
+
+var _inDOM = __webpack_require__(660);
+
+var _inDOM2 = _interopRequireDefault(_inDOM);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var transform = 'transform';
+var prefix = void 0,
+    transitionEnd = void 0,
+    animationEnd = void 0;
+var transitionProperty = void 0,
+    transitionDuration = void 0,
+    transitionTiming = void 0,
+    transitionDelay = void 0;
+var animationName = void 0,
+    animationDuration = void 0,
+    animationTiming = void 0,
+    animationDelay = void 0;
+
+if (_inDOM2.default) {
+  var _getTransitionPropert = getTransitionProperties();
+
+  prefix = _getTransitionPropert.prefix;
+  exports.transitionEnd = transitionEnd = _getTransitionPropert.transitionEnd;
+  exports.animationEnd = animationEnd = _getTransitionPropert.animationEnd;
+
+
+  exports.transform = transform = prefix + '-' + transform;
+  exports.transitionProperty = transitionProperty = prefix + '-transition-property';
+  exports.transitionDuration = transitionDuration = prefix + '-transition-duration';
+  exports.transitionDelay = transitionDelay = prefix + '-transition-delay';
+  exports.transitionTiming = transitionTiming = prefix + '-transition-timing-function';
+
+  exports.animationName = animationName = prefix + '-animation-name';
+  exports.animationDuration = animationDuration = prefix + '-animation-duration';
+  exports.animationTiming = animationTiming = prefix + '-animation-delay';
+  exports.animationDelay = animationDelay = prefix + '-animation-timing-function';
+}
+
+exports.transform = transform;
+exports.transitionProperty = transitionProperty;
+exports.transitionTiming = transitionTiming;
+exports.transitionDelay = transitionDelay;
+exports.transitionDuration = transitionDuration;
+exports.transitionEnd = transitionEnd;
+exports.animationName = animationName;
+exports.animationDuration = animationDuration;
+exports.animationTiming = animationTiming;
+exports.animationDelay = animationDelay;
+exports.animationEnd = animationEnd;
+exports.default = {
+  transform: transform,
+  end: transitionEnd,
+  property: transitionProperty,
+  timing: transitionTiming,
+  delay: transitionDelay,
+  duration: transitionDuration
+};
+
+
+function getTransitionProperties() {
+  var style = document.createElement('div').style;
+
+  var vendorMap = {
+    O: function O(e) {
+      return 'o' + e.toLowerCase();
+    },
+    Moz: function Moz(e) {
+      return e.toLowerCase();
+    },
+    Webkit: function Webkit(e) {
+      return 'webkit' + e;
+    },
+    ms: function ms(e) {
+      return 'MS' + e;
+    }
+  };
+
+  var vendors = Object.keys(vendorMap);
+
+  var transitionEnd = void 0,
+      animationEnd = void 0;
+  var prefix = '';
+
+  for (var i = 0; i < vendors.length; i++) {
+    var vendor = vendors[i];
+
+    if (vendor + 'TransitionProperty' in style) {
+      prefix = '-' + vendor.toLowerCase();
+      transitionEnd = vendorMap[vendor]('TransitionEnd');
+      animationEnd = vendorMap[vendor]('AnimationEnd');
+      break;
+    }
+  }
+
+  if (!transitionEnd && 'transitionProperty' in style) transitionEnd = 'transitionend';
+
+  if (!animationEnd && 'animationName' in style) animationEnd = 'animationend';
+
+  style = null;
+
+  return { animationEnd: animationEnd, transitionEnd: transitionEnd, prefix: prefix };
+}
+
+/***/ }),
 /* 691 */,
 /* 692 */,
 /* 693 */,
@@ -84055,7 +84075,56 @@ module.exports = function(module) {
 /* 809 */,
 /* 810 */,
 /* 811 */,
-/* 812 */
+/* 812 */,
+/* 813 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _materialUi = __webpack_require__(229);
+
+var _throttleDebounce = __webpack_require__(650);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// encodeURIComponent(myUrl)
+var SearchCityState = function SearchCityState(_ref) {
+  var searchText = _ref.searchText,
+      floatingLabelText = _ref.floatingLabelText,
+      dataSource = _ref.dataSource,
+      onUpdateInput = _ref.onUpdateInput;
+
+  return _react2.default.createElement(_materialUi.AutoComplete, {
+    searchText: searchText,
+    floatingLabelText: floatingLabelText,
+    filter: _materialUi.AutoComplete.noFilter,
+    openOnFocus: true,
+    dataSource: dataSource,
+    onUpdateInput: (0, _throttleDebounce.debounce)(300, onUpdateInput),
+    className: 'searchInputField'
+  });
+};
+
+SearchCityState.propTypes = {
+  searchText: _react.PropTypes.string.isRequired,
+  floatingLabelText: _react.PropTypes.string.isRequired,
+  dataSource: _react.PropTypes.array.isRequired,
+  onUpdateInput: _react.PropTypes.func.isRequired
+};
+
+exports.default = SearchCityState;
+
+/***/ }),
+/* 814 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -84091,6 +84160,1718 @@ FullTripSearchButton.propTypes = {
 };
 
 exports.default = FullTripSearchButton;
+
+/***/ }),
+/* 815 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _SelectField = __webpack_require__(216);
+
+var _SelectField2 = _interopRequireDefault(_SelectField);
+
+var _MenuItem = __webpack_require__(94);
+
+var _MenuItem2 = _interopRequireDefault(_MenuItem);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// encodeURIComponent(myUrl)
+var MenuItemDays = function MenuItemDays(_ref) {
+  var daysValue = _ref.daysValue,
+      handleDaysOnChange = _ref.handleDaysOnChange;
+
+  var boundType = handleDaysOnChange.bind(undefined);
+  return _react2.default.createElement(
+    'div',
+    null,
+    _react2.default.createElement(
+      _SelectField2.default,
+      {
+        floatingLabelText: 'Days',
+        value: daysValue,
+        onChange: boundType
+      },
+      _react2.default.createElement(_MenuItem2.default, { value: '1', primaryText: '1' }),
+      _react2.default.createElement(_MenuItem2.default, { value: '2', primaryText: '2' }),
+      _react2.default.createElement(_MenuItem2.default, { value: '3', primaryText: '3' }),
+      _react2.default.createElement(_MenuItem2.default, { value: '4', primaryText: '4' }),
+      _react2.default.createElement(_MenuItem2.default, { value: '5', primaryText: '5' })
+    )
+  );
+};
+
+MenuItemDays.propTypes = {
+  daysValue: _react.PropTypes.string.isRequired,
+  handleDaysOnChange: _react.PropTypes.func.isRequired
+};
+
+exports.default = MenuItemDays;
+
+/***/ }),
+/* 816 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _List = __webpack_require__(452);
+
+var _Avatar = __webpack_require__(201);
+
+var _Avatar2 = _interopRequireDefault(_Avatar);
+
+var _Subheader = __webpack_require__(218);
+
+var _Subheader2 = _interopRequireDefault(_Subheader);
+
+var _Divider = __webpack_require__(209);
+
+var _Divider2 = _interopRequireDefault(_Divider);
+
+var _colors = __webpack_require__(145);
+
+var _IconButton = __webpack_require__(63);
+
+var _IconButton2 = _interopRequireDefault(_IconButton);
+
+var _moreVert = __webpack_require__(817);
+
+var _moreVert2 = _interopRequireDefault(_moreVert);
+
+var _IconMenu = __webpack_require__(448);
+
+var _IconMenu2 = _interopRequireDefault(_IconMenu);
+
+var _MenuItem = __webpack_require__(94);
+
+var _MenuItem2 = _interopRequireDefault(_MenuItem);
+
+var _Tabs = __webpack_require__(480);
+
+var _reactSwipeableViews = __webpack_require__(825);
+
+var _reactSwipeableViews2 = _interopRequireDefault(_reactSwipeableViews);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+// import MobileTearSheet from '../../../MobileTearSheet';
+
+// From https://github.com/oliviertassinari/react-swipeable-views
+
+
+// const FullTripList = ({fullTripDetails}) => {
+//     var lis = [];
+//     var days = 0;
+//     for (var i=0; i<fullTripDetails.length; i++){
+//         lis.push(<ListItem
+//             value={i}
+//             primaryText={fullTripDetails[i].name}
+//             secondaryText={
+//             <p>
+//               {fullTripDetails[i].address}</p>
+//             }
+//             secondaryTextLines={2}
+//             leftAvatar={<Avatar src="https://lh5.googleusercontent.com/proxy/FyVj9FfjSHvC1yxPf2xVBFmXFa1GD3AuzxirbfZwAXL4rltExz5Dv7EVUqZxmr-PMln0KgUYm646mNE3i1or3EXxApQyvTPegsqbVMD75s_ghErqZmcJx9tolXPjb0NRDwEsuzCAD8au2lNwDpwvNugPmUOzvTg=w427-h320-k-no" />}
+//           />)
+//     }
+//   return (
+//     <SelectableList defaultValue={3}>
+//       <Subheader>San Francisco Day 1 Trip Details</Subheader>
+//       {lis}
+//     </SelectableList>
+//       )
+// }
+
+
+// FullTripList.propTypes = {
+//   fullTripDetails: PropTypes.array.isRequired,
+// };
+
+// export default FullTripList;
+
+var FullTripList = function (_React$Component) {
+  _inherits(FullTripList, _React$Component);
+
+  function FullTripList(props) {
+    _classCallCheck(this, FullTripList);
+
+    var _this = _possibleConstructorReturn(this, (FullTripList.__proto__ || Object.getPrototypeOf(FullTripList)).call(this, props));
+
+    _this.handleChange = function (value) {
+      _this.setState({
+        slideIndex: value
+      });
+    };
+
+    _this.state = {
+      slideIndex: 0
+    };
+    return _this;
+  }
+
+  _createClass(FullTripList, [{
+    key: 'render',
+    value: function render() {
+      var iconButtonElement = _react2.default.createElement(
+        _IconButton2.default,
+        {
+          touch: true,
+          tooltip: 'more',
+          tooltipPosition: 'bottom-left'
+        },
+        _react2.default.createElement(_moreVert2.default, { color: _colors.grey400 })
+      );
+      var rightIconMenu = _react2.default.createElement(
+        _IconMenu2.default,
+        { iconButtonElement: iconButtonElement },
+        _react2.default.createElement(
+          _MenuItem2.default,
+          null,
+          'Resuggest'
+        ),
+        _react2.default.createElement(
+          _MenuItem2.default,
+          null,
+          'Delete'
+        )
+      );
+      var SelectableList = (0, _List.makeSelectable)(_List.List);
+      var tabLis = [];
+      var fullWrap = [];
+      var selectList = [];
+      for (var i = 0; i < Number(this.props.daysValue); i++) {
+        tabLis.push(_react2.default.createElement(_Tabs.Tab, { label: 'Day ' + (i + 1).toString(), value: i }));
+        var fullDetails = [];
+
+        for (var j = 0; j < this.props.fullTripDetails.length; j++) {
+          if (this.props.fullTripDetails[j].day == i) {
+            fullDetails.push(_react2.default.createElement(_List.ListItem, {
+              value: j,
+              primaryText: this.props.fullTripDetails[j].name,
+              secondaryText: _react2.default.createElement(
+                'p',
+                null,
+                this.props.fullTripDetails[j].address
+              ),
+              secondaryTextLines: 2,
+              rightIconButton: rightIconMenu,
+              leftAvatar: _react2.default.createElement(_Avatar2.default, { src: 'https://lh5.googleusercontent.com/proxy/FyVj9FfjSHvC1yxPf2xVBFmXFa1GD3AuzxirbfZwAXL4rltExz5Dv7EVUqZxmr-PMln0KgUYm646mNE3i1or3EXxApQyvTPegsqbVMD75s_ghErqZmcJx9tolXPjb0NRDwEsuzCAD8au2lNwDpwvNugPmUOzvTg=w427-h320-k-no' }) }));
+            fullWrap[i] = fullDetails;
+          }
+        }
+        selectList.push(_react2.default.createElement(
+          'div',
+          null,
+          _react2.default.createElement(
+            SelectableList,
+            { defaultValue: 3 },
+            fullWrap[i]
+          )
+        ));
+      };
+      console.log('full wrap', selectList);
+
+      return _react2.default.createElement(
+        'div',
+        null,
+        _react2.default.createElement(
+          _Tabs.Tabs,
+          {
+            onChange: this.handleChange,
+            value: this.state.slideIndex
+          },
+          tabLis
+        ),
+        _react2.default.createElement(
+          _reactSwipeableViews2.default,
+          {
+            index: this.state.slideIndex,
+            onChangeIndex: this.handleChange
+          },
+          selectList
+        )
+      );
+    }
+  }]);
+
+  return FullTripList;
+}(_react2.default.Component);
+
+// let SelectableList = makeSelectable(List);
+
+// 
+
+// 
+
+// const FullTripList = ({fullTripDetails}) => {
+//     var lis = [];
+//     var days = 0;
+//     for (var i=0; i<fullTripDetails.length; i++){
+//         lis.push(<ListItem
+//             value={i}
+//             primaryText={fullTripDetails[i].name}
+//             secondaryText={
+//             <p>
+//               {fullTripDetails[i].address}</p>
+//             }
+//             secondaryTextLines={2}
+//             leftAvatar={<Avatar src="https://lh5.googleusercontent.com/proxy/FyVj9FfjSHvC1yxPf2xVBFmXFa1GD3AuzxirbfZwAXL4rltExz5Dv7EVUqZxmr-PMln0KgUYm646mNE3i1or3EXxApQyvTPegsqbVMD75s_ghErqZmcJx9tolXPjb0NRDwEsuzCAD8au2lNwDpwvNugPmUOzvTg=w427-h320-k-no" />}
+//           />)
+//     }
+//   return (
+//     <SelectableList defaultValue={3}>
+//       <Subheader>San Francisco Day 1 Trip Details</Subheader>
+//       {lis}
+//     </SelectableList>
+//       )
+// }
+
+
+// FullTripList.propTypes = {
+//   fullTripDetails: PropTypes.array.isRequired,
+// };
+
+// export default FullTripList;
+
+
+// const ListExampleMessages = () => (
+//   <div>
+//     <MobileTearSheet>
+//       <List>
+//         <Subheader>Today</Subheader>
+//         <ListItem
+//           leftAvatar={<Avatar src="images/ok-128.jpg" />}
+//           primaryText="Brunch this weekend?"
+//           secondaryText={
+//             <p>
+//               <span style={{color: darkBlack}}>Brendan Lim</span> --
+//               I&apos;ll be in your neighborhood doing errands this weekend. Do you want to grab brunch?
+//             </p>
+//           }
+//           secondaryTextLines={2}
+//         />
+//         <Divider inset={true} />
+//         <ListItem
+//           leftAvatar={<Avatar src="images/kolage-128.jpg" />}
+//           primaryText={
+//             <p>Summer BBQ&nbsp;&nbsp;<span style={{color: lightBlack}}>4</span></p>
+//           }
+//           secondaryText={
+//             <p>
+//               <span style={{color: darkBlack}}>to me, Scott, Jennifer</span> --
+//               Wish I could come, but I&apos;m out of town this weekend.
+//             </p>
+//           }
+//           secondaryTextLines={2}
+//         />
+//         <Divider inset={true} />
+//         <ListItem
+//           leftAvatar={<Avatar src="images/uxceo-128.jpg" />}
+//           primaryText="Oui oui"
+//           secondaryText={
+//             <p>
+//               <span style={{color: darkBlack}}>Grace Ng</span> --
+//               Do you have Paris recommendations? Have you ever been?
+//             </p>
+//           }
+//           secondaryTextLines={2}
+//         />
+//         <Divider inset={true} />
+//         <ListItem
+//           leftAvatar={<Avatar src="images/kerem-128.jpg" />}
+//           primaryText="Birdthday gift"
+//           secondaryText={
+//             <p>
+//               <span style={{color: darkBlack}}>Kerem Suer</span> --
+//               Do you have any ideas what we can get Heidi for her birthday? How about a pony?
+//             </p>
+//           }
+//           secondaryTextLines={2}
+//         />
+//         <Divider inset={true} />
+//         <ListItem
+//           leftAvatar={<Avatar src="images/raquelromanp-128.jpg" />}
+//           primaryText="Recipe to try"
+//           secondaryText={
+//             <p>
+//               <span style={{color: darkBlack}}>Raquel Parrado</span> --
+//               We should eat this: grated squash. Corn and tomatillo tacos.
+//             </p>
+//           }
+//           secondaryTextLines={2}
+//         />
+//       </List>
+//     </MobileTearSheet>
+//     <MobileTearSheet>
+//       <List>
+//         <Subheader>Today</Subheader>
+//         <ListItem
+//           leftAvatar={<Avatar src="images/ok-128.jpg" />}
+//           rightIconButton={rightIconMenu}
+//           primaryText="Brendan Lim"
+//           secondaryText={
+//             <p>
+//               <span style={{color: darkBlack}}>Brunch this weekend?</span><br />
+//               I&apos;ll be in your neighborhood doing errands this weekend. Do you want to grab brunch?
+//             </p>
+//           }
+//           secondaryTextLines={2}
+//         />
+//         <Divider inset={true} />
+//         <ListItem
+//           leftAvatar={<Avatar src="images/kolage-128.jpg" />}
+//           rightIconButton={rightIconMenu}
+//           primaryText="me, Scott, Jennifer"
+//           secondaryText={
+//             <p>
+//               <span style={{color: darkBlack}}>Summer BBQ</span><br />
+//               Wish I could come, but I&apos;m out of town this weekend.
+//             </p>
+//           }
+//           secondaryTextLines={2}
+//         />
+//         <Divider inset={true} />
+//         <ListItem
+//           leftAvatar={<Avatar src="images/uxceo-128.jpg" />}
+//           rightIconButton={rightIconMenu}
+//           primaryText="Grace Ng"
+//           secondaryText={
+//             <p>
+//               <span style={{color: darkBlack}}>Oui oui</span><br />
+//               Do you have any Paris recs? Have you ever been?
+//             </p>
+//           }
+//           secondaryTextLines={2}
+//         />
+//         <Divider inset={true} />
+//         <ListItem
+//           leftAvatar={<Avatar src="images/kerem-128.jpg" />}
+//           rightIconButton={rightIconMenu}
+//           primaryText="Kerem Suer"
+//           secondaryText={
+//             <p>
+//               <span style={{color: darkBlack}}>Birthday gift</span><br />
+//               Do you have any ideas what we can get Heidi for her birthday? How about a pony?
+//             </p>
+//           }
+//           secondaryTextLines={2}
+//         />
+//         <Divider inset={true} />
+//         <ListItem
+//           leftAvatar={<Avatar src="images/raquelromanp-128.jpg" />}
+//           rightIconButton={rightIconMenu}
+//           primaryText="Raquel Parrado"
+//           secondaryText={
+//             <p>
+//               <span style={{color: darkBlack}}>Recipe to try</span><br />
+//               We should eat this: grated squash. Corn and tomatillo tacos.
+//             </p>
+//           }
+//           secondaryTextLines={2}
+//         />
+//       </List>
+//     </MobileTearSheet>
+//   </div>
+// );
+
+
+exports.default = FullTripList;
+
+/***/ }),
+/* 817 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pure = __webpack_require__(21);
+
+var _pure2 = _interopRequireDefault(_pure);
+
+var _SvgIcon = __webpack_require__(20);
+
+var _SvgIcon2 = _interopRequireDefault(_SvgIcon);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var NavigationMoreVert = function NavigationMoreVert(props) {
+  return _react2.default.createElement(
+    _SvgIcon2.default,
+    props,
+    _react2.default.createElement('path', { d: 'M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z' })
+  );
+};
+NavigationMoreVert = (0, _pure2.default)(NavigationMoreVert);
+NavigationMoreVert.displayName = 'NavigationMoreVert';
+NavigationMoreVert.muiName = 'SvgIcon';
+
+exports.default = NavigationMoreVert;
+
+/***/ }),
+/* 818 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+//  weak
+
+exports.default = {
+  RESISTANCE_COEF: 0.6,
+
+  // This value is closed to what browsers are using internally to
+  // trigger a native scroll.
+  UNCERTAINTY_THRESHOLD: 3 };
+
+/***/ }),
+/* 819 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = __webpack_require__(1);
+
+var _warning = __webpack_require__(16);
+
+var _warning2 = _interopRequireDefault(_warning);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/* eslint-disable flowtype/require-valid-file-annotation */
+
+var checkIndexBounds = function checkIndexBounds(props) {
+  var index = props.index,
+      children = props.children;
+
+
+  var childrenCount = _react.Children.count(children);
+
+  process.env.NODE_ENV !== "production" ? (0, _warning2.default)(index >= 0 && index <= childrenCount, 'react-swipeable-view: the new index: ' + index + ' is out of bounds: [0-' + childrenCount + '].') : void 0;
+};
+
+exports.default = checkIndexBounds;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 820 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = computeIndex;
+
+var _react = __webpack_require__(1);
+
+var _constant = __webpack_require__(818);
+
+var _constant2 = _interopRequireDefault(_constant);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+//  weak
+
+function computeIndex(params) {
+  var children = params.children,
+      startIndex = params.startIndex,
+      startX = params.startX,
+      pageX = params.pageX,
+      viewLength = params.viewLength,
+      resistance = params.resistance;
+
+
+  var indexMax = _react.Children.count(children) - 1;
+  var index = startIndex + (startX - pageX) / viewLength;
+  var newStartX = void 0;
+
+  if (!resistance) {
+    // Reset the starting point
+    if (index < 0) {
+      index = 0;
+      newStartX = (index - startIndex) * viewLength + pageX;
+    } else if (index > indexMax) {
+      index = indexMax;
+      newStartX = (index - startIndex) * viewLength + pageX;
+    }
+  } else if (index < 0) {
+    index = Math.exp(index * _constant2.default.RESISTANCE_COEF) - 1;
+  } else if (index > indexMax) {
+    index = indexMax + 1 - Math.exp((indexMax - index) * _constant2.default.RESISTANCE_COEF);
+  }
+
+  return {
+    index: index,
+    startX: newStartX
+  };
+}
+
+/***/ }),
+/* 821 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+//  weak
+
+var getDisplaySameSlide = function getDisplaySameSlide(props, nextProps) {
+  var displaySameSlide = false;
+
+  if (props.children.length && nextProps.children.length) {
+    var oldChildren = props.children[props.index];
+    var oldKey = oldChildren ? oldChildren.key : 'empty';
+
+    if (oldKey !== null) {
+      var newChildren = nextProps.children[nextProps.index];
+      var newKey = newChildren ? newChildren.key : 'empty';
+
+      if (oldKey === newKey) {
+        displaySameSlide = true;
+      }
+    }
+  }
+
+  return displaySameSlide;
+};
+
+exports.default = getDisplaySameSlide;
+
+/***/ }),
+/* 822 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _checkIndexBounds = __webpack_require__(819);
+
+Object.defineProperty(exports, 'checkIndexBounds', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_checkIndexBounds).default;
+  }
+});
+
+var _computeIndex = __webpack_require__(820);
+
+Object.defineProperty(exports, 'computeIndex', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_computeIndex).default;
+  }
+});
+
+var _constant = __webpack_require__(818);
+
+Object.defineProperty(exports, 'constant', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_constant).default;
+  }
+});
+
+var _getDisplaySameSlide = __webpack_require__(821);
+
+Object.defineProperty(exports, 'getDisplaySameSlide', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_getDisplaySameSlide).default;
+  }
+});
+
+var _mod = __webpack_require__(823);
+
+Object.defineProperty(exports, 'mod', {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_mod).default;
+  }
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 823 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+/* eslint-disable flowtype/require-valid-file-annotation */
+
+function mod(n, m) {
+  var q = n % m;
+  return q < 0 ? q + m : q;
+}
+
+exports.default = mod;
+
+/***/ }),
+/* 824 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends2 = __webpack_require__(9);
+
+var _extends3 = _interopRequireDefault(_extends2);
+
+var _assign = __webpack_require__(175);
+
+var _assign2 = _interopRequireDefault(_assign);
+
+var _objectWithoutProperties2 = __webpack_require__(10);
+
+var _objectWithoutProperties3 = _interopRequireDefault(_objectWithoutProperties2);
+
+var _getPrototypeOf = __webpack_require__(5);
+
+var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+
+var _classCallCheck2 = __webpack_require__(3);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(4);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = __webpack_require__(7);
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = __webpack_require__(6);
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
+exports.getDomTreeShapes = getDomTreeShapes;
+exports.findNativeHandler = findNativeHandler;
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = __webpack_require__(2);
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _warning = __webpack_require__(16);
+
+var _warning2 = _interopRequireDefault(_warning);
+
+var _properties = __webpack_require__(690);
+
+var _properties2 = _interopRequireDefault(_properties);
+
+var _on = __webpack_require__(666);
+
+var _on2 = _interopRequireDefault(_on);
+
+var _off = __webpack_require__(676);
+
+var _off2 = _interopRequireDefault(_off);
+
+var _reactSwipeableViewsCore = __webpack_require__(822);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function addEventListenerEnhanced(node, event, handler, options) {
+  (0, _on2.default)(node, event, handler, options);
+  return {
+    remove: function remove() {
+      (0, _off2.default)(node, event, handler, options);
+    }
+  };
+} //  weak
+
+var styleInjected = false;
+
+// Support old version of iOS.
+// To be deleted in 2018.
+function injectStyle() {
+  // Inject once for all the instances
+  if (!styleInjected) {
+    var style = document.createElement('style');
+    style.innerHTML = '\n      .react-swipeable-view-container {\n        display: -webkit-box;\n      }\n    ';
+
+    if (document.body) {
+      document.body.appendChild(style);
+    }
+    styleInjected = true;
+  }
+}
+
+var styles = {
+  container: {
+    direction: 'ltr',
+    display: 'flex'
+  },
+  slide: {
+    width: '100%',
+    WebkitFlexShrink: 0,
+    flexShrink: 0,
+    overflow: 'auto'
+  }
+};
+
+var axisProperties = {
+  root: {
+    x: {
+      overflowX: 'hidden'
+    },
+    'x-reverse': {
+      overflowX: 'hidden'
+    },
+    y: {
+      overflowY: 'hidden'
+    },
+    'y-reverse': {
+      overflowY: 'hidden'
+    }
+  },
+  flexDirection: {
+    x: 'row',
+    'x-reverse': 'row-reverse',
+    y: 'column',
+    'y-reverse': 'column-reverse'
+  },
+  transform: {
+    x: function x(translate) {
+      return 'translate(' + -translate + '%, 0)';
+    },
+    'x-reverse': function xReverse(translate) {
+      return 'translate(' + translate + '%, 0)';
+    },
+    y: function y(translate) {
+      return 'translate(0, ' + -translate + '%)';
+    },
+    'y-reverse': function yReverse(translate) {
+      return 'translate(0, ' + translate + '%)';
+    }
+  },
+  length: {
+    x: 'width',
+    'x-reverse': 'width',
+    y: 'height',
+    'y-reverse': 'height'
+  },
+  rotationMatrix: {
+    x: {
+      x: [1, 0],
+      y: [0, 1]
+    },
+    'x-reverse': {
+      x: [-1, 0],
+      y: [0, 1]
+    },
+    y: {
+      x: [0, 1],
+      y: [1, 0]
+    },
+    'y-reverse': {
+      x: [0, -1],
+      y: [1, 0]
+    }
+  },
+  scrollPosition: {
+    x: 'scrollLeft',
+    'x-reverse': 'scrollLeft',
+    y: 'scrollTop',
+    'y-reverse': 'scrollTop'
+  },
+  scrollLength: {
+    x: 'scrollWidth',
+    'x-reverse': 'scrollWidth',
+    y: 'scrollHeight',
+    'y-reverse': 'scrollHeight'
+  },
+  clientLength: {
+    x: 'clientWidth',
+    'x-reverse': 'clientWidth',
+    y: 'clientHeight',
+    'y-reverse': 'clientHeight'
+  }
+};
+
+function createTransition(property, options) {
+  var duration = options.duration,
+      easeFunction = options.easeFunction,
+      delay = options.delay;
+
+
+  return property + ' ' + duration + ' ' + easeFunction + ' ' + delay;
+}
+
+// We are using a 2x2 rotation matrix.
+function applyRotationMatrix(touch, axis) {
+  var rotationMatrix = axisProperties.rotationMatrix[axis];
+
+  return {
+    pageX: rotationMatrix.x[0] * touch.pageX + rotationMatrix.x[1] * touch.pageY,
+    pageY: rotationMatrix.y[0] * touch.pageX + rotationMatrix.y[1] * touch.pageY
+  };
+}
+
+function adaptMouse(event) {
+  event.touches = [{ pageX: event.pageX, pageY: event.pageY }];
+  return event;
+}
+
+function getDomTreeShapes(element, rootNode) {
+  var domTreeShapes = [];
+
+  while (element && element !== rootNode) {
+    // We reach a Swipeable View, no need to look higher in the dom tree.
+    if (element.hasAttribute('data-swipeable')) {
+      break;
+    }
+
+    var style = window.getComputedStyle(element);
+
+    if (
+    // Ignore the scroll children if the element is absolute positioned.
+    style.getPropertyValue('position') === 'absolute' ||
+    // Ignore the scroll children if the element has an overflowX hidden
+    style.getPropertyValue('overflow-x') === 'hidden') {
+      domTreeShapes = [];
+    } else if (element.clientWidth > 0 && element.scrollWidth > element.clientWidth || element.clientHeight > 0 && element.scrollHeight > element.clientHeight) {
+      // Ignore the nodes that have no width.
+      // Keep elements with a scroll
+      domTreeShapes.push({
+        element: element,
+        scrollWidth: element.scrollWidth,
+        scrollHeight: element.scrollHeight,
+        clientWidth: element.clientWidth,
+        clientHeight: element.clientHeight,
+        scrollLeft: element.scrollLeft,
+        scrollTop: element.scrollTop
+      });
+    }
+
+    element = element.parentNode;
+  }
+
+  return domTreeShapes;
+}
+
+// We can only have one node at the time claiming ownership for handling the swipe.
+// Otherwise, the UX would be confusing.
+// That's why we use a singleton here.
+var nodeHowClaimedTheScroll = null;
+
+function findNativeHandler(params) {
+  var domTreeShapes = params.domTreeShapes,
+      pageX = params.pageX,
+      startX = params.startX,
+      axis = params.axis;
+
+
+  return domTreeShapes.some(function (shape) {
+    // Determine if we are going backward or forward.
+    var goingForward = pageX >= startX;
+    if (axis === 'x' || axis === 'y') {
+      goingForward = !goingForward;
+    }
+
+    var scrollPosition = shape[axisProperties.scrollPosition[axis]];
+
+    var areNotAtStart = scrollPosition > 0;
+    var areNotAtEnd = scrollPosition + shape[axisProperties.clientLength[axis]] < shape[axisProperties.scrollLength[axis]];
+
+    if (goingForward && areNotAtEnd || !goingForward && areNotAtStart) {
+      nodeHowClaimedTheScroll = shape.element;
+      return true;
+    }
+
+    return false;
+  });
+}
+
+var SwipeableViews = function (_Component) {
+  (0, _inherits3.default)(SwipeableViews, _Component);
+
+  function SwipeableViews() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    (0, _classCallCheck3.default)(this, SwipeableViews);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = (0, _possibleConstructorReturn3.default)(this, (_ref = SwipeableViews.__proto__ || (0, _getPrototypeOf2.default)(SwipeableViews)).call.apply(_ref, [this].concat(args))), _this), _this.state = {}, _this.rootNode = null, _this.containerNode = null, _this.ignoreNextScrollEvents = false, _this.viewLength = 0, _this.startX = 0, _this.lastX = 0, _this.vx = 0, _this.startY = 0, _this.isSwiping = undefined, _this.started = false, _this.startIndex = 0, _this.transitionListener = null, _this.touchMoveListener = null, _this.activeSlide = null, _this.handleSwipeStart = function (event) {
+      var axis = _this.props.axis;
+
+      // Latency and rapid rerenders on some devices can leave a period where rootNode briefly equals null
+
+      if (_this.rootNode === null) {
+        return;
+      }
+
+      var touch = applyRotationMatrix(event.touches[0], axis);
+
+      _this.viewLength = _this.rootNode.getBoundingClientRect()[axisProperties.length[axis]];
+      _this.startX = touch.pageX;
+      _this.lastX = touch.pageX;
+      _this.vx = 0;
+      _this.startY = touch.pageY;
+      _this.isSwiping = undefined;
+      _this.started = true;
+
+      var computedStyle = window.getComputedStyle(_this.containerNode);
+      var transform = computedStyle.getPropertyValue('-webkit-transform') || computedStyle.getPropertyValue('transform');
+
+      if (transform) {
+        var transformValues = transform.split('(')[1].split(')')[0].split(',');
+        var rootStyle = window.getComputedStyle(_this.rootNode);
+
+        var tranformNormalized = applyRotationMatrix({
+          pageX: parseInt(transformValues[4], 10),
+          pageY: parseInt(transformValues[5], 10)
+        }, axis);
+
+        _this.startIndex = -tranformNormalized.pageX / (_this.viewLength - parseInt(rootStyle.paddingLeft, 10) - parseInt(rootStyle.paddingRight, 10));
+      }
+    }, _this.handleSwipeMove = function (event) {
+      // The touch start event can be cancel.
+      // Makes sure we set a starting point.
+      if (!_this.started) {
+        _this.handleTouchStart(event);
+        return;
+      }
+
+      // Latency and rapid rerenders on some devices can leave a period where rootNode briefly equals null
+      if (_this.rootNode === null) {
+        return;
+      }
+
+      // We are not supposed to hanlde this touch move.
+      if (nodeHowClaimedTheScroll !== null && nodeHowClaimedTheScroll !== _this.rootNode) {
+        return;
+      }
+
+      var _this$props = _this.props,
+          axis = _this$props.axis,
+          children = _this$props.children,
+          ignoreNativeScroll = _this$props.ignoreNativeScroll,
+          onSwitching = _this$props.onSwitching,
+          resistance = _this$props.resistance;
+
+
+      var touch = applyRotationMatrix(event.touches[0], axis);
+
+      // We don't know yet.
+      if (_this.isSwiping === undefined) {
+        var dx = Math.abs(_this.startX - touch.pageX);
+        var dy = Math.abs(_this.startY - touch.pageY);
+
+        var isSwiping = dx > dy && dx > _reactSwipeableViewsCore.constant.UNCERTAINTY_THRESHOLD;
+
+        // We are likely to be swiping, let's prevent the scroll event.
+        if (dx > dy) {
+          event.preventDefault();
+        }
+
+        if (isSwiping === true || dy > _reactSwipeableViewsCore.constant.UNCERTAINTY_THRESHOLD) {
+          _this.isSwiping = isSwiping;
+          _this.startX = touch.pageX; // Shift the starting point.
+
+          return; // Let's wait the next touch event to move something.
+        }
+      }
+
+      if (_this.isSwiping !== true) {
+        return;
+      }
+
+      // We are swiping, let's prevent the scroll event.
+      event.preventDefault();
+
+      // Low Pass filter.
+      _this.vx = _this.vx * 0.5 + (touch.pageX - _this.lastX) * 0.5;
+      _this.lastX = touch.pageX;
+
+      var _computeIndex = (0, _reactSwipeableViewsCore.computeIndex)({
+        children: children,
+        resistance: resistance,
+        pageX: touch.pageX,
+        startIndex: _this.startIndex,
+        startX: _this.startX,
+        viewLength: _this.viewLength
+      }),
+          index = _computeIndex.index,
+          startX = _computeIndex.startX;
+
+      // Add support for native scroll elements.
+
+
+      if (nodeHowClaimedTheScroll === null && !ignoreNativeScroll) {
+        var domTreeShapes = getDomTreeShapes(event.target, _this.rootNode);
+        var hasFoundNativeHandler = findNativeHandler({
+          domTreeShapes: domTreeShapes,
+          startX: _this.startX,
+          pageX: touch.pageX,
+          axis: axis
+        });
+
+        // We abort the touch move handler.
+        if (hasFoundNativeHandler) {
+          return;
+        }
+      }
+
+      // We are moving toward the edges.
+      if (startX) {
+        _this.startX = startX;
+      } else if (nodeHowClaimedTheScroll === null) {
+        nodeHowClaimedTheScroll = _this.rootNode;
+      }
+
+      _this.setState({
+        displaySameSlide: false,
+        isDragging: true,
+        indexCurrent: index
+      }, function () {
+        if (onSwitching) {
+          onSwitching(index, 'move');
+        }
+      });
+    }, _this.handleSwipeEnd = function () {
+      nodeHowClaimedTheScroll = null;
+
+      // The touch start event can be cancel.
+      // Makes sure that a starting point is set.
+      if (!_this.started) {
+        return;
+      }
+
+      _this.started = false;
+
+      if (_this.isSwiping !== true) {
+        return;
+      }
+
+      var indexLatest = _this.state.indexLatest;
+      var indexCurrent = _this.state.indexCurrent;
+      var delta = indexLatest - indexCurrent;
+
+      var indexNew = void 0;
+
+      // Quick movement
+      if (Math.abs(_this.vx) > _this.props.threshold) {
+        if (_this.vx > 0) {
+          indexNew = Math.floor(indexCurrent);
+        } else {
+          indexNew = Math.ceil(indexCurrent);
+        }
+      } else if (Math.abs(delta) > _this.props.hysteresis) {
+        // Some hysteresis with indexLatest.
+        indexNew = delta > 0 ? Math.floor(indexCurrent) : Math.ceil(indexCurrent);
+      } else {
+        indexNew = indexLatest;
+      }
+
+      var indexMax = _react.Children.count(_this.props.children) - 1;
+
+      if (indexNew < 0) {
+        indexNew = 0;
+      } else if (indexNew > indexMax) {
+        indexNew = indexMax;
+      }
+
+      _this.setState({
+        indexCurrent: indexNew,
+        indexLatest: indexNew,
+        isDragging: false
+      }, function () {
+        if (_this.props.onSwitching) {
+          _this.props.onSwitching(indexNew, 'end');
+        }
+
+        if (_this.props.onChangeIndex && indexNew !== indexLatest) {
+          _this.props.onChangeIndex(indexNew, indexLatest);
+        }
+
+        // Manually calling handleTransitionEnd in that case as isn't otherwise.
+        if (indexCurrent === indexLatest) {
+          _this.handleTransitionEnd();
+        }
+      });
+    }, _this.handleTouchStart = function (event) {
+      if (_this.props.onTouchStart) {
+        _this.props.onTouchStart(event);
+      }
+      _this.handleSwipeStart(event);
+    }, _this.handleTouchEnd = function (event) {
+      if (_this.props.onTouchEnd) {
+        _this.props.onTouchEnd(event);
+      }
+      _this.handleSwipeEnd(event);
+    }, _this.handleMouseDown = function (event) {
+      if (_this.props.onMouseDown) {
+        _this.props.onMouseDown(event);
+      }
+      event.persist();
+      _this.handleSwipeStart(adaptMouse(event));
+    }, _this.handleMouseUp = function (event) {
+      if (_this.props.onMouseUp) {
+        _this.props.onMouseUp(event);
+      }
+      _this.handleSwipeEnd(adaptMouse(event));
+    }, _this.handleMouseLeave = function (event) {
+      if (_this.props.onMouseLeave) {
+        _this.props.onMouseLeave(event);
+      }
+
+      // Filter out events
+      if (_this.started) {
+        _this.handleSwipeEnd(adaptMouse(event));
+      }
+    }, _this.handleMouseMove = function (event) {
+      if (_this.props.onMouseMove) {
+        _this.props.onMouseMove(event);
+      }
+
+      // Filter out events
+      if (_this.started) {
+        _this.handleSwipeMove(adaptMouse(event));
+      }
+    }, _this.handleScroll = function (event) {
+      if (_this.props.onScroll) {
+        _this.props.onScroll(event);
+      }
+
+      // Ignore events bubbling up.
+      if (event.target !== _this.rootNode) {
+        return;
+      }
+
+      if (_this.ignoreNextScrollEvents) {
+        _this.ignoreNextScrollEvents = false;
+        return;
+      }
+
+      var indexLatest = _this.state.indexLatest;
+      var indexNew = Math.ceil(event.target.scrollLeft / event.target.clientWidth) + indexLatest;
+
+      _this.ignoreNextScrollEvents = true;
+      // Reset the scroll position.
+      event.target.scrollLeft = 0;
+
+      if (_this.props.onChangeIndex && indexNew !== indexLatest) {
+        _this.props.onChangeIndex(indexNew, indexLatest);
+      }
+    }, _temp), (0, _possibleConstructorReturn3.default)(_this, _ret);
+  }
+  // Added as an ads.
+
+
+  (0, _createClass3.default)(SwipeableViews, [{
+    key: 'getChildContext',
+    value: function getChildContext() {
+      var _this2 = this;
+
+      return {
+        swipeableViews: {
+          slideUpdateHeight: function slideUpdateHeight() {
+            _this2.updateHeight();
+          }
+        }
+      };
+    }
+  }, {
+    key: 'componentWillMount',
+    value: function componentWillMount() {
+      if (process.env.NODE_ENV !== 'production') {
+        (0, _reactSwipeableViewsCore.checkIndexBounds)(this.props);
+      }
+
+      this.setState({
+        indexCurrent: this.props.index,
+        indexLatest: this.props.index,
+        isDragging: false,
+        isFirstRender: true,
+        heightLatest: 0
+      });
+    }
+  }, {
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      var _this3 = this;
+
+      // Subscribe to transition end events.
+      this.transitionListener = addEventListenerEnhanced(this.containerNode, _properties2.default.end, function () {
+        _this3.handleTransitionEnd();
+      });
+
+      // Block the thread to handle that event.
+      this.touchMoveListener = addEventListenerEnhanced(this.rootNode, 'touchmove', function (event) {
+        // Handling touch events is disabled.
+        if (_this3.props.disabled) {
+          return;
+        }
+        _this3.handleSwipeMove(event);
+      }, {
+        passive: false
+      });
+
+      /* eslint-disable react/no-did-mount-set-state */
+      this.setState({
+        isFirstRender: false
+      });
+      /* eslint-enable react/no-did-mount-set-state */
+
+      injectStyle();
+    }
+  }, {
+    key: 'componentWillReceiveProps',
+    value: function componentWillReceiveProps(nextProps) {
+      var index = nextProps.index;
+
+
+      if (typeof index === 'number' && index !== this.props.index) {
+        if (process.env.NODE_ENV !== 'production') {
+          (0, _reactSwipeableViewsCore.checkIndexBounds)(nextProps);
+        }
+
+        this.setState({
+          // If true, we are going to change the children. We shoudn't animate it.
+          displaySameSlide: (0, _reactSwipeableViewsCore.getDisplaySameSlide)(this.props, nextProps),
+          indexCurrent: index,
+          indexLatest: index
+        });
+      }
+    }
+  }, {
+    key: 'componentDidUpdate',
+    value: function componentDidUpdate(prevProps, prevState) {
+      if (!this.props.animateTransitions && prevState.indexCurrent !== this.state.indexCurrent) {
+        this.handleTransitionEnd();
+      }
+    }
+  }, {
+    key: 'componentWillUnmount',
+    value: function componentWillUnmount() {
+      this.transitionListener.remove();
+      this.touchMoveListener.remove();
+    }
+  }, {
+    key: 'handleTransitionEnd',
+    value: function handleTransitionEnd() {
+      if (!this.props.onTransitionEnd) {
+        return;
+      }
+
+      // Filters out when changing the children
+      if (this.state.displaySameSlide) {
+        return;
+      }
+
+      // The rest callback is triggered when swiping. It's just noise.
+      // We filter it out.
+      if (!this.state.isDragging) {
+        this.props.onTransitionEnd();
+      }
+    }
+  }, {
+    key: 'updateHeight',
+    value: function updateHeight() {
+      if (this.activeSlide !== null) {
+        var child = this.activeSlide.children[0];
+        if (child !== undefined && child.offsetHeight !== undefined && this.state.heightLatest !== child.offsetHeight) {
+          this.setState({
+            heightLatest: child.offsetHeight
+          });
+        }
+      }
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _this4 = this;
+
+      var _props = this.props,
+          animateHeight = _props.animateHeight,
+          animateTransitions = _props.animateTransitions,
+          axis = _props.axis,
+          children = _props.children,
+          containerStyleProp = _props.containerStyle,
+          disabled = _props.disabled,
+          enableMouseEvents = _props.enableMouseEvents,
+          hysteresis = _props.hysteresis,
+          ignoreNativeScroll = _props.ignoreNativeScroll,
+          index = _props.index,
+          onChangeIndex = _props.onChangeIndex,
+          onSwitching = _props.onSwitching,
+          onTransitionEnd = _props.onTransitionEnd,
+          resistance = _props.resistance,
+          slideStyleProp = _props.slideStyle,
+          slideClassName = _props.slideClassName,
+          springConfig = _props.springConfig,
+          style = _props.style,
+          threshold = _props.threshold,
+          other = (0, _objectWithoutProperties3.default)(_props, ['animateHeight', 'animateTransitions', 'axis', 'children', 'containerStyle', 'disabled', 'enableMouseEvents', 'hysteresis', 'ignoreNativeScroll', 'index', 'onChangeIndex', 'onSwitching', 'onTransitionEnd', 'resistance', 'slideStyle', 'slideClassName', 'springConfig', 'style', 'threshold']);
+      var _state = this.state,
+          displaySameSlide = _state.displaySameSlide,
+          heightLatest = _state.heightLatest,
+          indexCurrent = _state.indexCurrent,
+          isDragging = _state.isDragging,
+          isFirstRender = _state.isFirstRender;
+
+
+      var touchEvents = !disabled ? {
+        onTouchStart: this.handleTouchStart,
+        onTouchEnd: this.handleTouchEnd
+      } : {};
+
+      var mouseEvents = !disabled && enableMouseEvents ? {
+        onMouseDown: this.handleMouseDown,
+        onMouseUp: this.handleMouseUp,
+        onMouseLeave: this.handleMouseLeave,
+        onMouseMove: this.handleMouseMove
+      } : {};
+
+      // There is no point to animate if we are already providing a height.
+      process.env.NODE_ENV !== "production" ? (0, _warning2.default)(!animateHeight || !containerStyleProp || !containerStyleProp.height && !containerStyleProp.maxHeight && !containerStyleProp.minHeight, 'react-swipeable-view: You are setting animateHeight to true but you are also providing a custom height.\nThe custom height has a higher priority than the animateHeight property.\nSo animateHeight is most likely having no effect at all.') : void 0;
+
+      var slideStyle = (0, _assign2.default)({}, styles.slide, slideStyleProp);
+
+      var transition = void 0;
+      var WebkitTransition = void 0;
+
+      if (isDragging || !animateTransitions || displaySameSlide) {
+        transition = 'all 0s ease 0s';
+        WebkitTransition = 'all 0s ease 0s';
+      } else {
+        transition = createTransition('transform', springConfig);
+        WebkitTransition = createTransition('-webkit-transform', springConfig);
+
+        if (heightLatest !== 0) {
+          var additionalTranstion = ', ' + createTransition('height', springConfig);
+          transition += additionalTranstion;
+          WebkitTransition += additionalTranstion;
+        }
+      }
+
+      var transform = axisProperties.transform[axis](indexCurrent * 100);
+      var containerStyle = {
+        WebkitTransform: transform,
+        transform: transform,
+        height: null,
+        WebkitFlexDirection: axisProperties.flexDirection[axis],
+        flexDirection: axisProperties.flexDirection[axis],
+        WebkitTransition: WebkitTransition,
+        transition: transition
+      };
+
+      if (animateHeight) {
+        containerStyle.height = heightLatest;
+      }
+
+      return _react2.default.createElement(
+        'div',
+        (0, _extends3.default)({
+          ref: function ref(node) {
+            _this4.rootNode = node;
+          },
+          style: (0, _assign2.default)({}, axisProperties.root[axis], style)
+        }, other, touchEvents, mouseEvents, {
+          onScroll: this.handleScroll
+        }),
+        _react2.default.createElement(
+          'div',
+          {
+            ref: function ref(node) {
+              _this4.containerNode = node;
+            },
+            style: (0, _assign2.default)({}, containerStyle, styles.container, containerStyleProp),
+            className: 'react-swipeable-view-container'
+          },
+          _react.Children.map(children, function (child, indexChild) {
+            if (isFirstRender && indexChild > 0) {
+              return null;
+            }
+
+            process.env.NODE_ENV !== "production" ? (0, _warning2.default)((0, _react.isValidElement)(child), 'react-swipeable-view: one of the children provided is invalid: ' + child + '.\nWe are expecting a valid React Element') : void 0;
+
+            var ref = void 0;
+            var hidden = true;
+
+            if (indexChild === _this4.state.indexLatest) {
+              hidden = false;
+
+              if (animateHeight) {
+                ref = function ref(node) {
+                  _this4.activeSlide = node;
+                  _this4.updateHeight();
+                };
+                slideStyle.overflowY = 'hidden';
+              }
+            }
+
+            return _react2.default.createElement(
+              'div',
+              {
+                ref: ref,
+                style: slideStyle,
+                className: slideClassName,
+                'aria-hidden': hidden,
+                'data-swipeable': 'true'
+              },
+              child
+            );
+          })
+        )
+      );
+    }
+  }]);
+  return SwipeableViews;
+}(_react.Component);
+
+SwipeableViews.displayName = 'ReactSwipableView';
+SwipeableViews.defaultProps = {
+  animateHeight: false,
+  animateTransitions: true,
+  axis: 'x',
+  disabled: false,
+  enableMouseEvents: false,
+  hysteresis: 0.6,
+  ignoreNativeScroll: false,
+  index: 0,
+  threshold: 5,
+  springConfig: {
+    duration: '0.35s',
+    easeFunction: 'cubic-bezier(0.15, 0.3, 0.25, 1)',
+    delay: '0s'
+  },
+  resistance: false
+};
+SwipeableViews.childContextTypes = {
+  swipeableViews: _propTypes2.default.shape({
+    slideUpdateHeight: _propTypes2.default.func
+  })
+};
+process.env.NODE_ENV !== "production" ? SwipeableViews.propTypes = {
+  /**
+   * If `true`, the height of the container will be animated to match the current slide height.
+   * Animating another style property has a negative impact regarding performance.
+   */
+  animateHeight: _propTypes2.default.bool,
+  /**
+   * If `false`, changes to the index prop will not cause an animated transition.
+   */
+  animateTransitions: _propTypes2.default.bool,
+  /**
+   * The axis on which the slides will slide.
+   */
+  axis: _propTypes2.default.oneOf(['x', 'x-reverse', 'y', 'y-reverse']),
+  /**
+   * Use this property to provide your slides.
+   */
+  children: _propTypes2.default.node.isRequired,
+  /**
+   * This is the inlined style that will be applied
+   * to each slide container.
+   */
+  containerStyle: _propTypes2.default.object,
+  /**
+   * If `true`, it will disable touch events.
+   * This is useful when you want to prohibit the user from changing slides.
+   */
+  disabled: _propTypes2.default.bool,
+  /**
+   * If `true`, it will enable mouse events.
+   * This will allow the user to perform the relevant swipe actions with a mouse.
+   */
+  enableMouseEvents: _propTypes2.default.bool,
+  /**
+   * Configure hysteresis between slides. This value determines how far
+   * should user swipe to switch slide.
+   */
+  hysteresis: _propTypes2.default.number,
+  /**
+   * If `true`, it will ignore native scroll container.
+   * It can be used to filter out false positive that blocks the swipe.
+   */
+  ignoreNativeScroll: _propTypes2.default.bool,
+  /**
+   * This is the index of the slide to show.
+   * This is useful when you want to change the default slide shown.
+   * Or when you have tabs linked to each slide.
+   */
+  index: _propTypes2.default.number,
+  /**
+   * This is callback prop. It's call by the
+   * component when the shown slide change after a swipe made by the user.
+   * This is useful when you have tabs linked to each slide.
+   *
+   * @param {integer} index This is the current index of the slide.
+   * @param {integer} indexLatest This is the oldest index of the slide.
+   */
+  onChangeIndex: _propTypes2.default.func,
+  /**
+   * @ignore
+   */
+  onMouseDown: _propTypes2.default.func,
+  /**
+   * @ignore
+   */
+  onMouseLeave: _propTypes2.default.func,
+  /**
+   * @ignore
+   */
+  onMouseMove: _propTypes2.default.func,
+  /**
+   * @ignore
+   */
+  onMouseUp: _propTypes2.default.func,
+  /**
+   * @ignore
+   */
+  onScroll: _propTypes2.default.func,
+  /**
+   * This is callback prop. It's called by the
+   * component when the slide switching.
+   * This is useful when you want to implement something corresponding to the current slide position.
+   *
+   * @param {integer} index This is the current index of the slide.
+   * @param {string} type Can be either `move` or `end`.
+   */
+  onSwitching: _propTypes2.default.func,
+  /**
+   * @ignore
+   */
+  onTouchEnd: _propTypes2.default.func,
+  /**
+   * @ignore
+   */
+  onTouchMove: _propTypes2.default.func,
+  /**
+   * @ignore
+   */
+  onTouchStart: _propTypes2.default.func,
+  /**
+   * The callback that fires when the animation comes to a rest.
+   * This is useful to defer CPU intensive task.
+   */
+  onTransitionEnd: _propTypes2.default.func,
+  /**
+   * If `true`, it will add bounds effect on the edges.
+   */
+  resistance: _propTypes2.default.bool,
+  /**
+   * This is the className that will be applied
+   * on the slide component.
+   */
+  slideClassName: _propTypes2.default.string,
+  /**
+   * This is the inlined style that will be applied
+   * on the slide component.
+   */
+  slideStyle: _propTypes2.default.object,
+  /**
+   * This is the config used to create CSS transitions.
+   * This is useful to change the dynamic of the transition.
+   */
+  springConfig: _propTypes2.default.shape({
+    duration: _propTypes2.default.string,
+    easeFunction: _propTypes2.default.string,
+    delay: _propTypes2.default.string
+  }),
+  /**
+   * This is the inlined style that will be applied
+   * on the root component.
+   */
+  style: _propTypes2.default.object,
+  /**
+   * This is the threshold used for detecting a quick swipe.
+   * If the computed speed is above this value, the index change.
+   */
+  threshold: _propTypes2.default.number
+} : void 0;
+exports.default = SwipeableViews;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 825 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _SwipeableViews = __webpack_require__(824);
+
+var _SwipeableViews2 = _interopRequireDefault(_SwipeableViews);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = _SwipeableViews2.default; //  weak
 
 /***/ })
 /******/ ]);

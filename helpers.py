@@ -76,6 +76,7 @@ def find_county(state, city):
     conn = psycopg2.connect(conn_str)
     cur = conn.cursor()
     city = city.replace('_',' ')
+    print 'find_county',city, state
     cur.execute("select distinct county from county_table where city = '%s' and state = '%s';" %(city.title(), state.title()))
 
     county = cur.fetchone()

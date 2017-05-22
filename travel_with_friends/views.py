@@ -73,7 +73,6 @@ class FullTripSearch(APIView):
         n_days = data["n_days"]
         state = abb_to_full_state(state)
         valid_state = check_valid_state(state)
-        print 'valid_state2', valid_state
         if not valid_state:
             return Response({
             "invalid state result": '%s is not a valid state name' %(state),
@@ -84,6 +83,7 @@ class FullTripSearch(APIView):
             "invalid city result": '%s is not valid city name for state %s' %(city, state),
         })
         full_trip_id, full_trip_details = get_fulltrip_data(state=state, city=city, n_days=n_days)
+        print 'full deatils type: ', type(full_trip_details[0])
         return Response({
             "full_trip_id": full_trip_id,
             "full_trip_details": full_trip_details,

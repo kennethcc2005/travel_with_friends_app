@@ -1,10 +1,9 @@
 import React from 'react';
 import { Card, CardTitle, CardActions } from 'material-ui/Card';
-import SearchBox from '../components/SearchBox';
-import SearchCityState from './SearchCityState.jsx';
-import MenuItemDays from './MenuItemDays.jsx';
-import FullTripSearchButton from './FullTripSearchButton.jsx'
-
+import SearchCityState from '../components/SearchCityState.jsx';
+import MenuItemDays from '../components/MenuItemDays.jsx';
+import FullTripSearchButton from '../components/FullTripSearchButton.jsx'
+import FullTripList from '../components/FullTripList.jsx'
 class HomePage extends React.Component {
   /**
    * Class constructor.
@@ -15,9 +14,11 @@ class HomePage extends React.Component {
     this.state = {
       place: "",
       days: "",
-      dataSource : [],
+      cityStateDataSource : [],
       searchInputValue : '',
       daysValue: '1',
+      fullTripDetails: [],
+      fullTripId: '',
     };
     this.performSearch = this.performSearch.bind(this)
     this.onUpdateInput = this.onUpdateInput.bind(this)
@@ -36,9 +37,8 @@ class HomePage extends React.Component {
         type: "GET",
         url: myUrl,
       }).done(function(res) {
-        console.log(res);
         _this.setState({
-          dataSource : res.city_state,  
+          cityStateDataSource : res.city_state,  
         });
       });
     };
@@ -61,30 +61,29 @@ class HomePage extends React.Component {
     const valid_state_input = encodeURIComponent(state);
     const myUrl = dbLocationURI + 'city=' + valid_city_input + '&state='+ valid_state_input
                 +'&n_days='+ this.state.daysValue;
-    console.log(myUrl)
     if(this.state.searchInputValue !== '') {
-      console.log(myUrl);
       $.ajax({
         type: "GET",
         url: myUrl,
       }).done(function(res) {
-        console.log(res);
-        // _this.setState({
-        //   dataSource : res.city_state
-        // });
+        _this.setState({
+          fullTripDetails : res.full_trip_details,  
+          fullTripId: res.full_trip_id,
+        });
       });
     };
   }
+
   render() { 
     return (
       <Card className="container">
-        <CardTitle title="React Application" subtitle="This is the home page." />
+        <CardTitle title="Travel with Friends!" subtitle="This is the home page." />
         <CardActions>
             <div className="col-md-8 col-md-offset-2">
                 <div className="col-md-5">
                     <SearchCityState searchText={this.state.searchInputValue}
                                     floatingLabelText='Location' 
-                                    dataSource={this.state.dataSource} 
+                                    dataSource={this.state.cityStateDataSource} 
                                     onUpdateInput={this.onUpdateInput} />
                 </div>
                 <div className="col-md-5">
@@ -92,8 +91,13 @@ class HomePage extends React.Component {
                 </div>
                 <div className="col-md-2">
                     <FullTripSearchButton onFullTripSubmit={this.onFullTripSubmit}/>
-                </div>    
+                </div>
+                <br/>
+                <div className="col-md-12 ">
+                    {this.state.fullTripDetails.length>0 && <FullTripList daysValue={this.state.daysValue} fullTripDetails={this.state.fullTripDetails}/>}
+                </div>
             </div>
+            
         </CardActions>
       </Card>
     )

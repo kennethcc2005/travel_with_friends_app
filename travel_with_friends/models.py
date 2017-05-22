@@ -36,6 +36,8 @@ create table city_state_coords_table as select a.*, b.state_abb
     (select distinct state, state_abb from county_table order by state_abb) as b 
     on a.state = b.state order by a.index;
 update city_state_coords_table set state_abb = 'DC' where state_abb is null;
+delete from county_table where city = 'San Francisco' and county = 'SAN MATEO';
+DELETE 1;
 '''
 
 from __future__ import unicode_literals
