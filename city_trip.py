@@ -77,8 +77,6 @@ def get_fulltrip_data(state, city, n_days, full_day = True, regular = True, debu
 
             #if exisitng day trip id..remove those...
             if check_day_trip_id(day_trip_id):
-                conn = psycopg2.connect(conn_str)
-                cur = conn.cursor()
                 cur.execute("DELETE FROM day_trip_table WHERE trip_locations_id = '%s';" %(day_trip_id))
                 conn.commit()
 
@@ -102,12 +100,24 @@ def get_fulltrip_data(state, city, n_days, full_day = True, regular = True, debu
         print "%s, %s already in database" %(state, county) 
         conn = psycopg2.connect(conn_str)
         cur = conn.cursor()
-        cur.execute("select details from full_trip_table where full_trip_id = '%s';" %(full_trip_id)) 
-        details = cur.fetchone()[0]        
+        cur.execute("select trip_location_ids, details from full_trip_table where full_trip_id = '%s';" %(full_trip_id)) 
+        trip_location_ids, details = cur.fetchone()      
         conn.close()
         full_trip_details = ast.literal_eval(details)
+        trip_location_ids = ast.literal_eval(trip_location_ids)
+    from bs4 import BeautifulSoup as BS
+    import requests
+    from requests.utils import quote
+    user_agent = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3'
+    headers = { 'User-Agent' : user_agent }
     for index, detail in enumerate(full_trip_details):
         full_trip_details[index] = ast.literal_eval(detail)
+        poi_name = full_trip_details[index]['name']
+        googleUrl = "https://www.google.com/search?tbm=isch&q=" + quote(poi_name, safe='')
+        response = requests.get(googleUrl, headers=headers)
+        soup = BS(response.text, 'html.parser')
+        img_url = soup.select("[data-src]")[1]['data-src']
+        full_trip_details[index]['url'] = img_url
         full_trip_details[index]['address'] = full_trip_details[index]['address'].strip(', ').replace(', ,',',')
-        print full_trip_details[index]['address']
-    return full_trip_id, full_trip_details
+        print full_trip_details[index]['url']
+    return full_trip_id, full_trip_details, trip_location_ids

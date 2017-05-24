@@ -19,11 +19,18 @@ class HomePage extends React.Component {
       daysValue: '1',
       fullTripDetails: [],
       fullTripId: '',
+      tripLocationIds: [],
+      cloneFullTripDetails: [],
+      updateEventId: '',
+      updateTripLocationId: '',
+
     };
     this.performSearch = this.performSearch.bind(this)
     this.onUpdateInput = this.onUpdateInput.bind(this)
     this.handleDaysOnChange = this.handleDaysOnChange.bind(this)
     this.onFullTripSubmit = this.onFullTripSubmit.bind(this)
+    this.onDeleteEvent = this.onDeleteEvent.bind(this)
+    this.performDeleteEventId = this.performDeleteEventId.bind(this)
   }
   performSearch() {
     const dbLocationURI = 'http://127.0.0.1:8000/city_state_search/?city_state=';
@@ -69,9 +76,42 @@ class HomePage extends React.Component {
         _this.setState({
           fullTripDetails : res.full_trip_details,  
           fullTripId: res.full_trip_id,
+          tripLocationIds: res.trip_location_ids,
+        });
+        // call a func: map fulltrip detail to clone => cloneFullTripDetails = 
+      });
+    };
+  }
+
+  performDeleteEventId() {
+    const myUrl = 'http://127.0.0.1:8000/update_trip/delete/?full_trip_id=' + this.state.fullTripId +
+                        '&event_id=' + this.state.updateEventId +
+                        '&trip_location_id='+this.state.updateTripLocationId;
+    const _this = this;
+    if(this.state.updateEventId !== '') {
+      console.log(myUrl);
+      $.ajax({
+        type: "GET",
+        url: myUrl,
+      }).done(function(res) {
+        _this.setState({
+          fullTripDetails : res.full_trip_details,  
+          fullTripId: res.full_trip_id,
+          tripLocationIds: res.trip_location_ids,
+          updateEventId: '',
+          updateTripLocationId: '',
         });
       });
     };
+  }
+  onDeleteEvent(updateEventId, updateTripLocationId) {
+    console.log(updateEventId, updateTripLocationId);
+    this.setState({
+        updateEventId,
+        updateTripLocationId
+      },function(){
+      this.performDeleteEventId();
+    });
   }
 
   render() { 
@@ -94,7 +134,11 @@ class HomePage extends React.Component {
                 </div>
                 <br/>
                 <div className="col-md-12 ">
-                    {this.state.fullTripDetails.length>0 && <FullTripList daysValue={this.state.daysValue} fullTripDetails={this.state.fullTripDetails}/>}
+                    {console.log(this.state.tripLocationIds)}
+                    {this.state.fullTripDetails.length>0 && 
+                        <FullTripList onDeleteEvent={this.onDeleteEvent} 
+                                      fullTripDetails={this.state.fullTripDetails} 
+                                      tripLocationIds={this.state.tripLocationIds} />}
                 </div>
             </div>
             
