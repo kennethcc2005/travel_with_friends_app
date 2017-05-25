@@ -17,12 +17,14 @@ import SwipeableViews from 'react-swipeable-views';
 export default class FullTripList extends React.Component {
   constructor(props) {
     super(props);
+    this.props.getTapName(this.props.tripLocationIds[0])
     this.state = {
       slideIndex: 0,
     };
   }
 
   handleChange = (value) => {
+    this.props.getTapName(this.props.tripLocationIds[value]);
     this.setState({
       slideIndex: value,
     });
@@ -61,7 +63,7 @@ export default class FullTripList extends React.Component {
     for (var i=0; i<maxDays+1; i++) {
         tabLis.push(
             <Tab 
-                key={i}
+                key={this.props.tripLocationIds[i]}
                 label={'Day '+(i+1).toString()} 
                 value={i} />
         );
@@ -94,6 +96,7 @@ export default class FullTripList extends React.Component {
     };
     return (
       <div>
+        {console.log('inside trip list: ', this.props.tripLocationIds)}
         <Tabs
           onChange={this.handleChange}
           value={this.state.slideIndex}

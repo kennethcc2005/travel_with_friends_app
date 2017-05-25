@@ -4,7 +4,9 @@ from __future__ import unicode_literals
 # from snippets.serializers import SnippetSerializer
 from rest_framework import generics, status
 from django.contrib.auth.models import User
-from travel_with_friends.serializers import UserSerializer, FullTripSearchSerializer, OutsideTripSearchSerializer,CityStateSearchSerializer, FullTripDeleteSerializer
+from travel_with_friends.serializers import UserSerializer, FullTripSearchSerializer, \
+        OutsideTripSearchSerializer,CityStateSearchSerializer, FullTripDeleteSerializer, \
+        FullTripAddSearchSerializer
 from rest_framework import permissions
 from travel_with_friends.permissions import IsOwnerOrReadOnly, IsStaffOrTargetUser
 from rest_framework.decorators import api_view
@@ -84,7 +86,6 @@ class FullTripSearch(APIView):
             "invalid city result": '%s is not valid city name for state %s' %(city, state),
         })
         full_trip_id, full_trip_details, trip_location_ids = get_fulltrip_data(state=state, city=city, n_days=n_days)
-        print trip_location_ids
         
         return Response({
             "full_trip_id": full_trip_id,
@@ -170,11 +171,36 @@ class FullTripDeleteEvent(APIView):
         full_trip_id=data["full_trip_id"]
         event_id = data["event_id"]
         trip_location_id = data["trip_location_id"]
-        print 'awesome '
-        new_full_trip_id, new_full_trip_details = trip_update.remove_event(full_trip_id, trip_location_id, event_id)
+        username_id = 1
+        new_full_trip_id, new_full_trip_details, new_trip_location_ids = trip_update.remove_event(full_trip_id, trip_location_id, event_id, username_id)
+        print 'awesome new: ', new_full_trip_id, new_full_trip_details, new_trip_location_ids
         return Response({
             "full_trip_id": new_full_trip_id,
             "full_trip_details": new_full_trip_details,
+            "trip_location_ids": new_trip_location_ids,
+        })
+
+class FullTripAddSearch(APIView):
+    # def get_permissions(self):
+    #     '''
+    #     response = requests.get(myurl, headers={'Authorization': 'Token {}'.format(mytoken)})
+    #     '''
+    #     return (permissions.IsAuthenticated()),
+        # return (AllowAny() if self.request.method == 'POST'
+        #         else permissions.IsAuthenticated()),
+    def get(self, request):
+        # Validate the incoming input (provided through query parameters)
+        print 'welcome to add your event :)'
+        serializer = FullTripAddSearchSerializer(data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+        # Get the model input
+        data = serializer.validated_data
+        full_trip_id=data["full_trip_id"]
+        poi_name = data["poi_name"]
+        trip_location_id = data["trip_location_id"]
+        poi_list = trip_update.add_search_event(poi_name, trip_location_id)
+        return Response({
+            "poi_list": poi_list
         })
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):

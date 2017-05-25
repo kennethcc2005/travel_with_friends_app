@@ -28895,11 +28895,13 @@ var FullTripList = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (FullTripList.__proto__ || Object.getPrototypeOf(FullTripList)).call(this, props));
 
     _this.handleChange = function (value) {
+      _this.props.getTapName(_this.props.tripLocationIds[value]);
       _this.setState({
         slideIndex: value
       });
     };
 
+    _this.props.getTapName(_this.props.tripLocationIds[0]);
     _this.state = {
       slideIndex: 0
     };
@@ -28956,7 +28958,7 @@ var FullTripList = function (_React$Component) {
 
       for (var i = 0; i < maxDays + 1; i++) {
         tabLis.push(_react2.default.createElement(_Tabs.Tab, {
-          key: i,
+          key: this.props.tripLocationIds[i],
           label: 'Day ' + (i + 1).toString(),
           value: i }));
         var fullDetails = [];
@@ -28991,6 +28993,7 @@ var FullTripList = function (_React$Component) {
       return _react2.default.createElement(
         'div',
         null,
+        console.log('inside trip list: ', this.props.tripLocationIds),
         _react2.default.createElement(
           _Tabs.Tabs,
           {
@@ -29221,54 +29224,7 @@ MenuItemDays.propTypes = {
 exports.default = MenuItemDays;
 
 /***/ }),
-/* 304 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _react = __webpack_require__(1);
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = __webpack_require__(502);
-
-var _throttleDebounce = __webpack_require__(664);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// encodeURIComponent(myUrl)
-var SearchCityState = function SearchCityState(_ref) {
-  var searchText = _ref.searchText,
-      floatingLabelText = _ref.floatingLabelText,
-      dataSource = _ref.dataSource,
-      onUpdateInput = _ref.onUpdateInput;
-
-  return _react2.default.createElement(_materialUi.AutoComplete, {
-    searchText: searchText,
-    floatingLabelText: floatingLabelText,
-    filter: _materialUi.AutoComplete.noFilter,
-    openOnFocus: true,
-    dataSource: dataSource,
-    onUpdateInput: (0, _throttleDebounce.debounce)(300, onUpdateInput),
-    className: 'searchInputField'
-  });
-};
-
-SearchCityState.propTypes = {
-  searchText: _react.PropTypes.string.isRequired,
-  floatingLabelText: _react.PropTypes.string.isRequired,
-  dataSource: _react.PropTypes.array.isRequired,
-  onUpdateInput: _react.PropTypes.func.isRequired
-};
-
-exports.default = SearchCityState;
-
-/***/ }),
+/* 304 */,
 /* 305 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -29506,9 +29462,9 @@ var _react2 = _interopRequireDefault(_react);
 
 var _Card = __webpack_require__(78);
 
-var _SearchCityState = __webpack_require__(304);
+var _SearchInputField = __webpack_require__(667);
 
-var _SearchCityState2 = _interopRequireDefault(_SearchCityState);
+var _SearchInputField2 = _interopRequireDefault(_SearchInputField);
 
 var _MenuItemDays = __webpack_require__(303);
 
@@ -29562,7 +29518,10 @@ var HomePage = function (_React$Component) {
           _this.setState({
             fullTripDetails: res.full_trip_details,
             fullTripId: res.full_trip_id,
-            tripLocationIds: res.trip_location_ids
+            tripLocationIds: res.trip_location_ids,
+            updateTripLocationId: res.trip_location_ids[0],
+            addEventDataSource: [],
+            searchEventValue: ''
           });
           // call a func: map fulltrip detail to clone => cloneFullTripDetails = 
         });
@@ -29573,7 +29532,9 @@ var HomePage = function (_React$Component) {
       place: "",
       days: "",
       cityStateDataSource: [],
+      addEventDataSource: [],
       searchInputValue: '',
+      searchEventValue: '',
       daysValue: '1',
       fullTripDetails: [],
       fullTripId: '',
@@ -29581,7 +29542,6 @@ var HomePage = function (_React$Component) {
       cloneFullTripDetails: [],
       updateEventId: '',
       updateTripLocationId: ''
-
     };
     _this2.performSearch = _this2.performSearch.bind(_this2);
     _this2.onUpdateInput = _this2.onUpdateInput.bind(_this2);
@@ -29589,6 +29549,8 @@ var HomePage = function (_React$Component) {
     _this2.onFullTripSubmit = _this2.onFullTripSubmit.bind(_this2);
     _this2.onDeleteEvent = _this2.onDeleteEvent.bind(_this2);
     _this2.performDeleteEventId = _this2.performDeleteEventId.bind(_this2);
+    _this2.onAddEventInput = _this2.onAddEventInput.bind(_this2);
+    _this2.getTapName = _this2.getTapName.bind(_this2);
     return _this2;
   }
 
@@ -29645,12 +29607,46 @@ var HomePage = function (_React$Component) {
   }, {
     key: 'onDeleteEvent',
     value: function onDeleteEvent(updateEventId, updateTripLocationId) {
-      console.log(updateEventId, updateTripLocationId);
       this.setState({
         updateEventId: updateEventId,
         updateTripLocationId: updateTripLocationId
+      }, this.performDeleteEventId);
+    }
+  }, {
+    key: 'performAddEventSearch',
+    value: function performAddEventSearch() {
+      var dbLocationURI = 'http://127.0.0.1:8000/update_trip/add_search/?poi_name=';
+      var _this = this;
+      var valid_input = encodeURIComponent(this.state.searchEventValue);
+      var myUrl = dbLocationURI + valid_input + '&trip_location_id=' + this.state.updateTripLocationId + '&full_trip_id=' + this.state.fullTripId;
+      if (this.state.searchEventValue !== '') {
+        console.log('add url: ', myUrl);
+        $.ajax({
+          type: "GET",
+          url: myUrl
+        }).done(function (res) {
+          _this.setState({
+            addEventDataSource: res.poi_list
+          });
+        });
+      };
+    }
+  }, {
+    key: 'onAddEventInput',
+    value: function onAddEventInput(searchEventValue) {
+      this.setState({
+        searchEventValue: searchEventValue
       }, function () {
-        this.performDeleteEventId();
+        this.performAddEventSearch();
+      });
+    }
+  }, {
+    key: 'getTapName',
+    value: function getTapName(updateTripLocationId) {
+      this.setState({
+        updateTripLocationId: updateTripLocationId,
+        addEventDataSource: [],
+        searchEventValue: ''
       });
     }
   }, {
@@ -29669,7 +29665,9 @@ var HomePage = function (_React$Component) {
             _react2.default.createElement(
               'div',
               { className: 'col-md-5' },
-              _react2.default.createElement(_SearchCityState2.default, { searchText: this.state.searchInputValue,
+              _react2.default.createElement(_SearchInputField2.default, {
+                name: 'searchCityState',
+                searchText: this.state.searchInputValue,
                 floatingLabelText: 'Location',
                 dataSource: this.state.cityStateDataSource,
                 onUpdateInput: this.onUpdateInput })
@@ -29688,11 +29686,34 @@ var HomePage = function (_React$Component) {
             _react2.default.createElement(
               'div',
               { className: 'col-md-12 ' },
-              console.log(this.state.tripLocationIds),
               this.state.fullTripDetails.length > 0 && _react2.default.createElement(_FullTripList2.default, { onDeleteEvent: this.onDeleteEvent,
                 fullTripDetails: this.state.fullTripDetails,
-                tripLocationIds: this.state.tripLocationIds })
-            )
+                tripLocationIds: this.state.tripLocationIds,
+                getTapName: this.getTapName
+              })
+            ),
+            _react2.default.createElement(
+              'div',
+              { className: 'col-md-4 col-md-offset-4' },
+              this.state.fullTripDetails.length > 0 && _react2.default.createElement(_SearchInputField2.default, {
+                name: 'searchAddEvent',
+                searchText: this.state.searchEventValue,
+                hintText: 'Add New Event',
+                inputStyle: { textAlign: 'center' },
+                dataSource: this.state.addEventDataSource,
+                onUpdateInput: this.onAddEventInput })
+            ),
+            _react2.default.createElement('br', null),
+            _react2.default.createElement(
+              'div',
+              { className: 'col-md-12 ' },
+              this.state.fullTripDetails.length > 0 && _react2.default.createElement(_FullTripList2.default, { onDeleteEvent: this.onDeleteEvent,
+                fullTripDetails: this.state.fullTripDetails,
+                tripLocationIds: this.state.tripLocationIds,
+                getTapName: this.getTapName
+              })
+            ),
+            console.log(this.state.updateTripLocationId, 'aaa', this.state.tripLocationIds)
           )
         )
       );
@@ -85569,6 +85590,63 @@ module.exports = function(module) {
 	return module;
 };
 
+
+/***/ }),
+/* 667 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _materialUi = __webpack_require__(502);
+
+var _throttleDebounce = __webpack_require__(664);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// encodeURIComponent(myUrl)
+var SearchInputField = function SearchInputField(_ref) {
+  var name = _ref.name,
+      searchText = _ref.searchText,
+      floatingLabelText = _ref.floatingLabelText,
+      dataSource = _ref.dataSource,
+      onUpdateInput = _ref.onUpdateInput,
+      hintText = _ref.hintText,
+      inputStyle = _ref.inputStyle;
+
+  return _react2.default.createElement(_materialUi.AutoComplete, {
+    name: name,
+    searchText: searchText,
+    floatingLabelText: floatingLabelText,
+    filter: _materialUi.AutoComplete.noFilter,
+    openOnFocus: true,
+    dataSource: dataSource,
+    onUpdateInput: (0, _throttleDebounce.debounce)(600, onUpdateInput),
+    className: 'searchInputField',
+    inputStyle: inputStyle,
+    placeholder: hintText
+  });
+};
+
+SearchInputField.propTypes = {
+  name: _react.PropTypes.string.isRequired,
+  searchText: _react.PropTypes.string.isRequired,
+  floatingLabelText: _react.PropTypes.string,
+  dataSource: _react.PropTypes.array.isRequired,
+  onUpdateInput: _react.PropTypes.func.isRequired,
+  hintText: _react.PropTypes.string,
+  inputStyle: _react.PropTypes.object
+};
+
+exports.default = SearchInputField;
 
 /***/ })
 /******/ ]);

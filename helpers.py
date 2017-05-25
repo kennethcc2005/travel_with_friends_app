@@ -163,7 +163,7 @@ def check_NO_1(poi_list, city_name):
     return np.array(poi_list)
 
 
-def check_full_trip_id(full_trip_id, debug):
+def check_full_trip_id(full_trip_id, debug=True):
     '''
     Check full trip id exist or not.  
     '''

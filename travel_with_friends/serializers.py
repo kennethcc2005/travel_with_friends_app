@@ -23,6 +23,10 @@ class FullTripDeleteSerializer(serializers.Serializer):
     event_id = serializers.CharField()
     trip_location_id = serializers.CharField()
 
+class FullTripAddSearchSerializer(serializers.Serializer):
+    full_trip_id = serializers.CharField()
+    poi_name = serializers.CharField(allow_blank=True)
+    trip_location_id = serializers.CharField()
 # class UserSerializer(serializers.ModelSerializer):
 #     snippets = serializers.PrimaryKeyRelatedField(many=True, queryset=FullTripTable.objects.all())
 #     class Meta:

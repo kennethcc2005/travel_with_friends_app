@@ -77,6 +77,8 @@ def get_fulltrip_data(state, city, n_days, full_day = True, regular = True, debu
 
             #if exisitng day trip id..remove those...
             if check_day_trip_id(day_trip_id):
+                cur.execute("SELECT index FROM day_trip_table WHERE trip_locations_id = '%s';" %(day_trip_id))
+                index = cur.fetchone()[0]
                 cur.execute("DELETE FROM day_trip_table WHERE trip_locations_id = '%s';" %(day_trip_id))
                 conn.commit()
 
@@ -113,10 +115,11 @@ def get_fulltrip_data(state, city, n_days, full_day = True, regular = True, debu
     for index, detail in enumerate(full_trip_details):
         full_trip_details[index] = ast.literal_eval(detail)
         poi_name = full_trip_details[index]['name']
-        googleUrl = "https://www.google.com/search?tbm=isch&q=" + quote(poi_name, safe='')
-        response = requests.get(googleUrl, headers=headers)
-        soup = BS(response.text, 'html.parser')
-        img_url = soup.select("[data-src]")[1]['data-src']
+        # googleUrl = "https://www.google.com/search?tbm=isch&q=" + quote(poi_name, safe='')
+        # response = requests.get(googleUrl, headers=headers)
+        # soup = BS(response.text, 'html.parser')
+        # img_url = soup.select("[data-src]")[1]['data-src']
+        img_url = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1GF_GCEwlEYvzdAOPz9AxL-oSKsTpSWVYRHxjwV-Boidvtzuf'
         full_trip_details[index]['url'] = img_url
         full_trip_details[index]['address'] = full_trip_details[index]['address'].strip(', ').replace(', ,',',')
         print full_trip_details[index]['url']

@@ -3,25 +3,31 @@ import { AutoComplete }     from 'material-ui';
 import {debounce} from 'throttle-debounce';
 
 // encodeURIComponent(myUrl)
-const SearchCityState = ({searchText, floatingLabelText, dataSource, onUpdateInput}) => {
+const SearchInputField = ({name,searchText, floatingLabelText, dataSource, onUpdateInput, hintText, inputStyle}) => {
   return (
         <AutoComplete
+          name                ={name}
           searchText          ={searchText}
           floatingLabelText   ={floatingLabelText}
           filter              ={AutoComplete.noFilter}
           openOnFocus         ={true}
           dataSource          ={dataSource}
-          onUpdateInput       ={debounce(300,onUpdateInput)} 
+          onUpdateInput       ={debounce(600,onUpdateInput)} 
           className           ="searchInputField"
+          inputStyle          ={inputStyle}
+          placeholder         ={hintText}
         />
       )
 }
 
-SearchCityState.propTypes = {
+SearchInputField.propTypes = {
+  name: PropTypes.string.isRequired,
   searchText: PropTypes.string.isRequired,
-  floatingLabelText: PropTypes.string.isRequired,
+  floatingLabelText: PropTypes.string,
   dataSource: PropTypes.array.isRequired,
   onUpdateInput: PropTypes.func.isRequired,
+  hintText: PropTypes.string,
+  inputStyle: PropTypes.object,
 };
 
-export default SearchCityState;
+export default SearchInputField;

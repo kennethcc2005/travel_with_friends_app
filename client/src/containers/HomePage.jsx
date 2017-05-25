@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardTitle, CardActions } from 'material-ui/Card';
-import SearchCityState from '../components/SearchCityState.jsx';
+import SearchInputField from '../components/SearchInputField.jsx';
 import MenuItemDays from '../components/MenuItemDays.jsx';
 import FullTripSearchButton from '../components/FullTripSearchButton.jsx'
 import FullTripList from '../components/FullTripList.jsx'
@@ -14,8 +14,10 @@ class HomePage extends React.Component {
     this.state = {
       place: "",
       days: "",
-      cityStateDataSource : [],
-      searchInputValue : '',
+      cityStateDataSource: [],
+      addEventDataSource: [],
+      searchInputValue: '',
+      searchEventValue: '',
       daysValue: '1',
       fullTripDetails: [],
       fullTripId: '',
@@ -23,7 +25,6 @@ class HomePage extends React.Component {
       cloneFullTripDetails: [],
       updateEventId: '',
       updateTripLocationId: '',
-
     };
     this.performSearch = this.performSearch.bind(this)
     this.onUpdateInput = this.onUpdateInput.bind(this)
@@ -31,6 +32,8 @@ class HomePage extends React.Component {
     this.onFullTripSubmit = this.onFullTripSubmit.bind(this)
     this.onDeleteEvent = this.onDeleteEvent.bind(this)
     this.performDeleteEventId = this.performDeleteEventId.bind(this)
+    this.onAddEventInput = this.onAddEventInput.bind(this)
+    this.getTapName = this.getTapName.bind(this)
   }
   performSearch() {
     const dbLocationURI = 'http://127.0.0.1:8000/city_state_search/?city_state=';
@@ -77,6 +80,9 @@ class HomePage extends React.Component {
           fullTripDetails : res.full_trip_details,  
           fullTripId: res.full_trip_id,
           tripLocationIds: res.trip_location_ids,
+          updateTripLocationId: res.trip_location_ids[0],
+          addEventDataSource: [],
+          searchEventValue: '',
         });
         // call a func: map fulltrip detail to clone => cloneFullTripDetails = 
       });
@@ -105,12 +111,45 @@ class HomePage extends React.Component {
     };
   }
   onDeleteEvent(updateEventId, updateTripLocationId) {
-    console.log(updateEventId, updateTripLocationId);
     this.setState({
         updateEventId,
         updateTripLocationId
+      },this.performDeleteEventId);
+  }
+
+  performAddEventSearch() {
+    const dbLocationURI = 'http://127.0.0.1:8000/update_trip/add_search/?poi_name=';
+    const _this = this;
+    const valid_input = encodeURIComponent(this.state.searchEventValue);
+    const myUrl = dbLocationURI + valid_input + 
+                    '&trip_location_id=' + this.state.updateTripLocationId +
+                    '&full_trip_id=' + this.state.fullTripId;
+    if(this.state.searchEventValue !== '') {
+      console.log('add url: ', myUrl);
+      $.ajax({
+        type: "GET",
+        url: myUrl,
+      }).done(function(res) {
+        _this.setState({
+          addEventDataSource : res.poi_list,  
+        });
+
+      });
+    };
+  }
+  onAddEventInput(searchEventValue) {
+    this.setState({
+        searchEventValue,
       },function(){
-      this.performDeleteEventId();
+      this.performAddEventSearch();
+    });
+  }
+
+  getTapName(updateTripLocationId) {
+    this.setState({
+        updateTripLocationId: updateTripLocationId,
+        addEventDataSource: [],
+        searchEventValue: '',
     });
   }
 
@@ -121,7 +160,9 @@ class HomePage extends React.Component {
         <CardActions>
             <div className="col-md-8 col-md-offset-2">
                 <div className="col-md-5">
-                    <SearchCityState searchText={this.state.searchInputValue}
+                    <SearchInputField 
+                                    name ='searchCityState'
+                                    searchText={this.state.searchInputValue}
                                     floatingLabelText='Location' 
                                     dataSource={this.state.cityStateDataSource} 
                                     onUpdateInput={this.onUpdateInput} />
@@ -134,12 +175,35 @@ class HomePage extends React.Component {
                 </div>
                 <br/>
                 <div className="col-md-12 ">
-                    {console.log(this.state.tripLocationIds)}
                     {this.state.fullTripDetails.length>0 && 
                         <FullTripList onDeleteEvent={this.onDeleteEvent} 
                                       fullTripDetails={this.state.fullTripDetails} 
-                                      tripLocationIds={this.state.tripLocationIds} />}
+                                      tripLocationIds={this.state.tripLocationIds}
+                                      getTapName={this.getTapName} 
+                                      />}
+                    
                 </div>
+                <div className="col-md-4 col-md-offset-4">
+                    {this.state.fullTripDetails.length>0 && 
+                        <SearchInputField
+                            name = 'searchAddEvent'
+                            searchText={this.state.searchEventValue}
+                            hintText='Add New Event'
+                            inputStyle={{ textAlign: 'center' }}
+                            dataSource={this.state.addEventDataSource} 
+                            onUpdateInput={this.onAddEventInput} />}
+                </div>
+                <br/>
+                <div className="col-md-12 ">
+                    {this.state.fullTripDetails.length>0 && 
+                        <FullTripList onDeleteEvent={this.onDeleteEvent} 
+                                      fullTripDetails={this.state.fullTripDetails} 
+                                      tripLocationIds={this.state.tripLocationIds}
+                                      getTapName={this.getTapName} 
+                                      />}
+                    
+                </div>
+                {console.log(this.state.updateTripLocationId, 'aaa',this.state.tripLocationIds)}
             </div>
             
         </CardActions>
