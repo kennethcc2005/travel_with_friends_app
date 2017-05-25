@@ -46,19 +46,22 @@ def add_search_event(poi_name, trip_location_id):
         event_ids = str(tuple(event_ids))
         cur.execute("SELECT index, name FROM poi_detail_table_v2 WHERE index NOT IN {0} AND county='{1}' AND state='{2}' ORDER BY num_reviews DESC LIMIT {3};".format(event_ids, county,state, 7-len(poi_lst)))
         results.extend(cur.fetchall())
-    print [r[1] for r in results]
+    poi_dict = {d[1]:d[0] for d in results}
+    print poi_dict
     conn.close()
-    return [r[1] for r in results]
+    return poi_dict
 
-def add_event(trip_locations_id, event_day, new_event_id=None, event_name=None, full_day = True, unseen_event = False):
+def add_event(poi_id, poi_name, trip_locations_id, full_trip_id, full_day = True, unseen_event = False):
     conn = psycopg2.connect(conn_str)   
     cur = conn.cursor()   
     cur.execute("select * from day_trip_table where trip_locations_id='%s'" %(trip_locations_id))  
     (index, trip_locations_id, full_day, regular, county, state, detail, event_type, event_ids) = cur.fetchone()
-    if unseen_event:
+    if not poi_id:
         index += 1
-        trip_locations_id = '-'.join([str(eval(i)['id']) for i in eval(detail)])+'-'+event_name.replace(' ','-')+'-'+event_day
+        event_ids = convert_event_ids_to_lst(event_ids)
+        trip_locations_id = '-'.join(event_ids)+'-'+poi_name.replace(' ','-').replace("'",'')
         cur.execute("select details from day_trip_locations where trip_locations_id='%s'" %(trip_locations_id))
+        
         a = cur.fetchone()
         if bool(a):
             conn.close()

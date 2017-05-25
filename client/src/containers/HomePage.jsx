@@ -4,6 +4,11 @@ import SearchInputField from '../components/SearchInputField.jsx';
 import MenuItemDays from '../components/MenuItemDays.jsx';
 import FullTripSearchButton from '../components/FullTripSearchButton.jsx'
 import FullTripList from '../components/FullTripList.jsx'
+import FullTripAddEventButton from '../components/FullTripAddEventButton.jsx'
+
+// Version B: Delete method showed in front end only, dont update the backend until final click. Beter for performance!
+// add_search event use local search instead of calling backend for updates.!
+// alot to updates...>__<
 class HomePage extends React.Component {
   /**
    * Class constructor.
@@ -15,7 +20,7 @@ class HomePage extends React.Component {
       place: "",
       days: "",
       cityStateDataSource: [],
-      addEventDataSource: [],
+      addEventDataSource: {},
       searchInputValue: '',
       searchEventValue: '',
       daysValue: '1',
@@ -34,6 +39,7 @@ class HomePage extends React.Component {
     this.performDeleteEventId = this.performDeleteEventId.bind(this)
     this.onAddEventInput = this.onAddEventInput.bind(this)
     this.getTapName = this.getTapName.bind(this)
+    this.onAddEventSubmit = this.onAddEventSubmit.bind(this)
   }
   performSearch() {
     const dbLocationURI = 'http://127.0.0.1:8000/city_state_search/?city_state=';
@@ -81,7 +87,7 @@ class HomePage extends React.Component {
           fullTripId: res.full_trip_id,
           tripLocationIds: res.trip_location_ids,
           updateTripLocationId: res.trip_location_ids[0],
-          addEventDataSource: [],
+          addEventDataSource: {},
           searchEventValue: '',
         });
         // call a func: map fulltrip detail to clone => cloneFullTripDetails = 
@@ -105,7 +111,6 @@ class HomePage extends React.Component {
           fullTripId: res.full_trip_id,
           tripLocationIds: res.trip_location_ids,
           updateEventId: '',
-          updateTripLocationId: '',
         });
       });
     };
@@ -120,8 +125,8 @@ class HomePage extends React.Component {
   performAddEventSearch() {
     const dbLocationURI = 'http://127.0.0.1:8000/update_trip/add_search/?poi_name=';
     const _this = this;
-    const valid_input = encodeURIComponent(this.state.searchEventValue);
-    const myUrl = dbLocationURI + valid_input + 
+    const validInput = encodeURIComponent(this.state.searchEventValue);
+    const myUrl = dbLocationURI + validInput + 
                     '&trip_location_id=' + this.state.updateTripLocationId +
                     '&full_trip_id=' + this.state.fullTripId;
     if(this.state.searchEventValue !== '') {
@@ -148,63 +153,95 @@ class HomePage extends React.Component {
   getTapName(updateTripLocationId) {
     this.setState({
         updateTripLocationId: updateTripLocationId,
-        addEventDataSource: [],
+        addEventDataSource: {},
         searchEventValue: '',
     });
   }
 
+  onAddEventSubmit = () => {
+    const dbLocationURI = 'http://127.0.0.1:8000/update_trip/add/?';
+    const _this = this;
+    const poiId = addEventDataSource[this.state.searchEventValue];
+    const validPoiName = encodeURIComponent(this.state.searchEventValue);
+    const myUrl = dbLocationURI + 'poi_id=' + poiId + '&poi_name='+ validPoiName
+                +'&full_trip_id='+ this.state.fullTripId +
+                '&trip_location_id='+this.state.updateTripLocationId;
+    if(this.state.searchEventValue !== '') {
+      $.ajax({
+        type: "GET",
+        url: myUrl,
+      }).done(function(res) {
+        _this.setState({
+          fullTripDetails : res.full_trip_details,  
+          fullTripId: res.full_trip_id,
+          tripLocationIds: res.trip_location_ids,
+          updateTripLocationId: res.current_trip_location_id,
+          addEventDataSource: {},
+          searchEventValue: '',
+        });
+        // call a func: map fulltrip detail to clone => cloneFullTripDetails = 
+      });
+    };
+  }
   render() { 
     return (
       <Card className="container">
         <CardTitle title="Travel with Friends!" subtitle="This is the home page." />
         <CardActions>
-            <div className="col-md-8 col-md-offset-2">
-                <div className="col-md-5">
-                    <SearchInputField 
-                                    name ='searchCityState'
-                                    searchText={this.state.searchInputValue}
-                                    floatingLabelText='Location' 
-                                    dataSource={this.state.cityStateDataSource} 
-                                    onUpdateInput={this.onUpdateInput} />
-                </div>
-                <div className="col-md-5">
-                    <MenuItemDays daysValue={this.state.daysValue} handleDaysOnChange={this.handleDaysOnChange}/>
-                </div>
-                <div className="col-md-2">
-                    <FullTripSearchButton onFullTripSubmit={this.onFullTripSubmit}/>
-                </div>
-                <br/>
-                <div className="col-md-12 ">
-                    {this.state.fullTripDetails.length>0 && 
-                        <FullTripList onDeleteEvent={this.onDeleteEvent} 
-                                      fullTripDetails={this.state.fullTripDetails} 
-                                      tripLocationIds={this.state.tripLocationIds}
-                                      getTapName={this.getTapName} 
-                                      />}
-                    
-                </div>
-                <div className="col-md-4 col-md-offset-4">
-                    {this.state.fullTripDetails.length>0 && 
-                        <SearchInputField
-                            name = 'searchAddEvent'
-                            searchText={this.state.searchEventValue}
-                            hintText='Add New Event'
-                            inputStyle={{ textAlign: 'center' }}
-                            dataSource={this.state.addEventDataSource} 
-                            onUpdateInput={this.onAddEventInput} />}
-                </div>
-                <br/>
-                <div className="col-md-12 ">
-                    {this.state.fullTripDetails.length>0 && 
-                        <FullTripList onDeleteEvent={this.onDeleteEvent} 
-                                      fullTripDetails={this.state.fullTripDetails} 
-                                      tripLocationIds={this.state.tripLocationIds}
-                                      getTapName={this.getTapName} 
-                                      />}
-                    
-                </div>
-                {console.log(this.state.updateTripLocationId, 'aaa',this.state.tripLocationIds)}
+          <div className="col-md-8 col-md-offset-2">
+            <div className="col-md-5">
+              <SearchInputField 
+                name ='searchCityState'
+                searchText={this.state.searchInputValue}
+                floatingLabelText='Location' 
+                dataSource={this.state.cityStateDataSource} 
+                onUpdateInput={this.onUpdateInput} />
             </div>
+            <div className="col-md-5">
+              <MenuItemDays daysValue={this.state.daysValue} handleDaysOnChange={this.handleDaysOnChange}/>
+            </div>
+            <div className="col-md-2">
+              <FullTripSearchButton onFullTripSubmit={this.onFullTripSubmit}/>
+            </div>
+            <br/>
+            <div className="col-md-12 ">
+              {this.state.fullTripDetails.length>0 && 
+                <FullTripList 
+                  onDeleteEvent={this.onDeleteEvent} 
+                  fullTripDetails={this.state.fullTripDetails} 
+                  tripLocationIds={this.state.tripLocationIds}
+                  getTapName={this.getTapName} 
+                  />}
+            </div>
+            <div className="col-md-8 col-md-offset-2">
+              <div className="col-md-8 col-md-offset-2">
+                {this.state.fullTripDetails.length>0 && 
+                  <SearchInputField
+                    name = 'searchAddEvent'
+                    searchText={this.state.searchEventValue}
+                    hintText='Add New Event'
+                    inputStyle={{ textAlign: 'center' }}
+                    dataSource={Object.keys(this.state.addEventDataSource)} 
+                    onUpdateInput={this.onAddEventInput} />}
+              </div>
+              <div className="col-md-2">
+                {this.state.fullTripDetails.length>0 && 
+                  <FullTripAddEventButton />}
+              </div>
+            </div>
+            <br/>
+            <div className="col-md-12 ">
+              {this.state.fullTripDetails.length>0 && 
+                <FullTripList 
+                  onDeleteEvent={this.onDeleteEvent} 
+                  fullTripDetails={this.state.fullTripDetails} 
+                  tripLocationIds={this.state.tripLocationIds}
+                  getTapName={this.getTapName} />}
+
+              
+            </div>
+            {console.log(this.state.updateTripLocationId, 'aaa',this.state.tripLocationIds)}
+          </div>
             
         </CardActions>
       </Card>

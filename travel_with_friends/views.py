@@ -198,9 +198,36 @@ class FullTripAddSearch(APIView):
         full_trip_id=data["full_trip_id"]
         poi_name = data["poi_name"]
         trip_location_id = data["trip_location_id"]
-        poi_list = trip_update.add_search_event(poi_name, trip_location_id)
+        poi_dict = trip_update.add_search_event(poi_name, trip_location_id)
         return Response({
-            "poi_list": poi_list
+            "poi_list": poi_dict
+        })
+
+class FullTripAddEvent(APIView):
+    # def get_permissions(self):
+    #     '''
+    #     response = requests.get(myurl, headers={'Authorization': 'Token {}'.format(mytoken)})
+    #     '''
+    #     return (permissions.IsAuthenticated()),
+        # return (AllowAny() if self.request.method == 'POST'
+        #         else permissions.IsAuthenticated()),
+    def get(self, request):
+        # Validate the incoming input (provided through query parameters)
+        print 'submit your add event :)'
+        serializer = FullTripAddEventSerializer(data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+        # Get the model input
+        data = serializer.validated_data
+        full_trip_id=data["full_trip_id"]
+        poi_name = data["poi_name"]
+        poi_id = data["poi_id"]
+        trip_location_id = data["trip_location_id"]
+        full_trip_id, full_trip_details, trip_location_ids, current_trip_location_id = trip_update.add_event(poi_id, poi_name, trip_location_id, full_trip_id)
+        return Response({
+            "full_trip_details": full_trip_details,
+            "full_trip_id": full_trip_id,
+            "trip_location_ids": trip_location_ids,
+            "current_trip_location_id": current_trip_location_id,
         })
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):

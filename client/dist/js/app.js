@@ -28993,7 +28993,6 @@ var FullTripList = function (_React$Component) {
       return _react2.default.createElement(
         'div',
         null,
-        console.log('inside trip list: ', this.props.tripLocationIds),
         _react2.default.createElement(
           _Tabs.Tabs,
           {
@@ -29478,6 +29477,10 @@ var _FullTripList = __webpack_require__(300);
 
 var _FullTripList2 = _interopRequireDefault(_FullTripList);
 
+var _FullTripAddEventButton = __webpack_require__(668);
+
+var _FullTripAddEventButton2 = _interopRequireDefault(_FullTripAddEventButton);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -29486,6 +29489,9 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+// Version B: Delete method showed in front end only, dont update the backend until final click. Beter for performance!
+// add_search event use local search instead of calling backend for updates.!
+// alot to updates...>__<
 var HomePage = function (_React$Component) {
   _inherits(HomePage, _React$Component);
 
@@ -29520,7 +29526,31 @@ var HomePage = function (_React$Component) {
             fullTripId: res.full_trip_id,
             tripLocationIds: res.trip_location_ids,
             updateTripLocationId: res.trip_location_ids[0],
-            addEventDataSource: [],
+            addEventDataSource: {},
+            searchEventValue: ''
+          });
+          // call a func: map fulltrip detail to clone => cloneFullTripDetails = 
+        });
+      };
+    };
+
+    _this2.onAddEventSubmit = function () {
+      var dbLocationURI = 'http://127.0.0.1:8000/update_trip/add/?';
+      var _this = _this2;
+      var poiId = addEventDataSource[_this2.state.searchEventValue];
+      var validPoiName = encodeURIComponent(_this2.state.searchEventValue);
+      var myUrl = dbLocationURI + 'poi_id=' + poiId + '&poi_name=' + validPoiName + '&full_trip_id=' + _this2.state.fullTripId + '&trip_location_id=' + _this2.state.updateTripLocationId;
+      if (_this2.state.searchEventValue !== '') {
+        $.ajax({
+          type: "GET",
+          url: myUrl
+        }).done(function (res) {
+          _this.setState({
+            fullTripDetails: res.full_trip_details,
+            fullTripId: res.full_trip_id,
+            tripLocationIds: res.trip_location_ids,
+            updateTripLocationId: res.current_trip_location_id,
+            addEventDataSource: {},
             searchEventValue: ''
           });
           // call a func: map fulltrip detail to clone => cloneFullTripDetails = 
@@ -29532,7 +29562,7 @@ var HomePage = function (_React$Component) {
       place: "",
       days: "",
       cityStateDataSource: [],
-      addEventDataSource: [],
+      addEventDataSource: {},
       searchInputValue: '',
       searchEventValue: '',
       daysValue: '1',
@@ -29551,6 +29581,7 @@ var HomePage = function (_React$Component) {
     _this2.performDeleteEventId = _this2.performDeleteEventId.bind(_this2);
     _this2.onAddEventInput = _this2.onAddEventInput.bind(_this2);
     _this2.getTapName = _this2.getTapName.bind(_this2);
+    _this2.onAddEventSubmit = _this2.onAddEventSubmit.bind(_this2);
     return _this2;
   }
 
@@ -29598,8 +29629,7 @@ var HomePage = function (_React$Component) {
             fullTripDetails: res.full_trip_details,
             fullTripId: res.full_trip_id,
             tripLocationIds: res.trip_location_ids,
-            updateEventId: '',
-            updateTripLocationId: ''
+            updateEventId: ''
           });
         });
       };
@@ -29617,8 +29647,8 @@ var HomePage = function (_React$Component) {
     value: function performAddEventSearch() {
       var dbLocationURI = 'http://127.0.0.1:8000/update_trip/add_search/?poi_name=';
       var _this = this;
-      var valid_input = encodeURIComponent(this.state.searchEventValue);
-      var myUrl = dbLocationURI + valid_input + '&trip_location_id=' + this.state.updateTripLocationId + '&full_trip_id=' + this.state.fullTripId;
+      var validInput = encodeURIComponent(this.state.searchEventValue);
+      var myUrl = dbLocationURI + validInput + '&trip_location_id=' + this.state.updateTripLocationId + '&full_trip_id=' + this.state.fullTripId;
       if (this.state.searchEventValue !== '') {
         console.log('add url: ', myUrl);
         $.ajax({
@@ -29645,7 +29675,7 @@ var HomePage = function (_React$Component) {
     value: function getTapName(updateTripLocationId) {
       this.setState({
         updateTripLocationId: updateTripLocationId,
-        addEventDataSource: [],
+        addEventDataSource: {},
         searchEventValue: ''
       });
     }
@@ -29686,7 +29716,8 @@ var HomePage = function (_React$Component) {
             _react2.default.createElement(
               'div',
               { className: 'col-md-12 ' },
-              this.state.fullTripDetails.length > 0 && _react2.default.createElement(_FullTripList2.default, { onDeleteEvent: this.onDeleteEvent,
+              this.state.fullTripDetails.length > 0 && _react2.default.createElement(_FullTripList2.default, {
+                onDeleteEvent: this.onDeleteEvent,
                 fullTripDetails: this.state.fullTripDetails,
                 tripLocationIds: this.state.tripLocationIds,
                 getTapName: this.getTapName
@@ -29694,24 +29725,33 @@ var HomePage = function (_React$Component) {
             ),
             _react2.default.createElement(
               'div',
-              { className: 'col-md-4 col-md-offset-4' },
-              this.state.fullTripDetails.length > 0 && _react2.default.createElement(_SearchInputField2.default, {
-                name: 'searchAddEvent',
-                searchText: this.state.searchEventValue,
-                hintText: 'Add New Event',
-                inputStyle: { textAlign: 'center' },
-                dataSource: this.state.addEventDataSource,
-                onUpdateInput: this.onAddEventInput })
+              { className: 'col-md-8 col-md-offset-2' },
+              _react2.default.createElement(
+                'div',
+                { className: 'col-md-8 col-md-offset-2' },
+                this.state.fullTripDetails.length > 0 && _react2.default.createElement(_SearchInputField2.default, {
+                  name: 'searchAddEvent',
+                  searchText: this.state.searchEventValue,
+                  hintText: 'Add New Event',
+                  inputStyle: { textAlign: 'center' },
+                  dataSource: Object.keys(this.state.addEventDataSource),
+                  onUpdateInput: this.onAddEventInput })
+              ),
+              _react2.default.createElement(
+                'div',
+                { className: 'col-md-2' },
+                this.state.fullTripDetails.length > 0 && _react2.default.createElement(_FullTripAddEventButton2.default, null)
+              )
             ),
             _react2.default.createElement('br', null),
             _react2.default.createElement(
               'div',
               { className: 'col-md-12 ' },
-              this.state.fullTripDetails.length > 0 && _react2.default.createElement(_FullTripList2.default, { onDeleteEvent: this.onDeleteEvent,
+              this.state.fullTripDetails.length > 0 && _react2.default.createElement(_FullTripList2.default, {
+                onDeleteEvent: this.onDeleteEvent,
                 fullTripDetails: this.state.fullTripDetails,
                 tripLocationIds: this.state.tripLocationIds,
-                getTapName: this.getTapName
-              })
+                getTapName: this.getTapName })
             ),
             console.log(this.state.updateTripLocationId, 'aaa', this.state.tripLocationIds)
           )
@@ -85647,6 +85687,83 @@ SearchInputField.propTypes = {
 };
 
 exports.default = SearchInputField;
+
+/***/ }),
+/* 668 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _FloatingActionButton = __webpack_require__(450);
+
+var _FloatingActionButton2 = _interopRequireDefault(_FloatingActionButton);
+
+var _add = __webpack_require__(669);
+
+var _add2 = _interopRequireDefault(_add);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var FullTripAddEventButton = function FullTripAddEventButton() {
+  return _react2.default.createElement(
+    'div',
+    null,
+    _react2.default.createElement(
+      _FloatingActionButton2.default,
+      { mini: true },
+      _react2.default.createElement(_add2.default, null)
+    )
+  );
+};
+
+exports.default = FullTripAddEventButton;
+
+/***/ }),
+/* 669 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pure = __webpack_require__(21);
+
+var _pure2 = _interopRequireDefault(_pure);
+
+var _SvgIcon = __webpack_require__(19);
+
+var _SvgIcon2 = _interopRequireDefault(_SvgIcon);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var ContentAdd = function ContentAdd(props) {
+  return _react2.default.createElement(
+    _SvgIcon2.default,
+    props,
+    _react2.default.createElement('path', { d: 'M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z' })
+  );
+};
+ContentAdd = (0, _pure2.default)(ContentAdd);
+ContentAdd.displayName = 'ContentAdd';
+ContentAdd.muiName = 'SvgIcon';
+
+exports.default = ContentAdd;
 
 /***/ })
 /******/ ]);

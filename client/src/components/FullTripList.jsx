@@ -96,7 +96,6 @@ export default class FullTripList extends React.Component {
     };
     return (
       <div>
-        {console.log('inside trip list: ', this.props.tripLocationIds)}
         <Tabs
           onChange={this.handleChange}
           value={this.state.slideIndex}
