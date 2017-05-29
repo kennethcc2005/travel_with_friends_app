@@ -2,13 +2,24 @@ import React from 'react';
 import { Card, CardTitle, CardActions } from 'material-ui/Card';
 import SearchInputField from '../components/SearchInputField.jsx';
 import MenuItemDays from '../components/MenuItemDays.jsx';
-import FullTripSearchButton from '../components/FullTripSearchButton.jsx'
-import FullTripList from '../components/FullTripList.jsx'
-import FullTripAddEventButton from '../components/FullTripAddEventButton.jsx'
-
+import FullTripSearchButton from '../components/FullTripSearchButton.jsx';
+import FullTripList from '../components/FullTripList.jsx';
+import FullTripAddEventButton from '../components/FullTripAddEventButton.jsx';
+// import GettingStartedExample from '../components/GoogleMapComponent.jsx';
 // Version B: Delete method showed in front end only, dont update the backend until final click. Beter for performance!
 // add_search event use local search instead of calling backend for updates.!
 // alot to updates...>__<
+// Version C: update backend for the add event order or use front end to do so
+import { withGoogleMap, GoogleMap, Marker } from "react-google-maps";
+
+const SimpleMapExampleGoogleMap = withGoogleMap(props => (
+  <GoogleMap
+    defaultZoom={8}
+    defaultCenter={{ lat: -34.397, lng: 150.644 }}
+  />
+));
+
+
 class HomePage extends React.Component {
   /**
    * Class constructor.
@@ -20,7 +31,8 @@ class HomePage extends React.Component {
       place: "",
       days: "",
       cityStateDataSource: [],
-      addEventDataSource: {},
+      addEventDataSource: [],
+      poiDict: {},
       searchInputValue: '',
       searchEventValue: '',
       daysValue: '1',
@@ -87,7 +99,8 @@ class HomePage extends React.Component {
           fullTripId: res.full_trip_id,
           tripLocationIds: res.trip_location_ids,
           updateTripLocationId: res.trip_location_ids[0],
-          addEventDataSource: {},
+          addEventDataSource: [],
+          poiDict: {},
           searchEventValue: '',
         });
         // call a func: map fulltrip detail to clone => cloneFullTripDetails = 
@@ -136,7 +149,8 @@ class HomePage extends React.Component {
         url: myUrl,
       }).done(function(res) {
         _this.setState({
-          addEventDataSource : res.poi_list,  
+          addEventDataSource : res.poi_names,  
+          poiDict: res.poi_dict,
         });
 
       });
@@ -153,7 +167,7 @@ class HomePage extends React.Component {
   getTapName(updateTripLocationId) {
     this.setState({
         updateTripLocationId: updateTripLocationId,
-        addEventDataSource: {},
+        addEventDataSource: [],
         searchEventValue: '',
     });
   }
@@ -161,11 +175,12 @@ class HomePage extends React.Component {
   onAddEventSubmit = () => {
     const dbLocationURI = 'http://127.0.0.1:8000/update_trip/add/?';
     const _this = this;
-    const poiId = addEventDataSource[this.state.searchEventValue];
+    const poiId = this.state.poiDict[this.state.searchEventValue];
     const validPoiName = encodeURIComponent(this.state.searchEventValue);
     const myUrl = dbLocationURI + 'poi_id=' + poiId + '&poi_name='+ validPoiName
                 +'&full_trip_id='+ this.state.fullTripId +
                 '&trip_location_id='+this.state.updateTripLocationId;
+    console.log(myUrl)
     if(this.state.searchEventValue !== '') {
       $.ajax({
         type: "GET",
@@ -176,18 +191,32 @@ class HomePage extends React.Component {
           fullTripId: res.full_trip_id,
           tripLocationIds: res.trip_location_ids,
           updateTripLocationId: res.current_trip_location_id,
-          addEventDataSource: {},
+          addEventDataSource: [],
           searchEventValue: '',
         });
         // call a func: map fulltrip detail to clone => cloneFullTripDetails = 
       });
     };
   }
+  // Wrap all `react-google-maps` components with `withGoogleMap` HOC
+  // and name it GettingStartedGoogleMap
+  
+
   render() { 
     return (
       <Card className="container">
         <CardTitle title="Travel with Friends!" subtitle="This is the home page." />
         <CardActions>
+          <div className="col-md-12 ">
+              <SimpleMapExampleGoogleMap
+                containerElement={
+                  <div style={{ height: `100%` }} />
+                }
+                mapElement={
+                  <div style={{ height: `100%` }} />
+                }
+              />
+          </div>
           <div className="col-md-8 col-md-offset-2">
             <div className="col-md-5">
               <SearchInputField 
@@ -221,26 +250,16 @@ class HomePage extends React.Component {
                     searchText={this.state.searchEventValue}
                     hintText='Add New Event'
                     inputStyle={{ textAlign: 'center' }}
-                    dataSource={Object.keys(this.state.addEventDataSource)} 
+                    dataSource={this.state.addEventDataSource} 
                     onUpdateInput={this.onAddEventInput} />}
               </div>
               <div className="col-md-2">
                 {this.state.fullTripDetails.length>0 && 
-                  <FullTripAddEventButton />}
+                  <FullTripAddEventButton onAddEventSubmit={this.onAddEventSubmit}/>}
               </div>
             </div>
             <br/>
-            <div className="col-md-12 ">
-              {this.state.fullTripDetails.length>0 && 
-                <FullTripList 
-                  onDeleteEvent={this.onDeleteEvent} 
-                  fullTripDetails={this.state.fullTripDetails} 
-                  tripLocationIds={this.state.tripLocationIds}
-                  getTapName={this.getTapName} />}
-
-              
-            </div>
-            {console.log(this.state.updateTripLocationId, 'aaa',this.state.tripLocationIds)}
+            
           </div>
             
         </CardActions>

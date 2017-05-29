@@ -2,12 +2,27 @@ import json
 import psycopg2
 import simplejson
 import numpy as np
+import re
 from distance import *
 from collections import Counter
 with open('api_key_list.config') as key_file:
     api_key_list = json.load(key_file)
 api_key = api_key_list["distance_api_key_list"]
 conn_str = api_key_list["conn_str"]
+
+def convert_event_ids_to_lst(event_ids):
+    try:
+        if type(ast.literal_eval(event_ids)) == list:
+            new_event_ids = map(int,ast.literal_eval(event_ids))
+        else: 
+            event_ids = re.sub("\s+", ",", event_ids.strip())
+            event_ids = event_ids.replace('.','')
+            new_event_ids = map(int,event_ids.strip('[').strip(']').strip(',').split(','))
+    except:
+        event_ids = re.sub("\s+", ",", event_ids.strip())
+        event_ids = event_ids.replace('.','')
+        new_event_ids = map(int,event_ids.strip('[').strip(']').strip(',').split(','))
+    return new_event_ids
 
 def abb_to_full_state(state):
     '''
@@ -109,7 +124,7 @@ def get_event_ids_list(trip_locations_id):
     cur = conn.cursor()  
     cur.execute("select event_ids,event_type from day_trip_table where trip_locations_id = '%s' " %(trip_locations_id))
     event_ids,event_type = cur.fetchone()
-    event_ids = ast.literal_eval(event_ids)
+    event_ids = convert_event_ids_to_lst(event_ids)
     conn.close()
     return event_ids,event_type
 
@@ -118,17 +133,20 @@ def db_event_cloest_distance(trip_locations_id=None,event_ids=None, event_type =
     '''
     Get matrix cloest distance
     '''
+    conn = psycopg2.connect(conn_str)  
+    cur = conn.cursor()
     if new_event_id or not event_ids:
         event_ids, event_type = get_event_ids_list(trip_locations_id)
         if new_event_id:
             event_ids.append(new_event_id)
-            
-    conn = psycopg2.connect(conn_str)  
-    cur = conn.cursor()
+            print new_event_id
+            cur.execute("SELECT city FROM poi_detail_table_v2 WHERE index = %i;"%(int(new_event_id)))
+            city_name = cur.fetchone()[0]
+
     points=[]
     # points = np.zeros((len(event_ids), 3))
     for i,v in enumerate(event_ids):
-        cur.execute("select index, coord_lat, coord_long, city , ranking from poi_detail_table_v2   where index = %i;"%(float(v)))
+        cur.execute("SELECT index, coord_lat, coord_long, city , ranking FROM poi_detail_table_v2 WHERE index = %i;"%(float(v)))
         points.append(cur.fetchone())
     conn.close()
 
@@ -305,7 +323,7 @@ def db_google_driving_walking_time(event_ids, event_type):
             if (driving_result['rows'][0]['elements'][0]['status'] == 'NOT_FOUND') and (walking_result['rows'][0]['elements'][0]['status'] == 'NOT_FOUND'):
                 new_event_ids = list(event_ids)
                 new_event_ids.pop(i+1)
-                new_event_ids = db_event_cloest_distance(event_ids=new_event_ids, event_type = event_type)
+                new_event_ids, event_type = db_event_cloest_distance(event_ids=new_event_ids, event_type = event_type)
                 return db_google_driving_walking_time(new_event_ids, event_type)
             # print driving_result, driving_result['rows'][0]['elements'][0]['duration']['value']
             try:

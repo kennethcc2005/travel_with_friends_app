@@ -6,7 +6,7 @@ from rest_framework import generics, status
 from django.contrib.auth.models import User
 from travel_with_friends.serializers import UserSerializer, FullTripSearchSerializer, \
         OutsideTripSearchSerializer,CityStateSearchSerializer, FullTripDeleteSerializer, \
-        FullTripAddSearchSerializer
+        FullTripAddSearchSerializer, FullTripAddEventSerializer
 from rest_framework import permissions
 from travel_with_friends.permissions import IsOwnerOrReadOnly, IsStaffOrTargetUser
 from rest_framework.decorators import api_view
@@ -163,7 +163,6 @@ class FullTripDeleteEvent(APIView):
         #         else permissions.IsAuthenticated()),
     def get(self, request):
         # Validate the incoming input (provided through query parameters)
-        print 'welcome to delete your event :)'
         serializer = FullTripDeleteSerializer(data=request.query_params)
         serializer.is_valid(raise_exception=True)
         # Get the model input
@@ -173,7 +172,7 @@ class FullTripDeleteEvent(APIView):
         trip_location_id = data["trip_location_id"]
         username_id = 1
         new_full_trip_id, new_full_trip_details, new_trip_location_ids = trip_update.remove_event(full_trip_id, trip_location_id, event_id, username_id)
-        print 'awesome new: ', new_full_trip_id, new_full_trip_details, new_trip_location_ids
+        print 'trip details after delete event: ', new_full_trip_id, new_full_trip_details, new_trip_location_ids
         return Response({
             "full_trip_id": new_full_trip_id,
             "full_trip_details": new_full_trip_details,
@@ -190,7 +189,6 @@ class FullTripAddSearch(APIView):
         #         else permissions.IsAuthenticated()),
     def get(self, request):
         # Validate the incoming input (provided through query parameters)
-        print 'welcome to add your event :)'
         serializer = FullTripAddSearchSerializer(data=request.query_params)
         serializer.is_valid(raise_exception=True)
         # Get the model input
@@ -198,9 +196,11 @@ class FullTripAddSearch(APIView):
         full_trip_id=data["full_trip_id"]
         poi_name = data["poi_name"]
         trip_location_id = data["trip_location_id"]
-        poi_dict = trip_update.add_search_event(poi_name, trip_location_id)
+        poi_dict, poi_names = trip_update.add_search_event(poi_name, trip_location_id)
+        print 'welcome to add your search :)', poi_names, poi_dict
         return Response({
-            "poi_list": poi_dict
+            "poi_dict": poi_dict,
+            "poi_names": poi_names,
         })
 
 class FullTripAddEvent(APIView):
@@ -213,21 +213,23 @@ class FullTripAddEvent(APIView):
         #         else permissions.IsAuthenticated()),
     def get(self, request):
         # Validate the incoming input (provided through query parameters)
-        print 'submit your add event :)'
+        
         serializer = FullTripAddEventSerializer(data=request.query_params)
         serializer.is_valid(raise_exception=True)
         # Get the model input
         data = serializer.validated_data
         full_trip_id=data["full_trip_id"]
         poi_name = data["poi_name"]
-        poi_id = data["poi_id"]
+        poi_id = data["poi_id"] if data["poi_id"] != 'undefined' else None
         trip_location_id = data["trip_location_id"]
-        full_trip_id, full_trip_details, trip_location_ids, current_trip_location_id = trip_update.add_event(poi_id, poi_name, trip_location_id, full_trip_id)
+        old_trip_location_id,new_trip_location_id, new_day_details = trip_update.add_event_day_trip(poi_id, poi_name, trip_location_id, full_trip_id)
+        full_trip_id, trip_location_ids, full_trip_details = trip_update.add_event_full_trip(full_trip_id, old_trip_location_id, new_trip_location_id, new_day_details)
+        print 'submit your add event :)', full_trip_id, trip_location_ids, full_trip_details
         return Response({
             "full_trip_details": full_trip_details,
             "full_trip_id": full_trip_id,
             "trip_location_ids": trip_location_ids,
-            "current_trip_location_id": current_trip_location_id,
+            "current_trip_location_id": new_trip_location_id,
         })
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
