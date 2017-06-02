@@ -95237,56 +95237,105 @@ var DirectionsTrip = function (_Component) {
 
     var _this = _possibleConstructorReturn(this, (DirectionsTrip.__proto__ || Object.getPrototypeOf(DirectionsTrip)).call(this, props));
 
+    _this.getWaypts = function (fullTripDetails, tripLocationIds, updateTripLocationId) {
+      var waypts = [];
+      var currentDay = tripLocationIds.findIndex(function (x) {
+        return x == updateTripLocationId;
+      });
+      var oriIndex = fullTripDetails.findIndex(function (x) {
+        return x.day == currentDay;
+      });
+      var dayAry = fullTripDetails.map(function (a) {
+        return a.day;
+      });
+      var destIndex = dayAry.lastIndexOf(currentDay);
+      var origin = '';
+      var location = '';
+      var destination = '';
+      for (var i = oriIndex; i <= destIndex; i++) {
+        var addressArr = fullTripDetails[i].address.split(', ');
+        var newArr = [];
+        for (var j = 0; j < addressArr.length - 1; j++) {
+          if (isNaN(addressArr[j])) {
+            newArr.push(addressArr[j]);
+          }
+        }
+        var newAddress = newArr.join(', ');
+        var cityState = fullTripDetails[i].city + ', ' + fullTripDetails[i].state;
+        if (newAddress === cityState) {
+          location = fullTripDetails[i].name + ', ' + cityState;
+          // console.log('no coord: ', location)
+        } else {
+          location = new google.maps.LatLng(fullTripDetails[i].coord_lat, fullTripDetails[i].coord_long);
+        }
+        if (i == oriIndex) {
+          origin = location;
+          // console.log(fullTripDetails[i], 'ori')
+        } else if (i == destIndex) {
+          destination = location;
+          // console.log(fullTripDetails[i],'dest')
+        } else {
+
+          waypts.push({ location: location, stopover: true });
+        }
+      }
+      return {
+        origin: origin,
+        destination: destination,
+        waypts: waypts
+      };
+    };
+
     _this.state = {
-      directions: null
+      directions: null,
+      directionDetails: {}
     };
     _this.getWaypts = _this.getWaypts.bind(_this);
+    _this.getDirections = _this.getDirections.bind(_this);
     return _this;
   }
 
   _createClass(DirectionsTrip, [{
-    key: "getWaypts",
-    value: function getWaypts() {
+    key: "componentWillMount",
+    value: function componentWillMount() {
+      this.setState({ directionDetails: this.getWaypts(this.props.fullTripDetails, this.props.tripLocationIds, this.props.updateTripLocationId) });
+    }
+  }, {
+    key: "componentWillReceiveProps",
+    value: function componentWillReceiveProps(nextProps) {
+      if (nextProps.fullTripDetails !== this.props.fullTripDetails || nextProps.updateTripLocationId !== this.props.updateTripLocationId) {
+        this.setState({ directionDetails: this.getWaypts(nextProps.fullTripDetails, nextProps.tripLocationIds, nextProps.updateTripLocationId) });
+      }
+    }
+  }, {
+    key: "getDirections",
+    value: function getDirections() {
       var _this2 = this;
 
-      var waypts = [];
-      var currentDay = this.props.tripLocationIds.findIndex(function (x) {
-        return x == _this2.props.updateTripLocationId;
-      });
-      var oriIndex = this.props.fullTripDetails.findIndex(function (x) {
-        return x.day == currentDay;
-      });
-      var dayAry = this.props.fullTripDetails.map(function (a) {
-        return a.day;
-      });
-      var destIndex = dayAry.lastIndexOf(currentDay);
-      for (i = oriIndex; i < destIndex; i++) {
-        location = new google.maps.LatLng(this.props.fullTripDetails[destIndex - 1].coord_lat, this.props.fullTripDetails[destIndex - 1].coord_long);
+      var DirectionsService = new google.maps.DirectionsService();
+      if (this.state.directionDetails.origin) {
+        DirectionsService.route({
+          origin: this.state.directionDetails.origin,
+          destination: this.state.directionDetails.destination,
+          travelMode: google.maps.TravelMode.DRIVING,
+          waypoints: this.state.directionDetails.waypts,
+          optimizeWaypoints: true
+        }, function (result, status) {
+          if (status === google.maps.DirectionsStatus.OK) {
+            _this2.setState({
+              directions: result
+            });
+          } else {
+            console.error("error fetching directions " + result);
+          }
+        });
       }
-      var origin = new google.maps.LatLng(this.props.fullTripDetails[oriIndex].coord_lat, this.props.fullTripDetails[oriIndex].coord_long);
     }
   }, {
     key: "render",
     value: function render() {
       var _this3 = this;
 
-      console.log(this.props.fullTripDetails[0]);
-      var waypts = [];
-      var currentDay = this.props.tripLocationIds.findIndex(function (x) {
-        return x == _this3.props.updateTripLocationId;
-      });
-      var oriIndex = this.props.fullTripDetails.findIndex(function (x) {
-        return x.day == currentDay;
-      });
-      var dayAry = this.props.fullTripDetails.map(function (a) {
-        return a.day;
-      });
-      var destIndex = dayAry.lastIndexOf(currentDay);
-      var destination = new google.maps.LatLng(this.props.fullTripDetails[destIndex].coord_lat, this.props.fullTripDetails[destIndex].coord_long);
-      var origin = new google.maps.LatLng(this.props.fullTripDetails[oriIndex].coord_lat, this.props.fullTripDetails[oriIndex].coord_long);
-
-      waypts.push({ location: 'Golden Gate Bridge', stopover: true });
-      waypts.push({ location: new google.maps.LatLng(this.props.fullTripDetails[destIndex - 1].coord_lat, this.props.fullTripDetails[destIndex - 1].coord_long), stopover: true });
       var DirectionsGoogleMap = (0, _reactGoogleMaps.withGoogleMap)(function (props) {
         return _react2.default.createElement(
           _reactGoogleMaps.GoogleMap,
@@ -95297,30 +95346,12 @@ var DirectionsTrip = function (_Component) {
           _this3.state.directions && _react2.default.createElement(_reactGoogleMaps.DirectionsRenderer, { directions: _this3.state.directions })
         );
       });
-
-      var DirectionsService = new google.maps.DirectionsService();
-
-      if (origin) {
-        DirectionsService.route({
-          origin: origin,
-          destination: destination,
-          travelMode: google.maps.TravelMode.DRIVING,
-          waypoints: waypts
-        }, function (result, status) {
-          if (status === google.maps.DirectionsStatus.OK) {
-            _this3.setState({
-              directions: result
-            });
-          } else {
-            console.error("error fetching directions " + result);
-          }
-        });
-      }
+      this.getDirections();
 
       return _react2.default.createElement(DirectionsGoogleMap, {
         containerElement: _react2.default.createElement("div", { style: { height: "100%" } }),
         mapElement: _react2.default.createElement("div", { style: { height: "100%" } }),
-        center: origin,
+        center: this.state.directionDetails.origin,
         directions: this.state.directions
       });
     }
