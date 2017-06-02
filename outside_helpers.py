@@ -127,9 +127,9 @@ def db_outside_route_trip_details(event_ids, route_i):
     details = []
     #details dict includes: id, name,address, day
     for event_id in event_ids:
-        cur.execute("select index, name, address, coord_lat, coord_long from poi_detail_table_v2 where index = %s;" %(event_id))
+        cur.execute("select index, name, address, coord_lat, coord_long, city, state from poi_detail_table_v2 where index = %s;" %(event_id))
         a = cur.fetchone()
-        details.append({'id': a[0],'name': a[1],'address': a[2], 'coord_lat': a[3], 'coord_long':a[4], 'route': route_i})
+        details.append({'id': a[0],'name': a[1],'address': a[2], 'coord_lat': a[3], 'coord_long':a[4], 'route': route_i, 'city': a[5], 'state': a[6]})
     conn.close()
     return details
 

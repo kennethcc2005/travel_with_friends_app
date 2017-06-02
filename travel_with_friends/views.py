@@ -171,12 +171,13 @@ class FullTripDeleteEvent(APIView):
         event_id = data["event_id"]
         trip_location_id = data["trip_location_id"]
         username_id = 1
-        new_full_trip_id, new_full_trip_details, new_trip_location_ids = trip_update.remove_event(full_trip_id, trip_location_id, event_id, username_id)
-        print 'trip details after delete event: ', new_full_trip_id, new_full_trip_details, new_trip_location_ids
+        new_full_trip_id, new_full_trip_details, new_trip_location_ids, current_trip_location_id = trip_update.remove_event(full_trip_id, trip_location_id, event_id, username_id)
+        print 'trip details after delete event: ', new_full_trip_id, new_full_trip_details, new_trip_location_ids, current_trip_location_id
         return Response({
             "full_trip_id": new_full_trip_id,
             "full_trip_details": new_full_trip_details,
             "trip_location_ids": new_trip_location_ids,
+            "current_trip_location_id": current_trip_location_id
         })
 
 class FullTripAddSearch(APIView):

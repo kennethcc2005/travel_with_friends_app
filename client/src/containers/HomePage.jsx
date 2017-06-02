@@ -5,19 +5,24 @@ import MenuItemDays from '../components/MenuItemDays.jsx';
 import FullTripSearchButton from '../components/FullTripSearchButton.jsx';
 import FullTripList from '../components/FullTripList.jsx';
 import FullTripAddEventButton from '../components/FullTripAddEventButton.jsx';
-// import GettingStartedExample from '../components/GoogleMapComponent.jsx';
+import DirectionsTrip from '../components/GoogleMapComponent.jsx';
 // Version B: Delete method showed in front end only, dont update the backend until final click. Beter for performance!
 // add_search event use local search instead of calling backend for updates.!
 // alot to updates...>__<
 // Version C: update backend for the add event order or use front end to do so
-import { withGoogleMap, GoogleMap, Marker } from "react-google-maps";
+// import { withGoogleMap, GoogleMap, Marker } from "react-google-maps";
 
-const SimpleMapExampleGoogleMap = withGoogleMap(props => (
-  <GoogleMap
-    defaultZoom={8}
-    defaultCenter={{ lat: -34.397, lng: 150.644 }}
-  />
-));
+// const SimpleMapExampleGoogleMap = withGoogleMap(props => (
+//   <GoogleMap
+//     defaultZoom={8}
+//     defaultCenter={{ lat: -34.397, lng: 150.644 }}
+//   />
+// ));
+
+const divStyle = {
+  width: '100%',
+  height: '400px',
+};
 
 
 class HomePage extends React.Component {
@@ -42,6 +47,7 @@ class HomePage extends React.Component {
       cloneFullTripDetails: [],
       updateEventId: '',
       updateTripLocationId: '',
+
     };
     this.performSearch = this.performSearch.bind(this)
     this.onUpdateInput = this.onUpdateInput.bind(this)
@@ -123,6 +129,7 @@ class HomePage extends React.Component {
           fullTripDetails : res.full_trip_details,  
           fullTripId: res.full_trip_id,
           tripLocationIds: res.trip_location_ids,
+          updateTripLocationId: res.current_trip_location_id,
           updateEventId: '',
         });
       });
@@ -204,19 +211,10 @@ class HomePage extends React.Component {
 
   render() { 
     return (
-      <Card className="container">
+      <Card className="container" >
         <CardTitle title="Travel with Friends!" subtitle="This is the home page." />
         <CardActions>
-          <div className="col-md-12 ">
-              <SimpleMapExampleGoogleMap
-                containerElement={
-                  <div style={{ height: `100%` }} />
-                }
-                mapElement={
-                  <div style={{ height: `100%` }} />
-                }
-              />
-          </div>
+          
           <div className="col-md-8 col-md-offset-2">
             <div className="col-md-5">
               <SearchInputField 
@@ -257,9 +255,17 @@ class HomePage extends React.Component {
                 {this.state.fullTripDetails.length>0 && 
                   <FullTripAddEventButton onAddEventSubmit={this.onAddEventSubmit}/>}
               </div>
+              
             </div>
-            <br/>
-            
+            <div className="col-md-12">
+                {console.log('current id: ',this.state.updateTripLocationId)}
+                <div style={divStyle}>
+                  {console.log(this.state.updateTripLocationId, this.state.tripLocationIds)}
+                  {this.state.fullTripDetails.length > 0 && <DirectionsTrip fullTripDetails={this.state.fullTripDetails}
+                                                                            updateTripLocationId={this.state.updateTripLocationId}
+                                                                            tripLocationIds={this.state.tripLocationIds} />}
+                </div>
+              </div>            
           </div>
             
         </CardActions>

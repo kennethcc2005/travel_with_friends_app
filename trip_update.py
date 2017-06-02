@@ -74,7 +74,7 @@ def add_event_day_trip(poi_id, poi_name, trip_locations_id, full_trip_id, full_d
             cur.execute("select max(index) from day_trip_table;")
             new_index = cur.fetchone()[0]+1
             #need to make sure the type is correct for detail!
-            new_event_detail = {"name": poi_name, "day": u"None", "coord_lat": "None", "coord_long": "None","address": "None", "id": "None"}
+            new_event_detail = {"name": poi_name, "day": u"None", "coord_lat": "None", "coord_long": "None","address": "None", "id": "None", "city": "", "state": ""}
             for index, detail in enumerate(day_details):
                 if type(detail) == str:
                     day_details[index] = ast.literal_eval(detail)
@@ -106,9 +106,9 @@ def add_event_day_trip(poi_id, poi_name, trip_locations_id, full_trip_id, full_d
             else:
                 event_day = ast.literal_eval(day_details[0])['day']
             for item in event_ids:
-                cur.execute("select index, name, address, coord_lat, coord_long from poi_detail_table_v2 where index = '%s';" %(item))
+                cur.execute("select index, name, address, coord_lat, coord_long, city, state from poi_detail_table_v2 where index = '%s';" %(item))
                 a = cur.fetchone()
-                detail = {"name": a[1], "day": event_day, "coord_lat": a[3], "coord_long": a[4],'address': a[2],  'id': a[0] }
+                detail = {"name": a[1], "day": event_day, "coord_lat": a[3], "coord_long": a[4],'address': a[2],  'id': a[0], 'city': a[5], 'state': a[6] }
                 details.append(detail)
             #need to make sure event detail can append to table!
             cur.execute("select max(index) from day_trip_table;")
@@ -237,7 +237,7 @@ def remove_event(full_trip_id, trip_locations_id, remove_event_id, username_id=1
         conn.commit()
     conn.close()
     new_full_trip_id, new_full_trip_details,new_trip_location_ids = new_full_trip_afer_remove_event(full_trip_id, trip_locations_id, new_trip_locations_id, username_id=1)
-    return new_full_trip_id, new_full_trip_details,new_trip_location_ids
+    return new_full_trip_id, new_full_trip_details,new_trip_location_ids, new_trip_locations_id
 
 def new_full_trip_afer_remove_event(full_trip_id, old_trip_locations_id, new_trip_locations_id, username_id=1):
     conn = psycopg2.connect(conn_str)   
