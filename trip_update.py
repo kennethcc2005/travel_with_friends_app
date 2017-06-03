@@ -15,6 +15,7 @@ conn_str = api_key_list["conn_str"]
 
 def convert_event_ids_to_lst(event_ids):
     try:
+        print type(event_ids), 'aha,', event_ids
         if type(ast.literal_eval(event_ids)) == list:
             new_event_ids = map(int,ast.literal_eval(event_ids))
         else: 
@@ -22,9 +23,8 @@ def convert_event_ids_to_lst(event_ids):
             event_ids = event_ids.replace('.','')
             new_event_ids = map(int,event_ids.strip('[').strip(']').strip(',').split(','))
     except:
-        event_ids = re.sub("\s+", ",", event_ids.strip())
-        event_ids = event_ids.replace('.','')
-        new_event_ids = map(int,event_ids.strip('[').strip(']').strip(',').split(','))
+        event_ids = re.sub("\s+", " ", event_ids.replace('[','').replace(']','').strip()).split(' ')
+        new_event_ids = map(int,map(float,event_ids))
     return new_event_ids
 
 def add_search_event(poi_name, trip_location_id):

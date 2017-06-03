@@ -18,7 +18,7 @@ class OutsideTripSearchSerializer(serializers.Serializer):
 class CityStateSearchSerializer(serializers.Serializer):
     city_state = serializers.CharField()
     
-class FullTripDeleteSerializer(serializers.Serializer):
+class FullTripSuggestDeleteSerializer(serializers.Serializer):
     full_trip_id = serializers.CharField()
     event_id = serializers.CharField()
     trip_location_id = serializers.CharField()

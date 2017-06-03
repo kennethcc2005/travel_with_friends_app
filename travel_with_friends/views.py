@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from rest_framework import generics, status
 from django.contrib.auth.models import User
 from travel_with_friends.serializers import UserSerializer, FullTripSearchSerializer, \
-        OutsideTripSearchSerializer,CityStateSearchSerializer, FullTripDeleteSerializer, \
+        OutsideTripSearchSerializer,CityStateSearchSerializer, FullTripSuggestDeleteSerializer, \
         FullTripAddSearchSerializer, FullTripAddEventSerializer
 from rest_framework import permissions
 from travel_with_friends.permissions import IsOwnerOrReadOnly, IsStaffOrTargetUser
@@ -163,7 +163,7 @@ class FullTripDeleteEvent(APIView):
         #         else permissions.IsAuthenticated()),
     def get(self, request):
         # Validate the incoming input (provided through query parameters)
-        serializer = FullTripDeleteSerializer(data=request.query_params)
+        serializer = FullTripSuggestDeleteSerializer(data=request.query_params)
         serializer.is_valid(raise_exception=True)
         # Get the model input
         data = serializer.validated_data
@@ -231,6 +231,33 @@ class FullTripAddEvent(APIView):
             "full_trip_id": full_trip_id,
             "trip_location_ids": trip_location_ids,
             "current_trip_location_id": new_trip_location_id,
+        })
+
+class FullTripSuggestEvent(APIView):
+    # def get_permissions(self):
+    #     '''
+    #     response = requests.get(myurl, headers={'Authorization': 'Token {}'.format(mytoken)})
+    #     '''
+    #     return (permissions.IsAuthenticated()),
+        # return (AllowAny() if self.request.method == 'POST'
+        #         else permissions.IsAuthenticated()),
+    def get(self, request):
+        # Validate the incoming input (provided through query parameters)
+        serializer = FullTripSuggestDeleteSerializer(data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+        # Get the model input
+        data = serializer.validated_data
+        full_trip_id=data["full_trip_id"]
+        event_id = data["event_id"]
+        trip_location_id = data["trip_location_id"]
+        username_id = 1
+        new_full_trip_id, new_full_trip_details, new_trip_location_ids, current_trip_location_id = trip_update.suggest_event(full_trip_id, trip_location_id, event_id, username_id)
+        print 'trip details after delete event: ', new_full_trip_id, new_full_trip_details, new_trip_location_ids, current_trip_location_id
+        return Response({
+            "full_trip_id": new_full_trip_id,
+            "full_trip_details": new_full_trip_details,
+            "trip_location_ids": new_trip_location_ids,
+            "current_trip_location_id": current_trip_location_id
         })
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
