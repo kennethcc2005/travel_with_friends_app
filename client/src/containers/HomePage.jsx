@@ -5,6 +5,8 @@ import MenuItemDays from '../components/MenuItemDays.jsx';
 import FullTripSearchButton from '../components/FullTripSearchButton.jsx';
 import FullTripList from '../components/FullTripList.jsx';
 import FullTripAddEventButton from '../components/FullTripAddEventButton.jsx';
+import FullTripResetButton from '../components/FullTripResetButton.jsx';
+import FullTripConfirmButton from '../components/FullTripConfirmButton.jsx';
 import DirectionsTrip from '../components/GoogleMapComponent.jsx';
 // Version B: Delete method showed in front end only, dont update the backend until final click. Beter for performance!
 // add_search event use local search instead of calling backend for updates.!
@@ -47,6 +49,11 @@ class HomePage extends React.Component {
       cloneFullTripDetails: [],
       updateEventId: '',
       updateTripLocationId: '',
+      suggestEventArr: {1: [1,12,6,7], 2: [2,12,6,7]},
+      updatedSuggestEvent: {
+        1: 6,
+        2: 6,
+      },
 
     };
     this.performSearch = this.performSearch.bind(this)
@@ -54,7 +61,11 @@ class HomePage extends React.Component {
     this.handleDaysOnChange = this.handleDaysOnChange.bind(this)
     this.onFullTripSubmit = this.onFullTripSubmit.bind(this)
     this.onDeleteEvent = this.onDeleteEvent.bind(this)
+    this.onSuggestEvent = this.onSuggestEvent.bind(this)
+    this.onFullTripReset = this.onFullTripReset.bind(this)
+    this.onFullTripConfirm = this.onFullTripConfirm.bind(this)
     this.performDeleteEventId = this.performDeleteEventId.bind(this)
+    this.performSuggestEventLst = this.performSuggestEventLst.bind(this)
     this.onAddEventInput = this.onAddEventInput.bind(this)
     this.getTapName = this.getTapName.bind(this)
     this.onAddEventSubmit = this.onAddEventSubmit.bind(this)
@@ -142,6 +153,55 @@ class HomePage extends React.Component {
       },this.performDeleteEventId);
   }
 
+  onSuggestEvent(updateEventId, updateTripLocationId) {
+    if (this.state.suggestEventArr.hasOwnProperty(updateEventId)) {
+      let suggestEvent = this.state.suggestEventArr[Math.floor(Math.random()*this.state.suggestEventArr.length)];
+      updateSuggestEvent = Object.assign({}, this.state.updateSuggestEvent[updateEventId], suggestEvent);
+      this.setState({
+        updateEventId: updateEventId,
+        updateTripLocationId: updateTripLocationId,
+        updatedSuggestEvent: updateSuggestEvent,
+      }); 
+    } else {
+      this.setState({
+        updateEventId,
+        updateTripLocationId
+      }, this.performSuggestEventLst);
+    }
+  }
+
+  performSuggestEventLst(){
+    const myUrl = 'http://127.0.0.1:8000/update_trip/suggest_search/?full_trip_id=' + this.state.fullTripId +
+                        '&event_id=' + this.state.updateEventId +
+                        '&trip_location_id='+this.state.updateTripLocationId;
+    const _this = this;
+    if(this.state.updateEventId !== '') {
+      console.log(myUrl);
+      $.ajax({
+        type: "GET",
+        url: myUrl,
+      }).done(function(res) {
+        updateSuggestArr = Object.assign({}, this.state.updateSuggestArr[this.state.updateEventId], res.suggest_arr);
+        let suggestEvent = updateSuggestArr[Math.floor(Math.random()*updateSuggestArr.length)];
+        updateSuggestEvent = Object.assign({}, this.state.updateSuggestEvent[updateEventId], suggestEvent);
+        _this.setState({
+          updateSuggestArr: updateSuggestArr,
+          updateSuggestEvent: updateSuggestEvent,
+        });
+      });
+    };
+  }
+
+  onFullTripReset(){
+    this.setState({
+      updateSuggestEvent: {}
+    })
+  }
+
+  onFullTripConfirm(){
+
+  }
+
   performAddEventSearch() {
     const dbLocationURI = 'http://127.0.0.1:8000/update_trip/add_search/?poi_name=';
     const _this = this;
@@ -210,6 +270,7 @@ class HomePage extends React.Component {
   
 
   render() { 
+    console.log('home page')
     return (
       <Card className="container" >
         <CardTitle title="Travel with Friends!" subtitle="This is the home page." />
@@ -240,8 +301,8 @@ class HomePage extends React.Component {
                   getTapName={this.getTapName} 
                   />}
             </div>
-            <div className="col-md-8 col-md-offset-2">
-              <div className="col-md-8 col-md-offset-2">
+            <div className="col-md-10 col-md-offset-2">
+              <div className="col-md-5 col-md-offset-1">
                 {this.state.fullTripDetails.length>0 && 
                   <SearchInputField
                     name = 'searchAddEvent'
@@ -255,10 +316,20 @@ class HomePage extends React.Component {
                 {this.state.fullTripDetails.length>0 && 
                   <FullTripAddEventButton onAddEventSubmit={this.onAddEventSubmit}/>}
               </div>
+              <div className="col-md-4">
+                <div className="col-md-4">
+                  {this.state.fullTripDetails.length>0 && 
+                    <FullTripResetButton onFullTripReset={this.onFullTripReset}/>}
+                </div>
+                <div className="col-md-4">
+                  {this.state.fullTripDetails.length>0 && 
+                    <FullTripConfirmButton onFullTripConfirm={this.onFullTripConfirm}/>}
+                </div>
+              </div>
               
             </div>
             <div className="col-md-12">
-                {console.log('current id: ',this.state.updateTripLocationId)}
+                {console.log('current full_trip_details: ',this.state.fullTripDetails)}
                 <div style={divStyle}>
                   {console.log(this.state.updateTripLocationId, this.state.tripLocationIds)}
                   {this.state.fullTripDetails.length > 0 && <DirectionsTrip fullTripDetails={this.state.fullTripDetails}

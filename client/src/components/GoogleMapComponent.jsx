@@ -25,6 +25,16 @@ export default class DirectionsTrip extends Component {
     }
   }
 
+  componentDidMount() {
+    this.getDirections();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if ((prevProps.fullTripDetails !== this.props.fullTripDetails) || ((prevProps.updateTripLocationId !== this.props.updateTripLocationId))) {
+      this.getDirections();
+    }
+  }
+
   getWaypts = function(fullTripDetails, tripLocationIds, updateTripLocationId) {
     let waypts = [];
     const currentDay = tripLocationIds.findIndex(x => x == updateTripLocationId);
@@ -72,6 +82,7 @@ export default class DirectionsTrip extends Component {
   }
 
   getDirections() {
+    console.log('get directions')
     const DirectionsService = new google.maps.DirectionsService();
     if(this.state.directionDetails.origin){ 
       DirectionsService.route({
@@ -85,6 +96,7 @@ export default class DirectionsTrip extends Component {
           this.setState({
             directions: result,
           });
+          console.log('reuslt: ', result)
         } else {
           console.error(`error fetching directions ${result}`);
         }
@@ -93,6 +105,7 @@ export default class DirectionsTrip extends Component {
   }
 
   render() {
+    console.log('map updated!')
     const DirectionsGoogleMap = withGoogleMap(props => (
       <GoogleMap
         defaultZoom={7}
@@ -101,7 +114,7 @@ export default class DirectionsTrip extends Component {
         {this.state.directions && <DirectionsRenderer directions={this.state.directions} />}
       </GoogleMap>
     ));
-    this.getDirections();
+    // this.getDirections();
 
     return (
       <DirectionsGoogleMap

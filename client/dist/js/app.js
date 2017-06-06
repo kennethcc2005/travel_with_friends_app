@@ -29481,6 +29481,14 @@ var _FullTripAddEventButton = __webpack_require__(668);
 
 var _FullTripAddEventButton2 = _interopRequireDefault(_FullTripAddEventButton);
 
+var _FullTripResetButton = __webpack_require__(892);
+
+var _FullTripResetButton2 = _interopRequireDefault(_FullTripResetButton);
+
+var _FullTripConfirmButton = __webpack_require__(895);
+
+var _FullTripConfirmButton2 = _interopRequireDefault(_FullTripConfirmButton);
+
 var _GoogleMapComponent = __webpack_require__(882);
 
 var _GoogleMapComponent2 = _interopRequireDefault(_GoogleMapComponent);
@@ -29593,7 +29601,12 @@ var HomePage = function (_React$Component) {
       tripLocationIds: [],
       cloneFullTripDetails: [],
       updateEventId: '',
-      updateTripLocationId: ''
+      updateTripLocationId: '',
+      suggestEventArr: { 1: [1, 12, 6, 7], 2: [2, 12, 6, 7] },
+      updatedSuggestEvent: {
+        1: 6,
+        2: 6
+      }
 
     };
     _this2.performSearch = _this2.performSearch.bind(_this2);
@@ -29601,7 +29614,11 @@ var HomePage = function (_React$Component) {
     _this2.handleDaysOnChange = _this2.handleDaysOnChange.bind(_this2);
     _this2.onFullTripSubmit = _this2.onFullTripSubmit.bind(_this2);
     _this2.onDeleteEvent = _this2.onDeleteEvent.bind(_this2);
+    _this2.onSuggestEvent = _this2.onSuggestEvent.bind(_this2);
+    _this2.onFullTripReset = _this2.onFullTripReset.bind(_this2);
+    _this2.onFullTripConfirm = _this2.onFullTripConfirm.bind(_this2);
     _this2.performDeleteEventId = _this2.performDeleteEventId.bind(_this2);
+    _this2.performSuggestEventLst = _this2.performSuggestEventLst.bind(_this2);
     _this2.onAddEventInput = _this2.onAddEventInput.bind(_this2);
     _this2.getTapName = _this2.getTapName.bind(_this2);
     _this2.onAddEventSubmit = _this2.onAddEventSubmit.bind(_this2);
@@ -29667,6 +29684,55 @@ var HomePage = function (_React$Component) {
       }, this.performDeleteEventId);
     }
   }, {
+    key: 'onSuggestEvent',
+    value: function onSuggestEvent(updateEventId, updateTripLocationId) {
+      if (this.state.suggestEventArr.hasOwnProperty(updateEventId)) {
+        var suggestEvent = this.state.suggestEventArr[Math.floor(Math.random() * this.state.suggestEventArr.length)];
+        updateSuggestEvent = Object.assign({}, this.state.updateSuggestEvent[updateEventId], suggestEvent);
+        this.setState({
+          updateEventId: updateEventId,
+          updateTripLocationId: updateTripLocationId,
+          updatedSuggestEvent: updateSuggestEvent
+        });
+      } else {
+        this.setState({
+          updateEventId: updateEventId,
+          updateTripLocationId: updateTripLocationId
+        }, this.performSuggestEventLst);
+      }
+    }
+  }, {
+    key: 'performSuggestEventLst',
+    value: function performSuggestEventLst() {
+      var myUrl = 'http://127.0.0.1:8000/update_trip/suggest_search/?full_trip_id=' + this.state.fullTripId + '&event_id=' + this.state.updateEventId + '&trip_location_id=' + this.state.updateTripLocationId;
+      var _this = this;
+      if (this.state.updateEventId !== '') {
+        console.log(myUrl);
+        $.ajax({
+          type: "GET",
+          url: myUrl
+        }).done(function (res) {
+          updateSuggestArr = Object.assign({}, this.state.updateSuggestArr[this.state.updateEventId], res.suggest_arr);
+          var suggestEvent = updateSuggestArr[Math.floor(Math.random() * updateSuggestArr.length)];
+          updateSuggestEvent = Object.assign({}, this.state.updateSuggestEvent[updateEventId], suggestEvent);
+          _this.setState({
+            updateSuggestArr: updateSuggestArr,
+            updateSuggestEvent: updateSuggestEvent
+          });
+        });
+      };
+    }
+  }, {
+    key: 'onFullTripReset',
+    value: function onFullTripReset() {
+      this.setState({
+        updateSuggestEvent: {}
+      });
+    }
+  }, {
+    key: 'onFullTripConfirm',
+    value: function onFullTripConfirm() {}
+  }, {
     key: 'performAddEventSearch',
     value: function performAddEventSearch() {
       var dbLocationURI = 'http://127.0.0.1:8000/update_trip/add_search/?poi_name=';
@@ -29712,6 +29778,7 @@ var HomePage = function (_React$Component) {
 
 
     value: function render() {
+      console.log('home page');
       return _react2.default.createElement(
         _Card.Card,
         { className: 'container' },
@@ -29755,10 +29822,10 @@ var HomePage = function (_React$Component) {
             ),
             _react2.default.createElement(
               'div',
-              { className: 'col-md-8 col-md-offset-2' },
+              { className: 'col-md-10 col-md-offset-2' },
               _react2.default.createElement(
                 'div',
-                { className: 'col-md-8 col-md-offset-2' },
+                { className: 'col-md-5 col-md-offset-1' },
                 this.state.fullTripDetails.length > 0 && _react2.default.createElement(_SearchInputField2.default, {
                   name: 'searchAddEvent',
                   searchText: this.state.searchEventValue,
@@ -29771,12 +29838,26 @@ var HomePage = function (_React$Component) {
                 'div',
                 { className: 'col-md-2' },
                 this.state.fullTripDetails.length > 0 && _react2.default.createElement(_FullTripAddEventButton2.default, { onAddEventSubmit: this.onAddEventSubmit })
+              ),
+              _react2.default.createElement(
+                'div',
+                { className: 'col-md-4' },
+                _react2.default.createElement(
+                  'div',
+                  { className: 'col-md-4' },
+                  this.state.fullTripDetails.length > 0 && _react2.default.createElement(_FullTripResetButton2.default, { onFullTripReset: this.onFullTripReset })
+                ),
+                _react2.default.createElement(
+                  'div',
+                  { className: 'col-md-4' },
+                  this.state.fullTripDetails.length > 0 && _react2.default.createElement(_FullTripConfirmButton2.default, { onFullTripConfirm: this.onFullTripConfirm })
+                )
               )
             ),
             _react2.default.createElement(
               'div',
               { className: 'col-md-12' },
-              console.log('current id: ', this.state.updateTripLocationId),
+              console.log('current full_trip_details: ', this.state.fullTripDetails),
               _react2.default.createElement(
                 'div',
                 { style: divStyle },
@@ -95308,10 +95389,23 @@ var DirectionsTrip = function (_Component) {
       }
     }
   }, {
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      this.getDirections();
+    }
+  }, {
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(prevProps, prevState) {
+      if (prevProps.fullTripDetails !== this.props.fullTripDetails || prevProps.updateTripLocationId !== this.props.updateTripLocationId) {
+        this.getDirections();
+      }
+    }
+  }, {
     key: "getDirections",
     value: function getDirections() {
       var _this2 = this;
 
+      console.log('get directions');
       var DirectionsService = new google.maps.DirectionsService();
       if (this.state.directionDetails.origin) {
         DirectionsService.route({
@@ -95325,6 +95419,7 @@ var DirectionsTrip = function (_Component) {
             _this2.setState({
               directions: result
             });
+            console.log('reuslt: ', result);
           } else {
             console.error("error fetching directions " + result);
           }
@@ -95336,6 +95431,7 @@ var DirectionsTrip = function (_Component) {
     value: function render() {
       var _this3 = this;
 
+      console.log('map updated!');
       var DirectionsGoogleMap = (0, _reactGoogleMaps.withGoogleMap)(function (props) {
         return _react2.default.createElement(
           _reactGoogleMaps.GoogleMap,
@@ -95346,7 +95442,7 @@ var DirectionsTrip = function (_Component) {
           _this3.state.directions && _react2.default.createElement(_reactGoogleMaps.DirectionsRenderer, { directions: _this3.state.directions })
         );
       });
-      this.getDirections();
+      // this.getDirections();
 
       return _react2.default.createElement(DirectionsGoogleMap, {
         containerElement: _react2.default.createElement("div", { style: { height: "100%" } }),
@@ -96619,6 +96715,205 @@ module.exports = function shallowEqual(objA, objB, compare, compareContext) {
 
 };
 
+
+/***/ }),
+/* 892 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _FloatingActionButton = __webpack_require__(450);
+
+var _FloatingActionButton2 = _interopRequireDefault(_FloatingActionButton);
+
+var _add = __webpack_require__(669);
+
+var _add2 = _interopRequireDefault(_add);
+
+var _redo = __webpack_require__(893);
+
+var _redo2 = _interopRequireDefault(_redo);
+
+var _save = __webpack_require__(894);
+
+var _save2 = _interopRequireDefault(_save);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var FullTripResetButton = function FullTripResetButton(_ref) {
+  var onFullTripReset = _ref.onFullTripReset;
+  return _react2.default.createElement(
+    'div',
+    null,
+    _react2.default.createElement(
+      _FloatingActionButton2.default,
+      { mini: true, onClick: onFullTripReset },
+      _react2.default.createElement(_redo2.default, null)
+    )
+  );
+};
+
+FullTripResetButton.propTypes = {
+  onFullTripReset: _react.PropTypes.func.isRequired
+};
+
+exports.default = FullTripResetButton;
+
+/***/ }),
+/* 893 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pure = __webpack_require__(21);
+
+var _pure2 = _interopRequireDefault(_pure);
+
+var _SvgIcon = __webpack_require__(19);
+
+var _SvgIcon2 = _interopRequireDefault(_SvgIcon);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var ContentRedo = function ContentRedo(props) {
+  return _react2.default.createElement(
+    _SvgIcon2.default,
+    props,
+    _react2.default.createElement('path', { d: 'M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z' })
+  );
+};
+ContentRedo = (0, _pure2.default)(ContentRedo);
+ContentRedo.displayName = 'ContentRedo';
+ContentRedo.muiName = 'SvgIcon';
+
+exports.default = ContentRedo;
+
+/***/ }),
+/* 894 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pure = __webpack_require__(21);
+
+var _pure2 = _interopRequireDefault(_pure);
+
+var _SvgIcon = __webpack_require__(19);
+
+var _SvgIcon2 = _interopRequireDefault(_SvgIcon);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var ContentSave = function ContentSave(props) {
+  return _react2.default.createElement(
+    _SvgIcon2.default,
+    props,
+    _react2.default.createElement('path', { d: 'M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z' })
+  );
+};
+ContentSave = (0, _pure2.default)(ContentSave);
+ContentSave.displayName = 'ContentSave';
+ContentSave.muiName = 'SvgIcon';
+
+exports.default = ContentSave;
+
+/***/ }),
+/* 895 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _FloatingActionButton = __webpack_require__(450);
+
+var _FloatingActionButton2 = _interopRequireDefault(_FloatingActionButton);
+
+var _done = __webpack_require__(897);
+
+var _done2 = _interopRequireDefault(_done);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var FullTripConfirmButton = function FullTripConfirmButton(_ref) {
+  var onFullTripConfirm = _ref.onFullTripConfirm;
+  return _react2.default.createElement(
+    'div',
+    null,
+    _react2.default.createElement(
+      _FloatingActionButton2.default,
+      { mini: true, onClick: onFullTripConfirm },
+      _react2.default.createElement(_done2.default, null)
+    )
+  );
+};
+
+FullTripConfirmButton.propTypes = {
+  onFullTripConfirm: _react.PropTypes.func.isRequired
+};
+
+exports.default = FullTripConfirmButton;
+
+/***/ }),
+/* 896 */,
+/* 897 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var React = __webpack_require__(1);
+var mui = __webpack_require__(502);
+var SvgIcon = mui.SvgIcon;
+
+var ActionDone = React.createClass({
+  displayName: 'ActionDone',
+
+  render: function render() {
+    return React.createElement(
+      SvgIcon,
+      this.props,
+      React.createElement('path', { d: 'M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z' })
+    );
+  }
+
+});
+
+module.exports = ActionDone;
 
 /***/ })
 /******/ ]);
