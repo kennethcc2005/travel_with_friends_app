@@ -51,8 +51,6 @@ class HomePage extends React.Component {
       updateTripLocationId: '',
       suggestEventArr: {},
       updateSuggestEvent: {},
-      a: '',
-
     };
     this.performSearch = this.performSearch.bind(this)
     this.onUpdateInput = this.onUpdateInput.bind(this)
@@ -187,7 +185,6 @@ class HomePage extends React.Component {
         let suggestEventArr = Object.assign({}, _this.state.suggestEventArr[_this.state.updateEventId], res.suggest_event_array);
         let suggestEvent = suggestEventArr[Math.floor(Math.random()*Object.keys(suggestEventArr).length)];
         let updateSuggestEvent = Object.assign({}, _this.state.updateSuggestEvent, {[_this.state.updateEventId]:suggestEvent});
-        console.log('before state: ',suggestEventArr, suggestEvent)
         _this.setState({
           suggestEventArr: suggestEventArr,
           updateSuggestEvent: updateSuggestEvent,
@@ -302,6 +299,7 @@ class HomePage extends React.Component {
                 <FullTripList 
                   onDeleteEvent={this.onDeleteEvent} 
                   onSuggestEvent={this.onSuggestEvent}
+                  updateSuggestEvent={this.state.updateSuggestEvent}
                   fullTripDetails={this.state.fullTripDetails} 
                   tripLocationIds={this.state.tripLocationIds}
                   getTapName={this.getTapName} 
@@ -324,11 +322,11 @@ class HomePage extends React.Component {
               </div>
               <div className="col-md-4">
                 <div className="col-md-4">
-                  {this.state.fullTripDetails.length>0 && 
+                  {Object.keys(this.state.updateSuggestEvent).length>0 && 
                     <FullTripResetButton onFullTripReset={this.onFullTripReset}/>}
                 </div>
                 <div className="col-md-4">
-                  {this.state.fullTripDetails.length>0 && 
+                  {Object.keys(this.state.updateSuggestEvent).length>0 && 
                     <FullTripConfirmButton onFullTripConfirm={this.onFullTripConfirm}/>}
                 </div>
               </div>

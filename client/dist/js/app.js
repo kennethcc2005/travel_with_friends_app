@@ -32249,18 +32249,35 @@ var FullTripList = function (_React$Component) {
 
         for (var j = 0; j < this.props.fullTripDetails.length; j++) {
           if (this.props.fullTripDetails[j].day == i) {
+            var id = this.props.fullTripDetails[j].id;
+            var keyId = '';
+            var primaryTextName = '';
+            var secondaryTextaddress = '';
+            var avatarUrl = '';
+            if (this.props.updateSuggestEvent.hasOwnProperty(id)) {
+              keyId = this.props.updateSuggestEvent[id].id;
+              primaryTextName = this.props.updateSuggestEvent[id].name;
+              secondaryTextaddress = this.props.updateSuggestEvent[id].address;
+              // needs to update new img url:
+              avatarUrl = this.props.fullTripDetails[j].url;
+            } else {
+              keyId = this.props.fullTripDetails[j].id;
+              primaryTextName = this.props.fullTripDetails[j].name;
+              secondaryTextaddress = this.props.fullTripDetails[j].address;
+              avatarUrl = this.props.fullTripDetails[j].url;
+            }
             fullDetails.push(_react2.default.createElement(_List.ListItem, {
-              key: this.props.fullTripDetails[j].id,
+              key: keyId,
               value: j,
-              primaryText: this.props.fullTripDetails[j].name,
+              primaryText: primaryTextName,
               secondaryText: _react2.default.createElement(
                 'p',
                 null,
-                this.props.fullTripDetails[j].address
+                secondaryTextaddress
               ),
               secondaryTextLines: 2,
               rightIconButton: rightIconMenu(this.props.fullTripDetails[j].id, this.props.tripLocationIds[i]),
-              leftAvatar: _react2.default.createElement(_Avatar2.default, { src: this.props.fullTripDetails[j].url }) }));
+              leftAvatar: _react2.default.createElement(_Avatar2.default, { src: avatarUrl }) }));
             fullWrap[i] = fullDetails;
           }
         }
@@ -32510,6 +32527,7 @@ var DirectionsTrip = function (_Component) {
     key: "componentDidUpdate",
     value: function componentDidUpdate(prevProps, prevState) {
       if (prevProps.fullTripDetails !== this.props.fullTripDetails || prevProps.updateTripLocationId !== this.props.updateTripLocationId) {
+        console.log('map updated!');
         this.getDirections();
       }
     }
@@ -32544,7 +32562,6 @@ var DirectionsTrip = function (_Component) {
     value: function render() {
       var _this3 = this;
 
-      console.log('map updated!');
       var DirectionsGoogleMap = (0, _reactGoogleMaps.withGoogleMap)(function (props) {
         return _react2.default.createElement(
           _reactGoogleMaps.GoogleMap,
@@ -33176,9 +33193,7 @@ var HomePage = function (_React$Component) {
       updateEventId: '',
       updateTripLocationId: '',
       suggestEventArr: {},
-      updateSuggestEvent: {},
-      a: ''
-
+      updateSuggestEvent: {}
     };
     _this2.performSearch = _this2.performSearch.bind(_this2);
     _this2.onUpdateInput = _this2.onUpdateInput.bind(_this2);
@@ -33294,7 +33309,6 @@ var HomePage = function (_React$Component) {
           var suggestEventArr = Object.assign({}, _this.state.suggestEventArr[_this.state.updateEventId], res.suggest_event_array);
           var suggestEvent = suggestEventArr[Math.floor(Math.random() * Object.keys(suggestEventArr).length)];
           var updateSuggestEvent = Object.assign({}, _this.state.updateSuggestEvent, _defineProperty({}, _this.state.updateEventId, suggestEvent));
-          console.log('before state: ', suggestEventArr, suggestEvent);
           _this.setState({
             suggestEventArr: suggestEventArr,
             updateSuggestEvent: updateSuggestEvent
@@ -33397,6 +33411,7 @@ var HomePage = function (_React$Component) {
               this.state.fullTripDetails.length > 0 && _react2.default.createElement(_FullTripList2.default, {
                 onDeleteEvent: this.onDeleteEvent,
                 onSuggestEvent: this.onSuggestEvent,
+                updateSuggestEvent: this.state.updateSuggestEvent,
                 fullTripDetails: this.state.fullTripDetails,
                 tripLocationIds: this.state.tripLocationIds,
                 getTapName: this.getTapName
@@ -33427,12 +33442,12 @@ var HomePage = function (_React$Component) {
                 _react2.default.createElement(
                   'div',
                   { className: 'col-md-4' },
-                  this.state.fullTripDetails.length > 0 && _react2.default.createElement(_FullTripResetButton2.default, { onFullTripReset: this.onFullTripReset })
+                  Object.keys(this.state.updateSuggestEvent).length > 0 && _react2.default.createElement(_FullTripResetButton2.default, { onFullTripReset: this.onFullTripReset })
                 ),
                 _react2.default.createElement(
                   'div',
                   { className: 'col-md-4' },
-                  this.state.fullTripDetails.length > 0 && _react2.default.createElement(_FullTripConfirmButton2.default, { onFullTripConfirm: this.onFullTripConfirm })
+                  Object.keys(this.state.updateSuggestEvent).length > 0 && _react2.default.createElement(_FullTripConfirmButton2.default, { onFullTripConfirm: this.onFullTripConfirm })
                 )
               )
             ),

@@ -31,6 +31,7 @@ export default class DirectionsTrip extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     if ((prevProps.fullTripDetails !== this.props.fullTripDetails) || ((prevProps.updateTripLocationId !== this.props.updateTripLocationId))) {
+      console.log('map updated!')
       this.getDirections();
     }
   }
@@ -105,7 +106,6 @@ export default class DirectionsTrip extends Component {
   }
 
   render() {
-    console.log('map updated!')
     const DirectionsGoogleMap = withGoogleMap(props => (
       <GoogleMap
         defaultZoom={7}

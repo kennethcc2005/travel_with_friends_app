@@ -65,19 +65,36 @@ export default class FullTripList extends React.Component {
         
         for (var j=0; j<this.props.fullTripDetails.length; j++) {
             if (this.props.fullTripDetails[j].day == i){
+                let id =  this.props.fullTripDetails[j].id; 
+                let keyId = '';
+                let primaryTextName = '';
+                let secondaryTextaddress = '';
+                let avatarUrl = '';
+                if (this.props.updateSuggestEvent.hasOwnProperty(id)) {
+                  keyId = this.props.updateSuggestEvent[id].id;
+                  primaryTextName = this.props.updateSuggestEvent[id].name;
+                  secondaryTextaddress = this.props.updateSuggestEvent[id].address;
+                  // needs to update new img url:
+                  avatarUrl = this.props.fullTripDetails[j].url
+                } else {
+                  keyId = this.props.fullTripDetails[j].id;
+                  primaryTextName = this.props.fullTripDetails[j].name;
+                  secondaryTextaddress = this.props.fullTripDetails[j].address;
+                  avatarUrl = this.props.fullTripDetails[j].url
+                }
                 fullDetails.push(
                     <ListItem
-                        key={this.props.fullTripDetails[j].id} 
+                        key={keyId} 
                         value={j}
-                        primaryText={this.props.fullTripDetails[j].name}
+                        primaryText={primaryTextName}
                         secondaryText={
                             <p>
-                                {this.props.fullTripDetails[j].address}
+                                {secondaryTextaddress}
                             </p>  
                         }
                         secondaryTextLines={2}
                         rightIconButton={rightIconMenu(this.props.fullTripDetails[j].id, this.props.tripLocationIds[i])}
-                        leftAvatar={<Avatar src={this.props.fullTripDetails[j].url} />} />
+                        leftAvatar={<Avatar src={avatarUrl} />} />
                 );
                 fullWrap[i] = fullDetails;
             } 
