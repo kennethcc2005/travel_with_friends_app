@@ -82,7 +82,7 @@ export default class DirectionsTrip extends Component {
   }
 
   getDirections() {
-    console.log('get directions')
+    // console.log('get directions')
     const DirectionsService = new google.maps.DirectionsService();
     if(this.state.directionDetails.origin){ 
       DirectionsService.route({

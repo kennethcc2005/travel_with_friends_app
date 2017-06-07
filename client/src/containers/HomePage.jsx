@@ -49,11 +49,9 @@ class HomePage extends React.Component {
       cloneFullTripDetails: [],
       updateEventId: '',
       updateTripLocationId: '',
-      suggestEventArr: {1: [1,12,6,7], 2: [2,12,6,7]},
-      updatedSuggestEvent: {
-        1: 6,
-        2: 6,
-      },
+      suggestEventArr: {},
+      updateSuggestEvent: {},
+      a: '',
 
     };
     this.performSearch = this.performSearch.bind(this)
@@ -126,11 +124,12 @@ class HomePage extends React.Component {
   }
 
   performDeleteEventId() {
-    const myUrl = 'http://127.0.0.1:8000/update_trip/delete/?full_trip_id=' + this.state.fullTripId +
-                        '&event_id=' + this.state.updateEventId +
-                        '&trip_location_id='+this.state.updateTripLocationId;
+    const { fullTripId, updateEventId, updateTripLocationId } = this.state;
+    const myUrl = 'http://127.0.0.1:8000/update_trip/delete/?full_trip_id=' + fullTripId +
+                        '&event_id=' + updateEventId +
+                        '&trip_location_id='+ updateTripLocationId;
     const _this = this;
-    if(this.state.updateEventId !== '') {
+    if(updateEventId !== '') {
       console.log(myUrl);
       $.ajax({
         type: "GET",
@@ -154,47 +153,54 @@ class HomePage extends React.Component {
   }
 
   onSuggestEvent(updateEventId, updateTripLocationId) {
+    console.log('suggest event!')
     if (this.state.suggestEventArr.hasOwnProperty(updateEventId)) {
-      let suggestEvent = this.state.suggestEventArr[Math.floor(Math.random()*this.state.suggestEventArr.length)];
-      updateSuggestEvent = Object.assign({}, this.state.updateSuggestEvent[updateEventId], suggestEvent);
+      const suggestEventArrLength = Object.keys(this.state.suggestEventArr).length
+      const randomSuggestEventArrIdx = Math.floor(Math.random()*suggestEventArrLength)
+      const suggestEvent = this.state.suggestEventArr[randomSuggestEventArrIdx];
+      const updateSuggestEvent = Object.assign({}, this.state.updateSuggestEvent, {[this.state.updateEventId]:suggestEvent});
       this.setState({
-        updateEventId: updateEventId,
-        updateTripLocationId: updateTripLocationId,
-        updatedSuggestEvent: updateSuggestEvent,
+        updateEventId,
+        // updateTripLocationId: updateTripLocationId,
+        updateSuggestEvent,
       }); 
     } else {
       this.setState({
         updateEventId,
-        updateTripLocationId
+        // updateTripLocationId
       }, this.performSuggestEventLst);
     }
   }
 
   performSuggestEventLst(){
+    console.log('post suggest event!')
     const myUrl = 'http://127.0.0.1:8000/update_trip/suggest_search/?full_trip_id=' + this.state.fullTripId +
                         '&event_id=' + this.state.updateEventId +
                         '&trip_location_id='+this.state.updateTripLocationId;
     const _this = this;
-    if(this.state.updateEventId !== '') {
+    if(_this.state.updateEventId !== '') {
       console.log(myUrl);
       $.ajax({
         type: "GET",
         url: myUrl,
       }).done(function(res) {
-        updateSuggestArr = Object.assign({}, this.state.updateSuggestArr[this.state.updateEventId], res.suggest_arr);
-        let suggestEvent = updateSuggestArr[Math.floor(Math.random()*updateSuggestArr.length)];
-        updateSuggestEvent = Object.assign({}, this.state.updateSuggestEvent[updateEventId], suggestEvent);
+        let suggestEventArr = Object.assign({}, _this.state.suggestEventArr[_this.state.updateEventId], res.suggest_event_array);
+        let suggestEvent = suggestEventArr[Math.floor(Math.random()*Object.keys(suggestEventArr).length)];
+        let updateSuggestEvent = Object.assign({}, _this.state.updateSuggestEvent, {[_this.state.updateEventId]:suggestEvent});
+        console.log('before state: ',suggestEventArr, suggestEvent)
         _this.setState({
-          updateSuggestArr: updateSuggestArr,
+          suggestEventArr: suggestEventArr,
           updateSuggestEvent: updateSuggestEvent,
         });
+        console.log('suggest event: ',_this.state.suggestEventArr, _this.state.updateSuggestEvent)
       });
     };
   }
 
   onFullTripReset(){
     this.setState({
-      updateSuggestEvent: {}
+      // updateSuggestEvent: {}
+      a:'',
     })
   }
 
@@ -270,7 +276,6 @@ class HomePage extends React.Component {
   
 
   render() { 
-    console.log('home page')
     return (
       <Card className="container" >
         <CardTitle title="Travel with Friends!" subtitle="This is the home page." />
@@ -296,6 +301,7 @@ class HomePage extends React.Component {
               {this.state.fullTripDetails.length>0 && 
                 <FullTripList 
                   onDeleteEvent={this.onDeleteEvent} 
+                  onSuggestEvent={this.onSuggestEvent}
                   fullTripDetails={this.state.fullTripDetails} 
                   tripLocationIds={this.state.tripLocationIds}
                   getTapName={this.getTapName} 
@@ -329,9 +335,7 @@ class HomePage extends React.Component {
               
             </div>
             <div className="col-md-12">
-                {console.log('current full_trip_details: ',this.state.fullTripDetails)}
                 <div style={divStyle}>
-                  {console.log(this.state.updateTripLocationId, this.state.tripLocationIds)}
                   {this.state.fullTripDetails.length > 0 && <DirectionsTrip fullTripDetails={this.state.fullTripDetails}
                                                                             updateTripLocationId={this.state.updateTripLocationId}
                                                                             tripLocationIds={this.state.tripLocationIds} />}

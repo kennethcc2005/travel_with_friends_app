@@ -31,12 +31,6 @@ export default class FullTripList extends React.Component {
   }
 
   render() {
-    const resuggestFunc = (poiId,tripLocationId) => {
-        console.log(poiId);
-        console.log(tripLocationId)
-    }
-    resuggestFunc.bind(this);
-
     const iconButtonElement = (
       <IconButton
         touch={true}
@@ -49,7 +43,7 @@ export default class FullTripList extends React.Component {
     const rightIconMenu =(poiId,tripLocationId) => {
         return (
           <IconMenu iconButtonElement={iconButtonElement}>
-            <MenuItem onClick={() => resuggestFunc(poiId, tripLocationId)}>Resuggest</MenuItem>
+            <MenuItem onClick={() => this.props.onSuggestEvent(poiId, tripLocationId)}>Resuggest</MenuItem>
             <MenuItem onClick={() => this.props.onDeleteEvent(poiId, tripLocationId)}>Delete</MenuItem>
           </IconMenu>
         )
