@@ -12,15 +12,10 @@ import DirectionsTrip from '../components/GoogleMapComponent.jsx';
 // add_search event use local search instead of calling backend for updates.!
 // alot to updates...>__<
 // Version C: update backend for the add event order or use front end to do so
-// import { withGoogleMap, GoogleMap, Marker } from "react-google-maps";
 
-// const SimpleMapExampleGoogleMap = withGoogleMap(props => (
-//   <GoogleMap
-//     defaultZoom={8}
-//     defaultCenter={{ lat: -34.397, lng: 150.644 }}
-//   />
-// ));
 
+// Bug to be fixed: full trip list disappear when prev state with trip_days >1, tab on day 2 or larger
+// and changes trip_days lower to 1.
 const divStyle = {
   width: '100%',
   height: '400px',
@@ -121,6 +116,7 @@ class HomePage extends React.Component {
     };
   }
 
+  //may want to reset!
   performDeleteEventId() {
     const { fullTripId, updateEventId, updateTripLocationId } = this.state;
     const myUrl = 'http://127.0.0.1:8000/update_trip/delete/?full_trip_id=' + fullTripId +
@@ -171,10 +167,11 @@ class HomePage extends React.Component {
   }
 
   performSuggestEventLst(){
-    console.log('post suggest event!')
+    
     const myUrl = 'http://127.0.0.1:8000/update_trip/suggest_search/?full_trip_id=' + this.state.fullTripId +
                         '&event_id=' + this.state.updateEventId +
                         '&trip_location_id='+this.state.updateTripLocationId;
+    console.log('post suggest event url: ', myUrl)
     const _this = this;
     if(_this.state.updateEventId !== '') {
       console.log(myUrl);
@@ -196,12 +193,41 @@ class HomePage extends React.Component {
 
   onFullTripReset(){
     this.setState({
-      // updateSuggestEvent: {}
-      a:'',
+      updateSuggestEvent: {}
     })
   }
 
   onFullTripConfirm(){
+    const suggestConfirmUrl = 'http://127.0.0.1:8000/update_trip/suggest_confirm/';
+    const _this = this;
+    console.log('confirm',typeof this.state.updateSuggestEvent);
+
+    let data = {
+      updateSuggestEvent: JSON.stringify(this.state.updateSuggestEvent),
+      fullTripId: this.state.fullTripId,
+      updateTripLocationId: this.state.updateTripLocationId,
+    };
+    console.log('confirm2',data.updateSuggestEvent, 'data',data);
+    // data = JSON.stringify(data)
+    $.ajax({
+      type: 'POST',
+      url: suggestConfirmUrl,
+      data: data
+    })
+    .done(function(res) {
+      console.log(res)
+      _this.setState({
+        updateSuggestEvent: '',
+        fullTripDetails: res.full_trip_details,
+        fullTripId: res.full_trip_id,
+        tripLocationIds: res.trip_location_ids,
+        updateEventId: '',
+        updateTripLocationId: res.current_trip_location_id,
+      })
+    })
+    .fail(function(jqXhr) {
+      console.log('failed to register');
+    });
 
   }
 
@@ -326,6 +352,7 @@ class HomePage extends React.Component {
                     <FullTripResetButton onFullTripReset={this.onFullTripReset}/>}
                 </div>
                 <div className="col-md-4">
+                  {console.log(this.state.updateSuggestEvent)}
                   {Object.keys(this.state.updateSuggestEvent).length>0 && 
                     <FullTripConfirmButton onFullTripConfirm={this.onFullTripConfirm}/>}
                 </div>
@@ -333,6 +360,7 @@ class HomePage extends React.Component {
               
             </div>
             <div className="col-md-12">
+                {console.log('updateTripLocationId:', this.state.updateTripLocationId)}
                 <div style={divStyle}>
                   {this.state.fullTripDetails.length > 0 && <DirectionsTrip fullTripDetails={this.state.fullTripDetails}
                                                                             updateTripLocationId={this.state.updateTripLocationId}

@@ -36,6 +36,13 @@ export default class DirectionsTrip extends Component {
     }
   }
 
+  shouldComponentUpdate(nextProps,nextState) {
+      const differentFullTripDetails = nextProps.fullTripDetails !== this.props.fullTripDetails;
+      const differentTripLocationId = nextProps.updateTripLocationId !== this.props.updateTripLocationId;
+      const differentDirectionDetails = nextState.directions !== this.state.directions;
+      return differentFullTripDetails || differentTripLocationId || differentDirectionDetails;
+    }
+
   getWaypts = function(fullTripDetails, tripLocationIds, updateTripLocationId) {
     let waypts = [];
     const currentDay = tripLocationIds.findIndex(x => x == updateTripLocationId);
@@ -106,6 +113,7 @@ export default class DirectionsTrip extends Component {
   }
 
   render() {
+    console.log('map re-renderred')
     const DirectionsGoogleMap = withGoogleMap(props => (
       <GoogleMap
         defaultZoom={7}

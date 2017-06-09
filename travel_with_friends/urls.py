@@ -20,7 +20,7 @@ urlpatterns = [
     url(r'^city_state_search/$', views.CityStateSearch.as_view(), name='city-state-detail'), 
     url(r'^update_trip/delete/$', views.FullTripDeleteEvent.as_view(), name='full-trip-delete'), 
     url(r'^update_trip/suggest_search/$', views.FullTripSuggestArray.as_view(), name='full-trip-suggest-search'), 
-    url(r'^update_trip/suggest/$', views.FullTripSuggestEvent.as_view(), name='full-trip-suggest'), 
+    url(r'^update_trip/suggest_confirm/$', views.FullTripSuggestConfirm.as_view(), name='full-trip-suggest-confirm'), 
     url(r'^update_trip/add_search/$', views.FullTripAddSearch.as_view(), name='full-trip-add-search'), 
     url(r'^update_trip/add/$', views.FullTripAddEvent.as_view(), name='full-trip-add-event'), 
 

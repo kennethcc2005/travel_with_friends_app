@@ -32532,6 +32532,14 @@ var DirectionsTrip = function (_Component) {
       }
     }
   }, {
+    key: "shouldComponentUpdate",
+    value: function shouldComponentUpdate(nextProps, nextState) {
+      var differentFullTripDetails = nextProps.fullTripDetails !== this.props.fullTripDetails;
+      var differentTripLocationId = nextProps.updateTripLocationId !== this.props.updateTripLocationId;
+      var differentDirectionDetails = nextState.directions !== this.state.directions;
+      return differentFullTripDetails || differentTripLocationId || differentDirectionDetails;
+    }
+  }, {
     key: "getDirections",
     value: function getDirections() {
       var _this2 = this;
@@ -32562,6 +32570,7 @@ var DirectionsTrip = function (_Component) {
     value: function render() {
       var _this3 = this;
 
+      console.log('map re-renderred');
       var DirectionsGoogleMap = (0, _reactGoogleMaps.withGoogleMap)(function (props) {
         return _react2.default.createElement(
           _reactGoogleMaps.GoogleMap,
@@ -33041,6 +33050,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _react = __webpack_require__(1);
@@ -33095,15 +33106,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 // add_search event use local search instead of calling backend for updates.!
 // alot to updates...>__<
 // Version C: update backend for the add event order or use front end to do so
-// import { withGoogleMap, GoogleMap, Marker } from "react-google-maps";
 
-// const SimpleMapExampleGoogleMap = withGoogleMap(props => (
-//   <GoogleMap
-//     defaultZoom={8}
-//     defaultCenter={{ lat: -34.397, lng: 150.644 }}
-//   />
-// ));
 
+// Bug to be fixed: full trip list disappear when prev state with trip_days >1, tab on day 2 or larger
+// and changes trip_days lower to 1.
 var divStyle = {
   width: '100%',
   height: '400px'
@@ -33242,6 +33248,9 @@ var HomePage = function (_React$Component) {
     }
   }, {
     key: 'performDeleteEventId',
+
+
+    //may want to reset!
     value: function performDeleteEventId() {
       var _state = this.state,
           fullTripId = _state.fullTripId,
@@ -33297,8 +33306,9 @@ var HomePage = function (_React$Component) {
   }, {
     key: 'performSuggestEventLst',
     value: function performSuggestEventLst() {
-      console.log('post suggest event!');
+
       var myUrl = 'http://127.0.0.1:8000/update_trip/suggest_search/?full_trip_id=' + this.state.fullTripId + '&event_id=' + this.state.updateEventId + '&trip_location_id=' + this.state.updateTripLocationId;
+      console.log('post suggest event url: ', myUrl);
       var _this = this;
       if (_this.state.updateEventId !== '') {
         console.log(myUrl);
@@ -33321,13 +33331,41 @@ var HomePage = function (_React$Component) {
     key: 'onFullTripReset',
     value: function onFullTripReset() {
       this.setState({
-        // updateSuggestEvent: {}
-        a: ''
+        updateSuggestEvent: {}
       });
     }
   }, {
     key: 'onFullTripConfirm',
-    value: function onFullTripConfirm() {}
+    value: function onFullTripConfirm() {
+      var suggestConfirmUrl = 'http://127.0.0.1:8000/update_trip/suggest_confirm/';
+      var _this = this;
+      console.log('confirm', _typeof(this.state.updateSuggestEvent));
+
+      var data = {
+        updateSuggestEvent: JSON.stringify(this.state.updateSuggestEvent),
+        fullTripId: this.state.fullTripId,
+        updateTripLocationId: this.state.updateTripLocationId
+      };
+      console.log('confirm2', data.updateSuggestEvent, 'data', data);
+      // data = JSON.stringify(data)
+      $.ajax({
+        type: 'POST',
+        url: suggestConfirmUrl,
+        data: data
+      }).done(function (res) {
+        console.log(res);
+        _this.setState({
+          updateSuggestEvent: '',
+          fullTripDetails: res.full_trip_details,
+          fullTripId: res.full_trip_id,
+          tripLocationIds: res.trip_location_ids,
+          updateEventId: '',
+          updateTripLocationId: res.current_trip_location_id
+        });
+      }).fail(function (jqXhr) {
+        console.log('failed to register');
+      });
+    }
   }, {
     key: 'performAddEventSearch',
     value: function performAddEventSearch() {
@@ -33447,6 +33485,7 @@ var HomePage = function (_React$Component) {
                 _react2.default.createElement(
                   'div',
                   { className: 'col-md-4' },
+                  console.log(this.state.updateSuggestEvent),
                   Object.keys(this.state.updateSuggestEvent).length > 0 && _react2.default.createElement(_FullTripConfirmButton2.default, { onFullTripConfirm: this.onFullTripConfirm })
                 )
               )
@@ -33454,6 +33493,7 @@ var HomePage = function (_React$Component) {
             _react2.default.createElement(
               'div',
               { className: 'col-md-12' },
+              console.log('updateTripLocationId:', this.state.updateTripLocationId),
               _react2.default.createElement(
                 'div',
                 { style: divStyle },

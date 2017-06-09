@@ -23,6 +23,11 @@ class FullTripSuggestDeleteSerializer(serializers.Serializer):
     event_id = serializers.CharField()
     trip_location_id = serializers.CharField()
 
+class FullTripSuggestConfirmSerializer(serializers.Serializer):
+    full_trip_id = serializers.CharField()
+    event_id = serializers.CharField()
+    trip_location_id = serializers.CharField()
+
 class FullTripAddSearchSerializer(serializers.Serializer):
     full_trip_id = serializers.CharField()
     poi_name = serializers.CharField(allow_blank=True)

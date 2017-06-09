@@ -15,7 +15,6 @@ conn_str = api_key_list["conn_str"]
 
 def convert_event_ids_to_lst(event_ids):
     try:
-        print type(event_ids), 'aha,', event_ids
         if type(ast.literal_eval(event_ids)) == list:
             new_event_ids = map(int,ast.literal_eval(event_ids))
         else: 
@@ -74,7 +73,8 @@ def add_event_day_trip(poi_id, poi_name, trip_locations_id, full_trip_id, full_d
             cur.execute("select max(index) from day_trip_table;")
             new_index = cur.fetchone()[0]+1
             #need to make sure the type is correct for detail!
-            new_event_detail = {"name": poi_name, "day": u"None", "coord_lat": "None", "coord_long": "None","address": "None", "id": "None", "city": "", "state": ""}
+            day = day_details[-1]['day']
+            new_event_detail = {"name": poi_name, "day": day, "coord_lat": "None", "coord_long": "None","address": "None", "id": "None", "city": "", "state": ""}
             for index, detail in enumerate(day_details):
                 if type(detail) == str:
                     day_details[index] = ast.literal_eval(detail)
@@ -325,33 +325,79 @@ def suggest_event_array(full_trip_id, trip_location_id, switch_event_id, usernam
     conn.close()
     return suggest_dict_list
 
-def switch_event_list(full_trip_id, trip_locations_id, switch_event_id, switch_event_name=None, event_day=None, full_day = True):
-#     new_trip_locations_id, new_detail = remove_event(trip_locations_id, switch_event_id)
+def convert_db_details(detail, remove_event_id):
+    detail = ast.literal_eval(detail[1:-1])
+    for index, trip_detail in enumerate(detail):
+        if type(trip_detail) == str:
+            if ast.literal_eval(trip_detail)['id'] == remove_event_id:
+                remove_index = index
+                break
+        else:
+            if trip_detail['id'] == remove_event_id:
+                remove_index = index
+                break
+
+    new_detail = list(detail)
+    new_detail.pop(remove_index)
+    new_detail =  str(new_detail).replace("'","''")
+    regular = False
+    return 
+#Get full list of event_ids from new full trip table!
+def switch_suggest_event(full_trip_id, update_trip_location_id, update_suggest_event, username_id=1): 
+    print 'switch on: '
     conn = psycopg2.connect(conn_str)   
     cur = conn.cursor()   
-    cur.execute("select name, city, county, state, coord_lat, coord_long,ranking, adjusted_visit_length from poi_detail_table_v2 where index=%s" %(switch_event_id))
-    name, city, county, state,coord_lat, coord_long,poi_rank, adjusted_normal_time_spent = cur.fetchone()
-    event_type = event_type_time_spent(adjusted_normal_time_spent)
-    avialable_lst = ajax_available_events(county, state)
-    cur.execute("select trip_location_ids,details from full_trip_table where full_trip_id=%s" %(full_trip_id))
-    full_trip_detail = cur.fetchone()
-    full_trip_detail = ast.literal_eval(full_trip_detail)
-    full_trip_ids = [ast.literal_eval(item)['id'] for item in full_trip_detail]
-    switch_lst = []
-    for item in avialable_lst:
-        index = item[0]
-        if index not in full_trip_ids:
-            event_ids = [switch_event_id, index]
-            event_ids, google_ids, name_list, driving_time_list, walking_time_list = db_google_driving_walking_time(event_ids, event_type='switch')
-            if min(driving_time_list[0], walking_time_list[0]) <= 60:
-                cur.execute("select ranking, review_score, adjusted_visit_length from poi_detail_table_v2 where index=%s" %(index))
-                target_poi_rank, target_rating, target_adjusted_normal_time_spent = cur.fetchone()
-                target_event_type = event_type_time_spent(target_adjusted_normal_time_spent)
-                switch_lst.append([target_poi_rank, target_rating, target_event_type==event_type])
-    #need to sort target_event_type, target_poi_rank and target_rating
-    return {switch_event_id: switch_lst}
+    cur.execute("SELECT trip_location_ids FROM full_trip_table WHERE full_trip_id = '%s';" %(full_trip_id)) 
+    # cur.execute("select trip_location_ids, details from full_trip_table where full_trip_id = '%s';" %(full_trip_id)) 
+    trip_location_ids = ast.literal_eval(cur.fetchone()[0])
+    update_suggest_event = ast.literal_eval(update_suggest_event)
+    print 'update suggest',type(update_suggest_event), update_suggest_event
+    full_trip_details = []
+    full_trip_trip_locations_id = []
+    new_update_trip_location_id = ''
+    for trip_location_id in trip_location_ids:
+        cur.execute("SELECT * FROM day_trip_table WHERE trip_locations_id  = '%s' LIMIT 1;" %(trip_location_id)) 
+        (index, trip_locations_id, full_day, regular, county, state, detail, event_type, event_ids) = cur.fetchone()
+        event_ids = convert_event_ids_to_lst(event_ids)
+        detail = list(ast.literal_eval(detail[1:-1]))
 
-def switch_event(trip_locations_id, switch_event_id, final_event_id, event_day):
-    new_trip_locations_id, new_detail = remove_event(trip_locations_id, switch_event_id)
-    new_trip_locations_id, new_detail = add_event(new_trip_locations_id, event_day, final_event_id, full_day = True, unseen_event = False)
-    return new_trip_locations_id, new_detail
+        #make sure detail type is dict!
+        for i,v in enumerate(detail):
+            if type(v) != dict:
+                detail[i] = ast.literal_eval(v)
+        full_day = True
+        event_type = 'suggest'
+        for idx, event_id in enumerate(event_ids):
+            if str(event_id) in update_suggest_event:
+                regular = False
+                replace_event_detail = update_suggest_event[str(event_id)]
+                replace_event_detail['day'] = detail[idx]['day']
+                detail[idx] = replace_event_detail
+                event_ids[idx] = replace_event_detail['id']
+        if not regular:
+            trip_locations_id = '-'.join(map(str,event_ids))
+            if not check_day_trip_id(trip_locations_id):
+                cur.execute("SELECT max(index) FROM day_trip_table;")
+                new_index = cur.fetchone()[0] + 1
+                cur.execute("INSERT INTO day_trip_table VALUES (%i, '%s',%s,%s,'%s','%s','%s','%s','%s');" %(new_index, trip_locations_id, full_day, regular, county, state, str(detail).replace("'",'"'),event_type,event_ids))
+                conn.commit()
+        if update_trip_location_id == trip_location_id:
+            new_update_trip_location_id = trip_locations_id
+        full_trip_details.extend(detail)
+        full_trip_trip_locations_id.append(trip_locations_id)
+
+
+    print 'return:',full_trip_id, full_trip_details, full_trip_trip_locations_id, new_update_trip_location_id
+    if full_trip_trip_locations_id != trip_location_ids:
+        new_full_trip_id = '-'.join(full_trip_trip_locations_id)
+        if not check_full_trip_id(new_full_trip_id):
+            n_days = len(trip_location_ids)
+            regular =False
+            cur.execute("SELECT max(index) FROM full_trip_table;")
+            new_index = cur.fetchone()[0] + 1
+            cur.execute("INSERT INTO full_trip_table(index, username_id, full_trip_id,trip_location_ids, regular, county, state, details, n_days) VALUES (%s, %s, '%s', '%s', %s, '%s', '%s', '%s', %s);" %(new_index, username_id, new_full_trip_id, str(full_trip_trip_locations_id).replace("'","''"), regular, county, state, str(full_trip_details).replace("'","''"), n_days))
+            conn.commit()
+        return new_full_trip_id, full_trip_details, full_trip_trip_locations_id, new_update_trip_location_id
+    if new_update_trip_location_id == '':
+        new_update_trip_location_id = update_trip_location_id
+    return full_trip_id, full_trip_details, full_trip_trip_locations_id, new_update_trip_location_id
