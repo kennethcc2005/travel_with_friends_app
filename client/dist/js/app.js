@@ -32440,13 +32440,13 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var DirectionsTrip = function (_Component) {
-  _inherits(DirectionsTrip, _Component);
+var FullTripDirectionsTrip = function (_Component) {
+  _inherits(FullTripDirectionsTrip, _Component);
 
-  function DirectionsTrip(props) {
-    _classCallCheck(this, DirectionsTrip);
+  function FullTripDirectionsTrip(props) {
+    _classCallCheck(this, FullTripDirectionsTrip);
 
-    var _this = _possibleConstructorReturn(this, (DirectionsTrip.__proto__ || Object.getPrototypeOf(DirectionsTrip)).call(this, props));
+    var _this = _possibleConstructorReturn(this, (FullTripDirectionsTrip.__proto__ || Object.getPrototypeOf(FullTripDirectionsTrip)).call(this, props));
 
     _this.getWaypts = function (fullTripDetails, tripLocationIds, updateTripLocationId) {
       var waypts = [];
@@ -32506,7 +32506,7 @@ var DirectionsTrip = function (_Component) {
     return _this;
   }
 
-  _createClass(DirectionsTrip, [{
+  _createClass(FullTripDirectionsTrip, [{
     key: "componentWillMount",
     value: function componentWillMount() {
       this.setState({ directionDetails: this.getWaypts(this.props.fullTripDetails, this.props.tripLocationIds, this.props.updateTripLocationId) });
@@ -32592,10 +32592,10 @@ var DirectionsTrip = function (_Component) {
     }
   }]);
 
-  return DirectionsTrip;
+  return FullTripDirectionsTrip;
 }(_react.Component);
 
-exports.default = DirectionsTrip;
+exports.default = FullTripDirectionsTrip;
 
 /***/ }),
 /* 387 */
@@ -33050,8 +33050,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _react = __webpack_require__(1);
@@ -33091,6 +33089,10 @@ var _FullTripConfirmButton2 = _interopRequireDefault(_FullTripConfirmButton);
 var _GoogleMapComponent = __webpack_require__(386);
 
 var _GoogleMapComponent2 = _interopRequireDefault(_GoogleMapComponent);
+
+var _GoogleMapFullTripComponent = __webpack_require__(896);
+
+var _GoogleMapFullTripComponent2 = _interopRequireDefault(_GoogleMapFullTripComponent);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -33308,7 +33310,6 @@ var HomePage = function (_React$Component) {
     value: function performSuggestEventLst() {
 
       var myUrl = 'http://127.0.0.1:8000/update_trip/suggest_search/?full_trip_id=' + this.state.fullTripId + '&event_id=' + this.state.updateEventId + '&trip_location_id=' + this.state.updateTripLocationId;
-      console.log('post suggest event url: ', myUrl);
       var _this = this;
       if (_this.state.updateEventId !== '') {
         console.log(myUrl);
@@ -33323,7 +33324,6 @@ var HomePage = function (_React$Component) {
             suggestEventArr: suggestEventArr,
             updateSuggestEvent: updateSuggestEvent
           });
-          console.log('suggest event: ', _this.state.suggestEventArr, _this.state.updateSuggestEvent);
         });
       };
     }
@@ -33339,21 +33339,18 @@ var HomePage = function (_React$Component) {
     value: function onFullTripConfirm() {
       var suggestConfirmUrl = 'http://127.0.0.1:8000/update_trip/suggest_confirm/';
       var _this = this;
-      console.log('confirm', _typeof(this.state.updateSuggestEvent));
 
       var data = {
         updateSuggestEvent: JSON.stringify(this.state.updateSuggestEvent),
         fullTripId: this.state.fullTripId,
         updateTripLocationId: this.state.updateTripLocationId
       };
-      console.log('confirm2', data.updateSuggestEvent, 'data', data);
       // data = JSON.stringify(data)
       $.ajax({
         type: 'POST',
         url: suggestConfirmUrl,
         data: data
       }).done(function (res) {
-        console.log(res);
         _this.setState({
           updateSuggestEvent: '',
           fullTripDetails: res.full_trip_details,
@@ -33485,7 +33482,6 @@ var HomePage = function (_React$Component) {
                 _react2.default.createElement(
                   'div',
                   { className: 'col-md-4' },
-                  console.log(this.state.updateSuggestEvent),
                   Object.keys(this.state.updateSuggestEvent).length > 0 && _react2.default.createElement(_FullTripConfirmButton2.default, { onFullTripConfirm: this.onFullTripConfirm })
                 )
               )
@@ -33493,11 +33489,19 @@ var HomePage = function (_React$Component) {
             _react2.default.createElement(
               'div',
               { className: 'col-md-12' },
-              console.log('updateTripLocationId:', this.state.updateTripLocationId),
               _react2.default.createElement(
                 'div',
                 { style: divStyle },
                 this.state.fullTripDetails.length > 0 && _react2.default.createElement(_GoogleMapComponent2.default, { fullTripDetails: this.state.fullTripDetails,
+                  updateTripLocationId: this.state.updateTripLocationId,
+                  tripLocationIds: this.state.tripLocationIds })
+              ),
+              _react2.default.createElement('br', null),
+              _react2.default.createElement('br', null),
+              _react2.default.createElement(
+                'div',
+                { style: divStyle },
+                this.state.fullTripDetails.length > 0 && _react2.default.createElement(_GoogleMapFullTripComponent2.default, { fullTripDetails: this.state.fullTripDetails,
                   updateTripLocationId: this.state.updateTripLocationId,
                   tripLocationIds: this.state.tripLocationIds })
               )
@@ -96970,6 +96974,268 @@ module.exports = function() {
 	throw new Error("define cannot be used indirect");
 };
 
+
+/***/ }),
+/* 896 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactGoogleMaps = __webpack_require__(836);
+
+var _reactHelmet = __webpack_require__(840);
+
+var _reactHelmet2 = _interopRequireDefault(_reactHelmet);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var DirectionsTrip = function (_Component) {
+  _inherits(DirectionsTrip, _Component);
+
+  function DirectionsTrip(props) {
+    _classCallCheck(this, DirectionsTrip);
+
+    var _this = _possibleConstructorReturn(this, (DirectionsTrip.__proto__ || Object.getPrototypeOf(DirectionsTrip)).call(this, props));
+
+    _this.getWaypts = function (fullTripDetails, tripLocationIds, updateTripLocationId) {
+      var waypts = [];
+      var currentDay = 0;
+      var oriIndex = fullTripDetails.findIndex(function (x) {
+        return x.day == currentDay;
+      });
+      var dayAry = fullTripDetails.map(function (a) {
+        return a.day;
+      });
+      var destIndex = dayAry.lastIndexOf(currentDay);
+      var origin = '';
+      var location = '';
+      var destination = '';
+      for (var i = oriIndex; i <= destIndex; i++) {
+        var addressArr = fullTripDetails[i].address.split(', ');
+        var newArr = [];
+        for (var j = 0; j < addressArr.length - 1; j++) {
+          if (isNaN(addressArr[j])) {
+            newArr.push(addressArr[j]);
+          }
+        }
+        var newAddress = newArr.join(', ');
+        var cityState = fullTripDetails[i].city + ', ' + fullTripDetails[i].state;
+        if (newAddress === cityState) {
+          location = fullTripDetails[i].name + ', ' + cityState;
+          // console.log('no coord: ', location)
+        } else {
+          location = new google.maps.LatLng(fullTripDetails[i].coord_lat, fullTripDetails[i].coord_long);
+        }
+        if (i == oriIndex) {
+          origin = location;
+          // console.log(fullTripDetails[i], 'ori')
+        } else if (i == destIndex) {
+          destination = location;
+          // console.log(fullTripDetails[i],'dest')
+        } else {
+
+          waypts.push({ location: location, stopover: true });
+        }
+      }
+      return {
+        origin: origin,
+        destination: destination,
+        waypts: waypts
+      };
+    };
+
+    _this.getWayptsTwo = function (fullTripDetails) {
+      var waypts = [];
+      var currentDay = 1;
+      var oriIndex = fullTripDetails.findIndex(function (x) {
+        return x.day == currentDay;
+      });
+      var dayAry = fullTripDetails.map(function (a) {
+        return a.day;
+      });
+      var destIndex = dayAry.lastIndexOf(currentDay);
+      var origin = '';
+      var location = '';
+      var destination = '';
+      for (var i = oriIndex; i <= destIndex; i++) {
+        var addressArr = fullTripDetails[i].address.split(', ');
+        var newArr = [];
+        for (var j = 0; j < addressArr.length - 1; j++) {
+          if (isNaN(addressArr[j])) {
+            newArr.push(addressArr[j]);
+          }
+        }
+        var newAddress = newArr.join(', ');
+        var cityState = fullTripDetails[i].city + ', ' + fullTripDetails[i].state;
+        if (newAddress === cityState) {
+          location = fullTripDetails[i].name + ', ' + cityState;
+          // console.log('no coord: ', location)
+        } else {
+          location = new google.maps.LatLng(fullTripDetails[i].coord_lat, fullTripDetails[i].coord_long);
+        }
+        if (i == oriIndex) {
+          origin = location;
+          // console.log(fullTripDetails[i], 'ori')
+        } else if (i == destIndex) {
+          destination = location;
+          // console.log(fullTripDetails[i],'dest')
+        } else {
+
+          waypts.push({ location: location, stopover: true });
+        }
+      }
+      return {
+        origin: origin,
+        destination: destination,
+        waypts: waypts
+      };
+    };
+
+    _this.state = {
+      directions: null,
+      directionDetails: {},
+      directionDetailsTwo: {},
+      directionsTwo: null
+    };
+    _this.getWaypts = _this.getWaypts.bind(_this);
+    _this.getWayptsTwo = _this.getWayptsTwo.bind(_this);
+    _this.getDirections = _this.getDirections.bind(_this);
+    return _this;
+  }
+
+  _createClass(DirectionsTrip, [{
+    key: "componentWillMount",
+    value: function componentWillMount() {
+      this.setState({
+        directionDetails: this.getWaypts(this.props.fullTripDetails, this.props.tripLocationIds, this.props.updateTripLocationId),
+        directionDetailsTwo: this.getWayptsTwo(this.props.fullTripDetails)
+      });
+    }
+  }, {
+    key: "componentWillReceiveProps",
+    value: function componentWillReceiveProps(nextProps) {
+      if (nextProps.fullTripDetails !== this.props.fullTripDetails) {
+        this.setState({
+          directionDetails: this.getWaypts(nextProps.fullTripDetails, nextProps.tripLocationIds, nextProps.updateTripLocationId),
+          directionDetailsTwo: this.getWayptsTwo(nextProps.fullTripDetails)
+
+        });
+        console.log('updateing directions: ', this.state.directionDetails, this.state.directionDetailsTwo);
+      }
+    }
+  }, {
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      this.getDirections();
+    }
+  }, {
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(prevProps, prevState) {
+      if (prevProps.fullTripDetails !== this.props.fullTripDetails) {
+        console.log('map updated!');
+        this.getDirections();
+      }
+    }
+  }, {
+    key: "shouldComponentUpdate",
+    value: function shouldComponentUpdate(nextProps, nextState) {
+      var differentFullTripDetails = nextProps.fullTripDetails !== this.props.fullTripDetails;
+      var differentTripLocationId = nextProps.updateTripLocationId !== this.props.updateTripLocationId;
+      var differentDirectionDetails = nextState.directions !== this.state.directions;
+      return differentFullTripDetails || differentTripLocationId || differentDirectionDetails;
+    }
+  }, {
+    key: "getDirections",
+    value: function getDirections() {
+      var _this2 = this;
+
+      // console.log('get directions')
+      var DirectionsService = new google.maps.DirectionsService();
+      var DirectionsServiceTwo = new google.maps.DirectionsService();
+      if (this.state.directionDetails.origin) {
+        DirectionsService.route({
+          origin: this.state.directionDetails.origin,
+          destination: this.state.directionDetails.destination,
+          travelMode: google.maps.TravelMode.DRIVING,
+          waypoints: this.state.directionDetails.waypts,
+          optimizeWaypoints: true
+        }, function (result, status) {
+          if (status === google.maps.DirectionsStatus.OK) {
+            _this2.setState({
+              directionsTwo: result
+            });
+            console.log('reuslt 1: ', result);
+          } else {
+            console.error("error fetching directions " + result);
+          }
+        });
+        DirectionsServiceTwo.route({
+          origin: this.state.directionDetailsTwo.origin,
+          destination: this.state.directionDetailsTwo.destination,
+          travelMode: google.maps.TravelMode.DRIVING,
+          waypoints: this.state.directionDetailsTwo.waypts,
+          optimizeWaypoints: true
+        }, function (result, status) {
+          if (status === google.maps.DirectionsStatus.OK) {
+            _this2.setState({
+              directions: result
+            });
+            console.log('reuslt 2: ', result);
+          } else {
+            console.error("error fetching directions " + result);
+          }
+        });
+        console.log('loop thru directions two!');
+      }
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var _this3 = this;
+
+      console.log('map re-renderred');
+      var DirectionsGoogleMap = (0, _reactGoogleMaps.withGoogleMap)(function (props) {
+        return _react2.default.createElement(
+          _reactGoogleMaps.GoogleMap,
+          {
+            defaultZoom: 7,
+            defaultCenter: _this3.state.center
+          },
+          _this3.state.directions && _react2.default.createElement(_reactGoogleMaps.DirectionsRenderer, { directions: _this3.state.directions }),
+          _this3.state.directions && _react2.default.createElement(_reactGoogleMaps.DirectionsRenderer, { directions: _this3.state.directionsTwo })
+        );
+      });
+      // this.getDirections();
+
+      return _react2.default.createElement(DirectionsGoogleMap, {
+        containerElement: _react2.default.createElement("div", { style: { height: "100%" } }),
+        mapElement: _react2.default.createElement("div", { style: { height: "100%" } }),
+        center: this.state.directionDetails.origin
+      });
+    }
+  }]);
+
+  return DirectionsTrip;
+}(_react.Component);
+
+exports.default = DirectionsTrip;
 
 /***/ })
 /******/ ]);

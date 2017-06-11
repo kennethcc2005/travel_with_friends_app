@@ -8,6 +8,8 @@ import FullTripAddEventButton from '../components/FullTripAddEventButton.jsx';
 import FullTripResetButton from '../components/FullTripResetButton.jsx';
 import FullTripConfirmButton from '../components/FullTripConfirmButton.jsx';
 import DirectionsTrip from '../components/GoogleMapComponent.jsx';
+import FullDirectionsTrip from '../components/GoogleMapFullTripComponent.jsx';
+
 // Version B: Delete method showed in front end only, dont update the backend until final click. Beter for performance!
 // add_search event use local search instead of calling backend for updates.!
 // alot to updates...>__<
@@ -171,7 +173,6 @@ class HomePage extends React.Component {
     const myUrl = 'http://127.0.0.1:8000/update_trip/suggest_search/?full_trip_id=' + this.state.fullTripId +
                         '&event_id=' + this.state.updateEventId +
                         '&trip_location_id='+this.state.updateTripLocationId;
-    console.log('post suggest event url: ', myUrl)
     const _this = this;
     if(_this.state.updateEventId !== '') {
       console.log(myUrl);
@@ -186,7 +187,6 @@ class HomePage extends React.Component {
           suggestEventArr: suggestEventArr,
           updateSuggestEvent: updateSuggestEvent,
         });
-        console.log('suggest event: ',_this.state.suggestEventArr, _this.state.updateSuggestEvent)
       });
     };
   }
@@ -200,14 +200,12 @@ class HomePage extends React.Component {
   onFullTripConfirm(){
     const suggestConfirmUrl = 'http://127.0.0.1:8000/update_trip/suggest_confirm/';
     const _this = this;
-    console.log('confirm',typeof this.state.updateSuggestEvent);
 
     let data = {
       updateSuggestEvent: JSON.stringify(this.state.updateSuggestEvent),
       fullTripId: this.state.fullTripId,
       updateTripLocationId: this.state.updateTripLocationId,
     };
-    console.log('confirm2',data.updateSuggestEvent, 'data',data);
     // data = JSON.stringify(data)
     $.ajax({
       type: 'POST',
@@ -215,7 +213,6 @@ class HomePage extends React.Component {
       data: data
     })
     .done(function(res) {
-      console.log(res)
       _this.setState({
         updateSuggestEvent: '',
         fullTripDetails: res.full_trip_details,
@@ -352,7 +349,6 @@ class HomePage extends React.Component {
                     <FullTripResetButton onFullTripReset={this.onFullTripReset}/>}
                 </div>
                 <div className="col-md-4">
-                  {console.log(this.state.updateSuggestEvent)}
                   {Object.keys(this.state.updateSuggestEvent).length>0 && 
                     <FullTripConfirmButton onFullTripConfirm={this.onFullTripConfirm}/>}
                 </div>
@@ -360,9 +356,15 @@ class HomePage extends React.Component {
               
             </div>
             <div className="col-md-12">
-                {console.log('updateTripLocationId:', this.state.updateTripLocationId)}
                 <div style={divStyle}>
                   {this.state.fullTripDetails.length > 0 && <DirectionsTrip fullTripDetails={this.state.fullTripDetails}
+                                                                            updateTripLocationId={this.state.updateTripLocationId}
+                                                                            tripLocationIds={this.state.tripLocationIds} />}
+                </div>
+                <br />
+                <br />
+                <div style={divStyle}>
+                  {this.state.fullTripDetails.length > 0 && <FullDirectionsTrip fullTripDetails={this.state.fullTripDetails}
                                                                             updateTripLocationId={this.state.updateTripLocationId}
                                                                             tripLocationIds={this.state.tripLocationIds} />}
                 </div>
