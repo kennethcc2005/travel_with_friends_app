@@ -41,7 +41,18 @@ const SignUpForm = ({
         <TextField
           floatingLabelText="Password"
           type="password"
-          name="password"
+          name="password1"
+          onChange={onChange}
+          errorText={errors.password}
+          value={user.password}
+        />
+      </div>
+
+      <div className="field-line">
+        <TextField
+          floatingLabelText="Confirm Password"
+          type="password"
+          name="password2"
           onChange={onChange}
           errorText={errors.password}
           value={user.password}

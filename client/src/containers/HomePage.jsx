@@ -9,7 +9,7 @@ import FullTripResetButton from '../components/FullTripResetButton.jsx';
 import FullTripConfirmButton from '../components/FullTripConfirmButton.jsx';
 import DirectionsTrip from '../components/GoogleMapComponent.jsx';
 import FullDirectionsTrip from '../components/GoogleMapFullTripComponent.jsx';
-
+import GoogleMapUrlButton from '../components/GoogleMapUrlButton.jsx';
 // Version B: Delete method showed in front end only, dont update the backend until final click. Beter for performance!
 // add_search event use local search instead of calling backend for updates.!
 // alot to updates...>__<
@@ -48,6 +48,7 @@ class HomePage extends React.Component {
       updateTripLocationId: '',
       suggestEventArr: {},
       updateSuggestEvent: {},
+      currentMapUrl: '',
     };
     this.performSearch = this.performSearch.bind(this)
     this.onUpdateInput = this.onUpdateInput.bind(this)
@@ -61,6 +62,7 @@ class HomePage extends React.Component {
     this.performSuggestEventLst = this.performSuggestEventLst.bind(this)
     this.onAddEventInput = this.onAddEventInput.bind(this)
     this.getTapName = this.getTapName.bind(this)
+    this.getMapUrl = this.getMapUrl.bind(this)
     this.onAddEventSubmit = this.onAddEventSubmit.bind(this)
   }
   performSearch() {
@@ -265,6 +267,13 @@ class HomePage extends React.Component {
     });
   }
 
+  getMapUrl(currentMapUrl) {
+    console.log('the currentMapUrl: ',currentMapUrl)
+    this.setState({
+      currentMapUrl
+    })
+  }
+
   onAddEventSubmit = () => {
     const dbLocationURI = 'http://127.0.0.1:8000/update_trip/add/?';
     const _this = this;
@@ -356,19 +365,16 @@ class HomePage extends React.Component {
               
             </div>
             <div className="col-md-12">
-                <div style={divStyle}>
+              <div style={divStyle}>
                   {this.state.fullTripDetails.length > 0 && <DirectionsTrip fullTripDetails={this.state.fullTripDetails}
                                                                             updateTripLocationId={this.state.updateTripLocationId}
-                                                                            tripLocationIds={this.state.tripLocationIds} />}
-                </div>
-                <br />
-                <br />
-                <div style={divStyle}>
-                  {this.state.fullTripDetails.length > 0 && <FullDirectionsTrip fullTripDetails={this.state.fullTripDetails}
-                                                                            updateTripLocationId={this.state.updateTripLocationId}
-                                                                            tripLocationIds={this.state.tripLocationIds} />}
-                </div>
-              </div>            
+                                                                            tripLocationIds={this.state.tripLocationIds} 
+                                                                            getMapUrl={this.getMapUrl} />}
+              </div>
+
+              <br />
+              {this.state.currentMapUrl.length >0 && <GoogleMapUrlButton googleMapUrl={this.state.currentMapUrl} />}
+            </div>            
           </div>
             
         </CardActions>

@@ -10,6 +10,7 @@ export default class FullTripDirectionsTrip extends Component {
     this.state = {
       directions: null,
       directionDetails: {},
+      mapUrl: '',
     };
     this.getWaypts = this.getWaypts.bind(this)
     this.getDirections = this.getDirections.bind(this)
@@ -52,6 +53,10 @@ export default class FullTripDirectionsTrip extends Component {
     let origin = '';
     let location = '';
     let destination = '';
+    let mapWayptUrl = 'https://www.google.com/maps/dir/?api=1&travelmode=driving';
+    let mapWaypts = [];
+    let originUrl = '';
+    let destUrl = '';
     for (let i = oriIndex; i <= destIndex; i++){
       let addressArr = fullTripDetails[i].address.split(', ');
       let newArr = [];
@@ -71,17 +76,23 @@ export default class FullTripDirectionsTrip extends Component {
       }
       if(i == oriIndex) {
         origin = location;
+        originUrl = '&origin='+fullTripDetails[i].coord_lat+','+fullTripDetails[i].coord_long ; 
         // console.log(fullTripDetails[i], 'ori')
       }
       else if(i ==destIndex) {
         destination = location;
+        destUrl = '&destination='+ fullTripDetails[i].coord_lat+','+fullTripDetails[i].coord_long; 
         // console.log(fullTripDetails[i],'dest')
       }
       else {
-
         waypts.push({location: location, stopover: true});
+        mapWaypts.push(fullTripDetails[i].coord_lat+','+fullTripDetails[i].coord_long);
       }
     }
+
+    const mapWayptsStr = mapWaypts.join('%7C');
+    mapWayptUrl += originUrl + destUrl + '&waypoints=' + mapWayptsStr;
+    this.props.getMapUrl(mapWayptUrl);
     return {
       origin: origin,
       destination: destination,
@@ -98,7 +109,7 @@ export default class FullTripDirectionsTrip extends Component {
         destination: this.state.directionDetails.destination,
         travelMode: google.maps.TravelMode.DRIVING,
         waypoints: this.state.directionDetails.waypts,
-        optimizeWaypoints: true,
+        optimizeWaypoints: false,
       }, (result, status) => {
         if (status === google.maps.DirectionsStatus.OK) {
           this.setState({
