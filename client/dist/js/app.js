@@ -33600,7 +33600,7 @@ var SignUpForm = function SignUpForm(_ref) {
           name: 'password1',
           onChange: onChange,
           errorText: errors.password,
-          value: user.password
+          value: user.password1
         })
       ),
       _react2.default.createElement(
@@ -33612,7 +33612,7 @@ var SignUpForm = function SignUpForm(_ref) {
           name: 'password2',
           onChange: onChange,
           errorText: errors.password,
-          value: user.password
+          value: user.password2
         })
       ),
       _react2.default.createElement(

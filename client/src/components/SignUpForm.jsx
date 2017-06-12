@@ -44,7 +44,7 @@ const SignUpForm = ({
           name="password1"
           onChange={onChange}
           errorText={errors.password}
-          value={user.password}
+          value={user.password1}
         />
       </div>
 
@@ -55,7 +55,7 @@ const SignUpForm = ({
           name="password2"
           onChange={onChange}
           errorText={errors.password}
-          value={user.password}
+          value={user.password2}
         />
       </div>
 
