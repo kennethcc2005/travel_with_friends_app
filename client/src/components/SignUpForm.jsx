@@ -19,9 +19,9 @@ const SignUpForm = ({
 
       <div className="field-line">
         <TextField
-          floatingLabelText="Name"
+          floatingLabelText="Username"
           name="name"
-          errorText={errors.name}
+          errorText={errors.username}
           onChange={onChange}
           value={user.name}
         />
@@ -43,7 +43,7 @@ const SignUpForm = ({
           type="password"
           name="password1"
           onChange={onChange}
-          errorText={errors.password}
+          errorText={errors.password1}
           value={user.password1}
         />
       </div>
@@ -54,7 +54,7 @@ const SignUpForm = ({
           type="password"
           name="password2"
           onChange={onChange}
-          errorText={errors.password}
+          errorText={errors.password2}
           value={user.password2}
         />
       </div>

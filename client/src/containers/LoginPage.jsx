@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
-import Auth from '../modules/Auth';
 import LoginForm from '../components/LoginForm.jsx';
+import Auth from '../services/AuthService.jsx';
 
 class LoginPage extends React.Component {
 
@@ -42,43 +42,47 @@ class LoginPage extends React.Component {
     event.preventDefault();
 
     // create a string for an HTTP body message
-    const email = encodeURIComponent(this.state.user.email);
+    const email = this.state.user.email;
     const password = encodeURIComponent(this.state.user.password);
-    const formData = `email=${email}&password=${password}`;
+    Auth.login(email, password)
+            .catch(function(err) {
+                console.log("Error logging in", err)
+            });
+    // const formData = `email=${email}&password=${password}`;
 
     // create an AJAX request
-    const xhr = new XMLHttpRequest();
-    xhr.open('post', '/auth/login');
-    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-    xhr.responseType = 'json';
-    xhr.addEventListener('load', () => {
-      if (xhr.status === 200) {
-        // success
+    // const xhr = new XMLHttpRequest();
+    // xhr.open('post', '/auth/login');
+    // xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    // xhr.responseType = 'json';
+    // xhr.addEventListener('load', () => {
+    //   if (xhr.status === 200) {
+    //     // success
 
-        // change the component-container state
-        this.setState({
-          errors: {}
-        });
+    //     // change the component-container state
+    //     this.setState({
+    //       errors: {}
+    //     });
 
-        // save the token
-        Auth.authenticateUser(xhr.response.token);
+    //     // save the token
+    //     Auth.authenticateUser(xhr.response.token);
 
 
-        // change the current URL to /
-        this.context.router.replace('/');
-      } else {
-        // failure
+    //     // change the current URL to /
+    //     this.context.router.replace('/');
+    //   } else {
+    //     // failure
 
-        // change the component state
-        const errors = xhr.response.errors ? xhr.response.errors : {};
-        errors.summary = xhr.response.message;
+    //     // change the component state
+    //     const errors = xhr.response.errors ? xhr.response.errors : {};
+    //     errors.summary = xhr.response.message;
 
-        this.setState({
-          errors
-        });
-      }
-    });
-    xhr.send(formData);
+    //     this.setState({
+    //       errors
+    //     });
+    //   }
+    // });
+    // xhr.send(formData);
   }
 
   /**

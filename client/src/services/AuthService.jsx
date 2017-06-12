@@ -1,20 +1,20 @@
 import when from 'when';
 import request from 'reqwest';
-import UserConstants from '../constants/UserConstants';
-import UserActions from '../actions/UserActions';
-import UserStore from '../stores/UserStore';
+import UserConstants from '../constants/UserConstants.jsx';
+import UserActions from '../actions/UserActions.jsx';
+import UserStore from '../stores/UserStore.jsx';
 
 class AuthService {
-    login(username, password) {
+    login(email, password) {
         console.log("login with");
-        console.log(username, password);
+        console.log(email, password);
         return this.handleAuth(
             when(request({
                 url: UserConstants.LOGIN_URL,
                 method: 'POST',
                 type: 'json',
                 data: {
-                    username: username,
+                    email: email,
                     password: password
                 }
             }))
@@ -32,7 +32,7 @@ class AuthService {
                 'Authorization': 'Token ' + UserStore.token
             }
         })).then(function(data) {
-            console.log(data);
+            console.log('my data: ',data);
             UserActions.loadUserDetail(data);
         }));
     }
@@ -42,7 +42,7 @@ class AuthService {
     }
 
     signup(email, username, password1, password2) {
-        console.log(password1, password2);
+        console.log('auth services: ',email, username, password1, password2);
         return this.handleAuth(when(request({
             url: UserConstants.SIGNUP_URL,
             method: 'POST',
@@ -96,7 +96,7 @@ class AuthService {
     handleAuth(loginPromise) {
         return loginPromise.then(
             function(data) {
-                console.log(data); //Success
+                console.log('login ???',data); //Success
                 var token = data.key;
                 UserActions.loginUser(token);
                 return true;

@@ -75,22 +75,24 @@ MIDDLEWARE = [
 ]
 
 #need to use white list
-CORS_ORIGIN_ALLOW_ALL = True
-# CORS_ORIGIN_ALLOW_ALL = False
+# CORS_ORIGIN_ALLOW_ALL = True
+CSRF_COOKIE_SECURE = False
+CORS_ORIGIN_ALLOW_ALL = False
 # CORS_ORIGIN_WHITELIST = (
 
 # )
 
-# CORS_ORIGIN_REGEX_WHITELIST = (
-#     r'^(https?://)?localhost',
-#     r'^(https?://)?127.',
-# )
+CORS_ORIGIN_REGEX_WHITELIST = (
+    r'^(https?://)?localhost',
+    r'^(https?://)?127.',
+)
 
 #auth login method
 REST_SESSION_LOGIN = False
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 SITE_ID = 1
 ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED=False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 AUTHENTICATION_BACKENDS = (
    "django.contrib.auth.backends.ModelBackend",

@@ -1,5 +1,5 @@
-import UserConstants from '../constants/UserConstants';
-import BaseStore from './BaseStore';
+import UserConstants from '../constants/UserConstants.jsx';
+import BaseStore from './BaseStore.jsx';
 
 class UserStore extends BaseStore {
     constructor() {
