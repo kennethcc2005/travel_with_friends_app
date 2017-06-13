@@ -34807,7 +34807,7 @@ var LoginPage = function (_React$Component) {
   function LoginPage(props, context) {
     _classCallCheck(this, LoginPage);
 
-    var _this = _possibleConstructorReturn(this, (LoginPage.__proto__ || Object.getPrototypeOf(LoginPage)).call(this, props, context));
+    var _this2 = _possibleConstructorReturn(this, (LoginPage.__proto__ || Object.getPrototypeOf(LoginPage)).call(this, props, context));
 
     var storedMessage = localStorage.getItem('successMessage');
     var successMessage = '';
@@ -34818,7 +34818,7 @@ var LoginPage = function (_React$Component) {
     }
 
     // set the initial component state
-    _this.state = {
+    _this2.state = {
       errors: {},
       successMessage: successMessage,
       user: {
@@ -34827,9 +34827,9 @@ var LoginPage = function (_React$Component) {
       }
     };
 
-    _this.processForm = _this.processForm.bind(_this);
-    _this.changeUser = _this.changeUser.bind(_this);
-    return _this;
+    _this2.processForm = _this2.processForm.bind(_this2);
+    _this2.changeUser = _this2.changeUser.bind(_this2);
+    return _this2;
   }
 
   /**
@@ -34844,12 +34844,15 @@ var LoginPage = function (_React$Component) {
     value: function processForm(event) {
       // prevent default action. in this case, action is the form submission event
       event.preventDefault();
-
+      var _this = this;
       // create a string for an HTTP body message
       var email = this.state.user.email;
       var password = encodeURIComponent(this.state.user.password);
       _AuthService2.default.login(email, password).catch(function (err) {
         console.log("Error logging in", err);
+      }).done(function (greeting) {
+        console.log('greeting', greeting);
+        _this.context.router.replace('/');
       });
       // const formData = `email=${email}&password=${password}`;
 
@@ -102582,7 +102585,7 @@ var UserDetailPage = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            console.log('detail?????', this.state.user);
+            console.log('detail?????', this.state.user, localStorage);
             return _react2.default.createElement(
                 'div',
                 { className: 'container jumbotron' },

@@ -45,7 +45,7 @@ class UserDetailPage extends React.Component {
     }
 
     render() {
-        console.log('detail?????', this.state.user)
+        console.log('detail?????', this.state.user, localStorage)
         return (
             <div className="container jumbotron">
                 <h2>User Detail</h2>
