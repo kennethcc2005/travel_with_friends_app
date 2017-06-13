@@ -3,6 +3,7 @@ from travel_with_friends.models import AuthUser, FullTripTable
 from django.contrib.auth.models import User
 from snippets.models import Snippet
 from django.contrib.auth import get_user_model
+from rest_auth.serializers import UserDetailsSerializer
 
 class FullTripSearchSerializer(serializers.Serializer):
     city = serializers.CharField()
@@ -52,13 +53,13 @@ class FullTripAddEventSerializer(serializers.Serializer):
 #         read_only_fields = ('is_staff', 'is_superuser', 'is_active', 'date_joined',)
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(UserDetailsSerializer):
     full_trips = serializers.PrimaryKeyRelatedField(many=True,read_only=True)
     outside_trips = serializers.PrimaryKeyRelatedField(many=True,read_only=True)
     # snippets = serializers.PrimaryKeyRelatedField(many=True, queryset=FullTripTable.objects.all())
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'full_trips', 'outside_trips')
+        fields = UserDetailsSerializer.Meta.fields + ('full_trips', 'outside_trips')
         write_only_fields = ('password',)
         read_only_fields = ('id',)
 

@@ -13,7 +13,9 @@ class UserDetailPage extends React.Component {
                 email: '',
                 username: '',
                 firstname: '',
-                lastname: ''
+                lastname: '',
+                fulltrips: '',
+
             }
         };
 
@@ -43,7 +45,7 @@ class UserDetailPage extends React.Component {
     }
 
     render() {
-        console.log('detail?????')
+        console.log('detail?????', this.state.user)
         return (
             <div className="container jumbotron">
                 <h2>User Detail</h2>

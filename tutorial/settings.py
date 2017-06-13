@@ -116,6 +116,10 @@ TEMPLATES = [
     },
 ]
 
+REST_AUTH_SERIALIZERS = {
+    'USER_DETAILS_SERIALIZER': 'travel_with_friends.serializers.UserSerializer',
+}
+
 WSGI_APPLICATION = 'tutorial.wsgi.application'
 
 

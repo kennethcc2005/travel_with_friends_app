@@ -102544,7 +102544,9 @@ var UserDetailPage = function (_React$Component) {
                 email: '',
                 username: '',
                 firstname: '',
-                lastname: ''
+                lastname: '',
+                fulltrips: ''
+
             }
         };
 
@@ -102580,7 +102582,7 @@ var UserDetailPage = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            console.log('detail?????');
+            console.log('detail?????', this.state.user);
             return _react2.default.createElement(
                 'div',
                 { className: 'container jumbotron' },
