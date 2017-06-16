@@ -46,11 +46,13 @@ class LoginPage extends React.Component {
     const password = encodeURIComponent(this.state.user.password);
     Auth.login(email, password)
             .catch(function(err) {
-                console.log("Error logging in", err)
+                alert("Error logging in", err)
             })
             .done(function(greeting) {
-              console.log('greeting', greeting);
-              _this.context.router.replace('/');
+              if (greeting != undefined) {
+                console.log('greeting', greeting);
+                _this.context.router.replace('/');
+              }
             });
     // const formData = `email=${email}&password=${password}`;
 

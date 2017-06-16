@@ -2,9 +2,6 @@ import AppDispatcher from '../dispatchers/AppDispatcher.jsx';
 import UserConstants from '../constants/UserConstants.jsx';
 import createBrowserHistory from '../services/History.jsx';
 // import createHistory from 'history/createBrowserHistory'
- 
-
- 
 
 export default {
     loginUser: (token) => {
@@ -18,7 +15,6 @@ export default {
         localStorage.setItem('user_token', token);
 
         // this won't work with onEnter hook in Routes
-        createBrowserHistory.push('/');
 
         // const history = createHistory()
  

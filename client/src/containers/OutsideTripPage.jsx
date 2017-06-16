@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardTitle, CardActions } from 'material-ui/Card';
+import { Card, CardTitle, CardActions, CardText } from 'material-ui/Card';
 import SearchInputField from '../components/SearchInputField.jsx';
 import MenuItemDays from '../components/MenuItemDays.jsx';
 import FullTripSearchButton from '../components/FullTripSearchButton.jsx';
@@ -25,7 +25,7 @@ const divStyle = {
   height: '400px',
 };
 
-class HomePage extends React.Component {
+class OutsideTripPage extends React.Component {
   /**
    * Class constructor.
    */
@@ -343,90 +343,128 @@ class HomePage extends React.Component {
 
   }
 
+  componentWillMount(){
+    $.getJSON('https://api.ipify.org?format=json', function(data){
+             // Your callback functions like   
+              console.log(data.ip);
+              localStorage.setItem('ip',data.ip);
+            })      
+  }
+
   render() { 
     return (
       <Card className="container" >
-        <CardTitle title="Travel with Friends!" subtitle="This is the home page." />
-        <CardActions>
-          
-          <div className="col-md-8 col-md-offset-2">
-            <div className="col-md-5">
-              <SearchInputField 
-                name ='searchCityState'
-                searchText={this.state.searchInputValue}
-                floatingLabelText='Location' 
-                dataSource={this.state.cityStateDataSource} 
-                onUpdateInput={this.onUpdateInput} />
-            </div>
-            <div className="col-md-5">
-              <MenuItemDays daysValue={this.state.daysValue} handleDaysOnChange={this.handleDaysOnChange}/>
-            </div>
-            <div className="col-md-2">
-              <FullTripSearchButton onFullTripSubmit={this.onFullTripSubmit}/>
-            </div>
-            <br/>
-            <div className="col-md-12 ">
-              {this.state.fullTripDetails.length>0 && 
-                <FullTripList 
-                  onDeleteEvent={this.onDeleteEvent} 
-                  onSuggestEvent={this.onSuggestEvent}
-                  updateSuggestEvent={this.state.updateSuggestEvent}
-                  fullTripDetails={this.state.fullTripDetails} 
-                  tripLocationIds={this.state.tripLocationIds}
-                  getTapName={this.getTapName} 
-                  />}
-            </div>
-            <div className="col-md-10 col-md-offset-2">
-              <div className="col-md-5 col-md-offset-1">
-                {this.state.fullTripDetails.length>0 && 
-                  <SearchInputField
-                    name = 'searchAddEvent'
-                    searchText={this.state.searchEventValue}
-                    hintText='Add New Event'
-                    inputStyle={{ textAlign: 'center' }}
-                    dataSource={this.state.addEventDataSource} 
-                    onUpdateInput={this.onAddEventInput} />}
+        <div className="col-md-12">
+          <CardActions>
+            <div className="col-md-8 col-md-offset-2">
+              <div className="col-md-5">
+                <SearchInputField 
+                  name ='searchCityState'
+                  searchText={this.state.searchInputValue}
+                  floatingLabelText='Location' 
+                  dataSource={this.state.cityStateDataSource} 
+                  onUpdateInput={this.onUpdateInput} />
+              </div>
+              <div className="col-md-5">
+                <MenuItemDays daysValue={this.state.daysValue} handleDaysOnChange={this.handleDaysOnChange}/>
               </div>
               <div className="col-md-2">
-                {this.state.fullTripDetails.length>0 && 
-                  <FullTripAddEventButton onAddEventSubmit={this.onAddEventSubmit}/>}
+                <FullTripSearchButton onFullTripSubmit={this.onFullTripSubmit}/>
               </div>
-              <div className="col-md-4">
-                <div className="col-md-4">
-                  {Object.keys(this.state.updateSuggestEvent).length>0 && 
-                    <FullTripResetButton onFullTripReset={this.onFullTripReset}/>}
-                </div>
-                <div className="col-md-4">
-                  {Object.keys(this.state.updateSuggestEvent).length>0 && 
-                    <FullTripConfirmButton onFullTripConfirm={this.onFullTripConfirm}/>}
-                </div>
-              </div>
+
               
             </div>
-            <div className="col-md-12">
-              <div style={divStyle}>
-                  {this.state.fullTripDetails.length > 0 && <DirectionsTrip fullTripDetails={this.state.fullTripDetails}
-                                                                            updateTripLocationId={this.state.updateTripLocationId}
-                                                                            tripLocationIds={this.state.tripLocationIds} 
-                                                                            getMapUrl={this.getMapUrl} />}
-              </div>
+          </CardActions>
+        </div>
+        <br />
 
-              <br />
-              <div className="col-md-6">
-                {this.state.currentMapUrl.length >0 && <GoogleMapUrlButton googleMapUrl={this.state.currentMapUrl} />}
-              </div>
-              <div className="col-md-6">
-                {this.state.currentMapUrl.length >0 && <FullTripUserSubmitButton onFullTripUserSubmit={this.onFullTripUserSubmit} />}
-              </div>
-
-            </div>            
-          </div>
+        <div className="col-md-12">
+          <br/>
+          <CardTitle title="Travel with Friends!" subtitle="Explore fun places around your area." />
+          <CardText>
+            Pick the city and the direction to explore.  You will find great funs.
+          </CardText>
+          <CardActions>
             
-        </CardActions>
+            <div className="col-md-8 col-md-offset-2">
+              <div className="col-md-5">
+                <SearchInputField 
+                  name ='searchCityState'
+                  searchText={this.state.searchInputValue}
+                  floatingLabelText='Location' 
+                  dataSource={this.state.cityStateDataSource} 
+                  onUpdateInput={this.onUpdateInput} />
+              </div>
+              <div className="col-md-5">
+                <MenuItemDays daysValue={this.state.daysValue} handleDaysOnChange={this.handleDaysOnChange}/>
+              </div>
+              <div className="col-md-2">
+                <FullTripSearchButton onFullTripSubmit={this.onFullTripSubmit}/>
+              </div>
+              <br/>
+              <div className="col-md-12 ">
+                {this.state.fullTripDetails.length>0 && 
+                  <FullTripList 
+                    onDeleteEvent={this.onDeleteEvent} 
+                    onSuggestEvent={this.onSuggestEvent}
+                    updateSuggestEvent={this.state.updateSuggestEvent}
+                    fullTripDetails={this.state.fullTripDetails} 
+                    tripLocationIds={this.state.tripLocationIds}
+                    getTapName={this.getTapName} 
+                    />}
+              </div>
+              <div className="col-md-10 col-md-offset-2">
+                <div className="col-md-5 col-md-offset-1">
+                  {this.state.fullTripDetails.length>0 && 
+                    <SearchInputField
+                      name = 'searchAddEvent'
+                      searchText={this.state.searchEventValue}
+                      hintText='Add New Event'
+                      inputStyle={{ textAlign: 'center' }}
+                      dataSource={this.state.addEventDataSource} 
+                      onUpdateInput={this.onAddEventInput} />}
+                </div>
+                <div className="col-md-2">
+                  {this.state.fullTripDetails.length>0 && 
+                    <FullTripAddEventButton onAddEventSubmit={this.onAddEventSubmit}/>}
+                </div>
+                <div className="col-md-4">
+                  <div className="col-md-4">
+                    {Object.keys(this.state.updateSuggestEvent).length>0 && 
+                      <FullTripResetButton onFullTripReset={this.onFullTripReset}/>}
+                  </div>
+                  <div className="col-md-4">
+                    {Object.keys(this.state.updateSuggestEvent).length>0 && 
+                      <FullTripConfirmButton onFullTripConfirm={this.onFullTripConfirm}/>}
+                  </div>
+                </div>
+                
+              </div>
+              <div className="col-md-12">
+                <div style={divStyle}>
+                    {this.state.fullTripDetails.length > 0 && <DirectionsTrip fullTripDetails={this.state.fullTripDetails}
+                                                                              updateTripLocationId={this.state.updateTripLocationId}
+                                                                              tripLocationIds={this.state.tripLocationIds} 
+                                                                              getMapUrl={this.getMapUrl} />}
+                </div>
+
+                <br />
+                <div className="col-md-6">
+                  {this.state.currentMapUrl.length >0 && <GoogleMapUrlButton googleMapUrl={this.state.currentMapUrl} />}
+                </div>
+                <div className="col-md-6">
+                  {this.state.currentMapUrl.length >0 && <FullTripUserSubmitButton onFullTripUserSubmit={this.onFullTripUserSubmit} />}
+                </div>
+
+              </div>            
+            </div>
+              
+          </CardActions>
+        </div>
       </Card>
     )
   }
 };
 
 
-export default HomePage;
+export default OutsideTripPage;

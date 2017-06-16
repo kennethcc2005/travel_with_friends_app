@@ -344,14 +344,12 @@ def convert_db_details(detail, remove_event_id):
     return 
 #Get full list of event_ids from new full trip table!
 def switch_suggest_event(full_trip_id, update_trip_location_id, update_suggest_event, username_id=1): 
-    print 'switch on: '
     conn = psycopg2.connect(conn_str)   
     cur = conn.cursor()   
     cur.execute("SELECT trip_location_ids FROM full_trip_table WHERE full_trip_id = '%s';" %(full_trip_id)) 
     # cur.execute("select trip_location_ids, details from full_trip_table where full_trip_id = '%s';" %(full_trip_id)) 
     trip_location_ids = ast.literal_eval(cur.fetchone()[0])
     update_suggest_event = ast.literal_eval(update_suggest_event)
-    print 'update suggest',type(update_suggest_event), update_suggest_event
     full_trip_details = []
     full_trip_trip_locations_id = []
     new_update_trip_location_id = ''
@@ -395,9 +393,30 @@ def switch_suggest_event(full_trip_id, update_trip_location_id, update_suggest_e
             regular =False
             cur.execute("SELECT max(index) FROM full_trip_table;")
             new_index = cur.fetchone()[0] + 1
-            cur.execute("INSERT INTO full_trip_table(index, username_id, full_trip_id,trip_location_ids, regular, county, state, details, n_days) VALUES (%s, %s, '%s', '%s', %s, '%s', '%s', '%s', %s);" %(new_index, username_id, new_full_trip_id, str(full_trip_trip_locations_id).replace("'","''"), regular, county, state, str(full_trip_details).replace("'","''"), n_days))
+            cur.execute("INSERT INTO full_trip_table VALUES (%s, %s, '%s', '%s', %s, '%s', '%s', '%s', %s);" %(new_index, username_id, new_full_trip_id, str(full_trip_trip_locations_id).replace("'","''"), regular, county, state, str(full_trip_details).replace("'","''"), n_days))
             conn.commit()
+            conn.close()
         return new_full_trip_id, full_trip_details, full_trip_trip_locations_id, new_update_trip_location_id
     if new_update_trip_location_id == '':
         new_update_trip_location_id = update_trip_location_id
     return full_trip_id, full_trip_details, full_trip_trip_locations_id, new_update_trip_location_id
+
+#using v1 front end design.
+def create_full_trip(full_trip_id, username_id):
+    conn = psycopg2.connect(conn_str)   
+    cur = conn.cursor()
+    # print "select * from full_trip_table where full_trip_id='%s' and username_id=%s;" %(full_trip_id, username_id)
+    cur.execute("select count(1) from full_trip_table where full_trip_id='%s' and username_id=%s;" %(full_trip_id, username_id))  
+    cnt = cur.fetchone()[0]
+    if cnt != 0:
+        return False
+    else:
+        cur.execute("SELECT max(index) from full_trip_table;")
+        new_index = cur.fetchone()[0] + 1
+        cur.execute("select * from full_trip_table where full_trip_id='%s';" %(full_trip_id))  
+        # print "select * from full_trip_table where full_trip_id='%s';" %(full_trip_id)
+        (index, old_username_id, full_trip_id,trip_location_ids, regular, county, state, details, n_days) = cur.fetchone()
+        cur.execute("INSERT INTO full_trip_table VALUES (%s, %s, '%s', '%s', %s, '%s', '%s', '%s', %s);" %(new_index, username_id, full_trip_id, trip_location_ids.replace("'",'"'), regular, county, state, details.replace("'",'"'), n_days))
+        conn.commit()
+        conn.close()
+        return True

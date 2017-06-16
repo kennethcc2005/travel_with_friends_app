@@ -49,6 +49,14 @@ app.get('/user', (req, res) => {
 app.get('/', (req, res) => {
     res.status(200).render('index.html');
 });
+
+app.get('/explore', (req, res) => {
+    res.status(200).render('index.html');
+});
+
+app.get('/create', (req, res) => {
+    res.status(200).render('index.html');
+});
 // start the server
 app.listen(3000, () => {
   console.log('Server is running on http://localhost:3000 or http://127.0.0.1:3000');

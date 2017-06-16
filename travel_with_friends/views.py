@@ -287,6 +287,26 @@ class FullTripSuggestConfirm(APIView):
             "current_trip_location_id": new_update_trip_location_id,
         })
 
+class FullTripCreate(APIView):
+    def get_permissions(self):
+        '''
+        response = requests.get(myurl, headers={'Authorization': 'Token {}'.format(mytoken)})
+        '''
+        return (permissions.IsAuthenticated()),
+    def post(self, request):
+        # Validate the incoming input (provided through query parameters)
+        # serializer = FullTripSuggestConfirmSerializer(data=request.data)
+        # serializer.is_valid(raise_exception=True)
+        # Get the model input
+        data = request.data
+        username = request.user.username
+        username_id = User.objects.get(username=username).pk
+        full_trip_id=data["fullTripId"]
+        response = trip_update.create_full_trip(full_trip_id, username_id)
+        return Response({
+            "response": response,
+        })
+
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
