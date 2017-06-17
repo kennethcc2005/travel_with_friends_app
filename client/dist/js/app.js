@@ -103114,18 +103114,15 @@ var OutsideTripPage = function (_React$Component) {
     // set the initial component state
     var _this2 = _possibleConstructorReturn(this, (OutsideTripPage.__proto__ || Object.getPrototypeOf(OutsideTripPage)).call(this, props, context));
 
-    _this2.handleDaysOnChange = function (event, index, value) {
-      return _this2.setState({ daysValue: event.target.innerText });
-    };
-
-    _this2.onFullTripSubmit = function () {
-      var dbLocationURI = 'http://127.0.0.1:8000/full_trip_search/?';
+    _this2.onOutsideTripSubmit = function () {
+      var dbLocationURI = 'http://127.0.0.1:8000/outside_trip_search/?';
       var _this = _this2;
       var city = _this2.state.searchInputValue.split(', ')[0];
       var state = _this2.state.searchInputValue.split(', ')[1];
       var valid_city_input = encodeURIComponent(city);
       var valid_state_input = encodeURIComponent(state);
-      var myUrl = dbLocationURI + 'city=' + valid_city_input + '&state=' + valid_state_input + '&n_days=' + _this2.state.daysValue;
+      var myUrl = dbLocationURI + 'city=' + valid_city_input + '&state=' + valid_state_input + '&direction=' + _this2.state.directionValue;
+      console.log('outside trip: ', myUrl);
       if (_this2.state.searchInputValue !== '') {
         $.ajax({
           type: "GET",
@@ -103233,11 +103230,13 @@ var OutsideTripPage = function (_React$Component) {
       newFullTrip: ''
 
     };
+    _this2.getOutsideTripTileTapName = _this2.getOutsideTripTileTapName.bind(_this2);
     _this2.handleDirectionsOnChange = _this2.handleDirectionsOnChange.bind(_this2);
+    _this2.onOutsideTripSubmit = _this2.onOutsideTripSubmit.bind(_this2);
 
     _this2.performSearch = _this2.performSearch.bind(_this2);
     _this2.onUpdateInput = _this2.onUpdateInput.bind(_this2);
-    _this2.handleDaysOnChange = _this2.handleDaysOnChange.bind(_this2);
+
     _this2.onFullTripSubmit = _this2.onFullTripSubmit.bind(_this2);
     _this2.onFullTripUserSubmit = _this2.onFullTripUserSubmit.bind(_this2);
     _this2.onDeleteEvent = _this2.onDeleteEvent.bind(_this2);
@@ -103248,12 +103247,14 @@ var OutsideTripPage = function (_React$Component) {
     _this2.performSuggestEventLst = _this2.performSuggestEventLst.bind(_this2);
     _this2.onAddEventInput = _this2.onAddEventInput.bind(_this2);
     _this2.getTapName = _this2.getTapName.bind(_this2);
-    _this2.getOutsideTripTileTapName = _this2.getOutsideTripTileTapName.bind(_this2);
     _this2.getMapUrl = _this2.getMapUrl.bind(_this2);
     _this2.onAddEventSubmit = _this2.onAddEventSubmit.bind(_this2);
     _this2.searchAPILocation = _this2.searchAPILocation.bind(_this2);
     return _this2;
   }
+
+  // For both full trip and outside trip
+
 
   _createClass(OutsideTripPage, [{
     key: 'performSearch',
@@ -103275,6 +103276,9 @@ var OutsideTripPage = function (_React$Component) {
         });
       };
     }
+
+    // For both full trip and outside trip
+
   }, {
     key: 'onUpdateInput',
     value: function onUpdateInput(searchInputValue) {

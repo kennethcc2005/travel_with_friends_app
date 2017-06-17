@@ -66,11 +66,13 @@ class OutsideTripPage extends React.Component {
 
 
     };
+    this.getOutsideTripTileTapName = this.getOutsideTripTileTapName.bind(this)
     this.handleDirectionsOnChange = this.handleDirectionsOnChange.bind(this)
+    this.onOutsideTripSubmit = this.onOutsideTripSubmit.bind(this)
 
     this.performSearch = this.performSearch.bind(this)
     this.onUpdateInput = this.onUpdateInput.bind(this)
-    this.handleDaysOnChange = this.handleDaysOnChange.bind(this)
+
     this.onFullTripSubmit = this.onFullTripSubmit.bind(this)
     this.onFullTripUserSubmit = this.onFullTripUserSubmit.bind(this)
     this.onDeleteEvent = this.onDeleteEvent.bind(this)
@@ -81,11 +83,12 @@ class OutsideTripPage extends React.Component {
     this.performSuggestEventLst = this.performSuggestEventLst.bind(this)
     this.onAddEventInput = this.onAddEventInput.bind(this)
     this.getTapName = this.getTapName.bind(this)
-    this.getOutsideTripTileTapName = this.getOutsideTripTileTapName.bind(this)
     this.getMapUrl = this.getMapUrl.bind(this)
     this.onAddEventSubmit = this.onAddEventSubmit.bind(this)
     this.searchAPILocation = this.searchAPILocation.bind(this)
   }
+
+  // For both full trip and outside trip
   performSearch() {
     const dbLocationURI = 'http://127.0.0.1:8000/city_state_search/?city_state=';
     const _this = this;
@@ -104,6 +107,8 @@ class OutsideTripPage extends React.Component {
       });
     };
   }
+
+  // For both full trip and outside trip
   onUpdateInput(searchInputValue) {
     this.setState({
         searchInputValue,
@@ -111,17 +116,17 @@ class OutsideTripPage extends React.Component {
       this.performSearch();
     });
   }
-  handleDaysOnChange = (event, index, value) => this.setState({ daysValue: event.target.innerText});
 
-  onFullTripSubmit = () => {
-    const dbLocationURI = 'http://127.0.0.1:8000/full_trip_search/?';
+  onOutsideTripSubmit = () => {
+    const dbLocationURI = 'http://127.0.0.1:8000/outside_trip_search/?';
     const _this = this;
     const city = this.state.searchInputValue.split(', ')[0];
     const state = this.state.searchInputValue.split(', ')[1];
     const valid_city_input = encodeURIComponent(city);
     const valid_state_input = encodeURIComponent(state);
     const myUrl = dbLocationURI + 'city=' + valid_city_input + '&state='+ valid_state_input
-                +'&n_days='+ this.state.daysValue;
+                +'&direction='+ this.state.directionValue;
+    console.log('outside trip: ',myUrl)
     if(this.state.searchInputValue !== '') {
       $.ajax({
         type: "GET",
