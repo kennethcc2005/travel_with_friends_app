@@ -35001,7 +35001,7 @@ var HomePage = function (_React$Component) {
           updateEventId: '',
           newFullTrip: res.response
         });
-        console.log('done creating the full trip!', 'new full trip?: ', _this.state.newFullTrip);
+        console.log('done creating the full trip!');
       }).fail(function (jqXhr) {
         console.log('failed to create the full trip.');
       });
@@ -103025,6 +103025,10 @@ var _MenuItemDays = __webpack_require__(406);
 
 var _MenuItemDays2 = _interopRequireDefault(_MenuItemDays);
 
+var _MenuItemDirections = __webpack_require__(952);
+
+var _MenuItemDirections2 = _interopRequireDefault(_MenuItemDirections);
+
 var _FullTripSearchButton = __webpack_require__(401);
 
 var _FullTripSearchButton2 = _interopRequireDefault(_FullTripSearchButton);
@@ -103064,6 +103068,16 @@ var _FullTripUserSubmitButton2 = _interopRequireDefault(_FullTripUserSubmitButto
 var _UserStore = __webpack_require__(416);
 
 var _UserStore2 = _interopRequireDefault(_UserStore);
+
+var _TripConstants = __webpack_require__(951);
+
+var _TripConstants2 = _interopRequireDefault(_TripConstants);
+
+var _GridList = __webpack_require__(687);
+
+var _OutsideTripGrid = __webpack_require__(953);
+
+var _OutsideTripGrid2 = _interopRequireDefault(_OutsideTripGrid);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -103188,7 +103202,17 @@ var OutsideTripPage = function (_React$Component) {
       });
     };
 
+    _this2.handleDirectionsOnChange = function (event, index, value) {
+      return _this2.setState({ directionValue: event.target.innerText });
+    };
+
     _this2.state = {
+      ipCity: localStorage.ip_city,
+      ipState: localStorage.ip_state,
+      ip: localStorage.ip,
+      directionValue: '',
+      updateOutsideTripId: '',
+
       place: "",
       days: "",
       cityStateDataSource: [],
@@ -103207,7 +103231,10 @@ var OutsideTripPage = function (_React$Component) {
       updateSuggestEvent: {},
       currentMapUrl: '',
       newFullTrip: ''
+
     };
+    _this2.handleDirectionsOnChange = _this2.handleDirectionsOnChange.bind(_this2);
+
     _this2.performSearch = _this2.performSearch.bind(_this2);
     _this2.onUpdateInput = _this2.onUpdateInput.bind(_this2);
     _this2.handleDaysOnChange = _this2.handleDaysOnChange.bind(_this2);
@@ -103221,8 +103248,10 @@ var OutsideTripPage = function (_React$Component) {
     _this2.performSuggestEventLst = _this2.performSuggestEventLst.bind(_this2);
     _this2.onAddEventInput = _this2.onAddEventInput.bind(_this2);
     _this2.getTapName = _this2.getTapName.bind(_this2);
+    _this2.getOutsideTripTileTapName = _this2.getOutsideTripTileTapName.bind(_this2);
     _this2.getMapUrl = _this2.getMapUrl.bind(_this2);
     _this2.onAddEventSubmit = _this2.onAddEventSubmit.bind(_this2);
+    _this2.searchAPILocation = _this2.searchAPILocation.bind(_this2);
     return _this2;
   }
 
@@ -103420,13 +103449,53 @@ var OutsideTripPage = function (_React$Component) {
     // and name it GettingStartedGoogleMap
 
   }, {
+    key: 'searchAPILocation',
+    value: function searchAPILocation() {
+      var _this = this;
+      $.getJSON('https://api.ipify.org?format=json', function (data) {
+        if (localStorage.getItem('ip') != data.ip) {
+          var ipLocationURL = _TripConstants2.default.IP_LOCATION_URL + data.ip;
+          console.log(data.ip, ipLocationURL);
+          $.ajax({
+            url: ipLocationURL,
+            headers: {
+              'Accept': 'application/json'
+            },
+            type: "GET", /* or type:"GET" or type:"PUT" */
+            dataType: "json",
+            data: {},
+            success: function success(result) {
+              localStorage.setItem('ip', data.ip);
+              localStorage.setItem('ip_state', result.region_name);
+              localStorage.setItem('ip_city', result.city_name);
+            },
+            error: function error() {
+              console.log("error", ipLocationURL);
+            }
+          });
+        }
+      });
+    }
+  }, {
     key: 'componentWillMount',
     value: function componentWillMount() {
-      $.getJSON('https://api.ipify.org?format=json', function (data) {
-        // Your callback functions like   
-        console.log(data.ip);
-        localStorage.setItem('ip', data.ip);
+      this.searchAPILocation();
+      var tripDirections = ['N', 'W', 'E', 'S'];
+      var randomDirectionIdx = Math.floor(Math.random() * tripDirections.length);
+      this.setState({
+        searchInputValue: this.state.ipCity + ', ' + this.state.ipState,
+        directionValue: tripDirections[randomDirectionIdx]
       });
+    }
+  }, {
+    key: 'getOutsideTripTileTapName',
+    value: function getOutsideTripTileTapName(updateOutsideTripId) {
+      this.setState({
+        updateOutsideTripId: updateOutsideTripId,
+        addEventDataSource: [],
+        searchEventValue: ''
+      });
+      console.log(updateOutsideTripId, 'aha');
     }
   }, {
     key: 'render',
@@ -103449,19 +103518,25 @@ var OutsideTripPage = function (_React$Component) {
                 _react2.default.createElement(_SearchInputField2.default, {
                   name: 'searchCityState',
                   searchText: this.state.searchInputValue,
-                  floatingLabelText: 'Location',
+                  floatingLabelText: 'Current Location',
                   dataSource: this.state.cityStateDataSource,
-                  onUpdateInput: this.onUpdateInput })
+                  onUpdateInput: this.onUpdateInput
+                })
               ),
               _react2.default.createElement(
                 'div',
                 { className: 'col-md-5' },
-                _react2.default.createElement(_MenuItemDays2.default, { daysValue: this.state.daysValue, handleDaysOnChange: this.handleDaysOnChange })
+                _react2.default.createElement(_MenuItemDirections2.default, { directionValue: this.state.directionValue, handleDirectionsOnChange: this.handleDirectionsOnChange })
               ),
               _react2.default.createElement(
                 'div',
                 { className: 'col-md-2' },
                 _react2.default.createElement(_FullTripSearchButton2.default, { onFullTripSubmit: this.onFullTripSubmit })
+              ),
+              _react2.default.createElement(
+                'div',
+                { className: 'col-md-12' },
+                _react2.default.createElement(_OutsideTripGrid2.default, { getOutsideTripTileTapName: this.getOutsideTripTileTapName })
               )
             )
           )
@@ -103478,32 +103553,18 @@ var OutsideTripPage = function (_React$Component) {
             'Pick the city and the direction to explore.  You will find great funs.'
           ),
           _react2.default.createElement(
+            _Card.CardMedia,
+            {
+              overlay: _react2.default.createElement(_Card.CardTitle, { title: 'Chicago is Fun', subtitle: 'Here is the picture' })
+            },
+            _react2.default.createElement('img', { src: 'images/nature-600-337.jpg', alt: '' })
+          ),
+          _react2.default.createElement(
             _Card.CardActions,
             null,
             _react2.default.createElement(
               'div',
               { className: 'col-md-8 col-md-offset-2' },
-              _react2.default.createElement(
-                'div',
-                { className: 'col-md-5' },
-                _react2.default.createElement(_SearchInputField2.default, {
-                  name: 'searchCityState',
-                  searchText: this.state.searchInputValue,
-                  floatingLabelText: 'Location',
-                  dataSource: this.state.cityStateDataSource,
-                  onUpdateInput: this.onUpdateInput })
-              ),
-              _react2.default.createElement(
-                'div',
-                { className: 'col-md-5' },
-                _react2.default.createElement(_MenuItemDays2.default, { daysValue: this.state.daysValue, handleDaysOnChange: this.handleDaysOnChange })
-              ),
-              _react2.default.createElement(
-                'div',
-                { className: 'col-md-2' },
-                _react2.default.createElement(_FullTripSearchButton2.default, { onFullTripSubmit: this.onFullTripSubmit })
-              ),
-              _react2.default.createElement('br', null),
               _react2.default.createElement(
                 'div',
                 { className: 'col-md-12 ' },
@@ -103594,6 +103655,239 @@ exports.default = OutsideTripPage;
 
 "use strict";
 
+
+/***/ }),
+/* 951 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+var BASE_URL = 'http://localhost:8000/';
+
+var TripConstants = {
+    BASE_URL: BASE_URL,
+    CREATE_FULL_TRIP_URL: BASE_URL + 'create_full_trip/',
+    CREATE_OUTSIDE_TRIP_URL: BASE_URL + 'create_outside_trip/',
+    IP_LOCATION_API: '359263af1b8a0a7c1d725ec86751962cc8801f6a',
+    IP_LOCATION_URL: BASE_URL + 'iplocation/?ip='
+};
+
+exports.default = TripConstants;
+
+/***/ }),
+/* 952 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _SelectField = __webpack_require__(306);
+
+var _SelectField2 = _interopRequireDefault(_SelectField);
+
+var _MenuItem = __webpack_require__(95);
+
+var _MenuItem2 = _interopRequireDefault(_MenuItem);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// encodeURIComponent(myUrl)
+var MenuItemDirections = function MenuItemDirections(_ref) {
+  var directionValue = _ref.directionValue,
+      handleDirectionsOnChange = _ref.handleDirectionsOnChange;
+
+  var boundType = handleDirectionsOnChange.bind(undefined);
+  return _react2.default.createElement(
+    'div',
+    null,
+    _react2.default.createElement(
+      _SelectField2.default,
+      {
+        floatingLabelText: 'Direction',
+        value: directionValue,
+        onChange: boundType
+      },
+      _react2.default.createElement(_MenuItem2.default, { value: 'N', primaryText: 'North' }),
+      _react2.default.createElement(_MenuItem2.default, { value: 'S', primaryText: 'South' }),
+      _react2.default.createElement(_MenuItem2.default, { value: 'E', primaryText: 'East' }),
+      _react2.default.createElement(_MenuItem2.default, { value: 'W', primaryText: 'West' })
+    )
+  );
+};
+
+MenuItemDirections.propTypes = {
+  directionValue: _react.PropTypes.string.isRequired,
+  handleDirectionsOnChange: _react.PropTypes.func.isRequired
+};
+
+exports.default = MenuItemDirections;
+
+/***/ }),
+/* 953 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _GridList = __webpack_require__(687);
+
+var _IconButton = __webpack_require__(61);
+
+var _IconButton2 = _interopRequireDefault(_IconButton);
+
+var _starBorder = __webpack_require__(954);
+
+var _starBorder2 = _interopRequireDefault(_starBorder);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var styles = {
+  root: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around'
+  },
+  gridList: {
+    overflowY: 'auto'
+  }
+};
+
+var tilesData = [{
+  id: 1,
+  img: 'http://www.material-ui.com/images/grid-list/00-52-29-429_640.jpg',
+  title: 'Breakfast',
+  author: 'jill111',
+  featured: true
+}, {
+  id: 2,
+  img: 'http://www.material-ui.com/images/grid-list/morning-819362_640.jpg',
+  title: 'Tasty burger',
+  author: 'pashminu'
+}, {
+  id: 3,
+  img: 'images/grid-list/camera-813814_640.jpg',
+  title: 'Camera',
+  author: 'Danson67'
+}, {
+  id: 4,
+  img: 'images/grid-list/hats-829509_640.jpg',
+  title: 'Hats',
+  author: 'Hans'
+}, {
+  id: 5,
+  img: 'images/grid-list/honey-823614_640.jpg',
+  title: 'Honey',
+  author: 'fancycravel'
+}, {
+  id: 6,
+  img: 'images/grid-list/morning-819362_640.jpg',
+  title: 'Morning',
+  author: 'fancycrave1',
+  featured: true
+}];
+
+/**
+ * This example demonstrates "featured" tiles, using the `rows` and `cols` props to adjust the size of the tile.
+ * The tiles have a customised title, positioned at the top and with a custom gradient `titleBackground`.
+ */
+
+var OutisdeTripGrid = function OutisdeTripGrid(_ref) {
+  var getOutsideTripTileTapName = _ref.getOutsideTripTileTapName;
+  return _react2.default.createElement(
+    'div',
+    { style: styles.root },
+    _react2.default.createElement(
+      _GridList.GridList,
+      {
+        cols: 2,
+        cellHeight: 200,
+        padding: 1,
+        style: styles.gridList
+      },
+      tilesData.map(function (tile) {
+        return _react2.default.createElement(
+          _GridList.GridTile,
+          {
+            key: tile.id,
+            title: tile.title,
+            titlePosition: 'top',
+            titleBackground: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.3) 70%,rgba(0,0,0,0) 100%)',
+            cols: tile.featured ? 2 : 1,
+            rows: tile.featured ? 2 : 1,
+            onTouchTap: function onTouchTap(e) {
+              return getOutsideTripTileTapName(tile.id);
+            }
+          },
+          _react2.default.createElement('img', { src: tile.img })
+        );
+      })
+    )
+  );
+};
+
+OutisdeTripGrid.propTypes = {
+  getOutsideTripTileTapName: _react.PropTypes.func.isRequired
+};
+
+exports.default = OutisdeTripGrid;
+
+/***/ }),
+/* 954 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pure = __webpack_require__(21);
+
+var _pure2 = _interopRequireDefault(_pure);
+
+var _SvgIcon = __webpack_require__(18);
+
+var _SvgIcon2 = _interopRequireDefault(_SvgIcon);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var ToggleStarBorder = function ToggleStarBorder(props) {
+  return _react2.default.createElement(
+    _SvgIcon2.default,
+    props,
+    _react2.default.createElement('path', { d: 'M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z' })
+  );
+};
+ToggleStarBorder = (0, _pure2.default)(ToggleStarBorder);
+ToggleStarBorder.displayName = 'ToggleStarBorder';
+ToggleStarBorder.muiName = 'SvgIcon';
+
+exports.default = ToggleStarBorder;
 
 /***/ })
 /******/ ]);

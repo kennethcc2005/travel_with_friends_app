@@ -31,6 +31,9 @@ urlpatterns = [
     # url(r'^auth/$', local_views.login_form, name='login_form'),
     url(r'^account/get_auth_token/$', rest_framework_views.obtain_auth_token, name='get_auth_token'),
     url(r'^account/register', views.create_auth, name='register_user'),
+
+    url(r'^iplocation/$', views.IPGeoLocation.as_view()),
+
     # url(r'^api/', include(router.urls)),
     # url(r'^users/create_user', views.CreateUserView),
 ]

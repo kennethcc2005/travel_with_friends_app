@@ -40,6 +40,8 @@ class FullTripAddEventSerializer(serializers.Serializer):
     trip_location_id = serializers.CharField()
     full_trip_id = serializers.CharField()
 
+class IPGeoLocationSerializer(serializers.Serializer):
+    ip = serializers.CharField()
 # class UserSerializer(serializers.ModelSerializer):
 #     snippets = serializers.PrimaryKeyRelatedField(many=True, queryset=FullTripTable.objects.all())
 #     class Meta:

@@ -335,7 +335,7 @@ class HomePage extends React.Component {
         updateEventId: '',
         newFullTrip: res.response,
       })
-      console.log('done creating the full trip!', 'new full trip?: ', _this.state.newFullTrip)
+      console.log('done creating the full trip!')
     })
     .fail(function(jqXhr) {
       console.log('failed to create the full trip.');

@@ -1,7 +1,8 @@
 import React from 'react';
-import { Card, CardTitle, CardActions, CardText } from 'material-ui/Card';
+import { Card, CardTitle, CardActions, CardText, CardMedia } from 'material-ui/Card';
 import SearchInputField from '../components/SearchInputField.jsx';
 import MenuItemDays from '../components/MenuItemDays.jsx';
+import MenuItemDirections from '../components/MenuItemDirections.jsx';
 import FullTripSearchButton from '../components/FullTripSearchButton.jsx';
 import FullTripList from '../components/FullTripList.jsx';
 import FullTripAddEventButton from '../components/FullTripAddEventButton.jsx';
@@ -12,6 +13,11 @@ import FullDirectionsTrip from '../components/GoogleMapFullTripComponent.jsx';
 import GoogleMapUrlButton from '../components/GoogleMapUrlButton.jsx';
 import FullTripUserSubmitButton from '../components/FullTripUserSubmitButton.jsx';
 import UserStore from '../stores/UserStore.jsx';
+
+import TripConstants from '../constants/TripConstants.jsx';
+import {GridList, GridTile} from 'material-ui/GridList';
+import OutsideTripGrid from '../components/OutsideTripGrid.jsx';
+
 // Version B: Delete method showed in front end only, dont update the backend until final click. Beter for performance!
 // add_search event use local search instead of calling backend for updates.!
 // alot to updates...>__<
@@ -33,6 +39,12 @@ class OutsideTripPage extends React.Component {
     super(props, context);
     // set the initial component state
     this.state = {
+      ipCity: localStorage.ip_city,
+      ipState: localStorage.ip_state,
+      ip: localStorage.ip,
+      directionValue: '',
+      updateOutsideTripId: '',
+
       place: "",
       days: "",
       cityStateDataSource: [],
@@ -51,7 +63,11 @@ class OutsideTripPage extends React.Component {
       updateSuggestEvent: {},
       currentMapUrl: '',
       newFullTrip: '',
+
+
     };
+    this.handleDirectionsOnChange = this.handleDirectionsOnChange.bind(this)
+
     this.performSearch = this.performSearch.bind(this)
     this.onUpdateInput = this.onUpdateInput.bind(this)
     this.handleDaysOnChange = this.handleDaysOnChange.bind(this)
@@ -65,8 +81,10 @@ class OutsideTripPage extends React.Component {
     this.performSuggestEventLst = this.performSuggestEventLst.bind(this)
     this.onAddEventInput = this.onAddEventInput.bind(this)
     this.getTapName = this.getTapName.bind(this)
+    this.getOutsideTripTileTapName = this.getOutsideTripTileTapName.bind(this)
     this.getMapUrl = this.getMapUrl.bind(this)
     this.onAddEventSubmit = this.onAddEventSubmit.bind(this)
+    this.searchAPILocation = this.searchAPILocation.bind(this)
   }
   performSearch() {
     const dbLocationURI = 'http://127.0.0.1:8000/city_state_search/?city_state=';
@@ -343,12 +361,53 @@ class OutsideTripPage extends React.Component {
 
   }
 
-  componentWillMount(){
+  searchAPILocation(){
+    const _this = this;
     $.getJSON('https://api.ipify.org?format=json', function(data){
-             // Your callback functions like   
-              console.log(data.ip);
+      if (localStorage.getItem('ip') != data.ip) {
+        const ipLocationURL = TripConstants.IP_LOCATION_URL + data.ip
+        console.log(data.ip, ipLocationURL);
+        $.ajax({
+            url: ipLocationURL,
+            headers: {
+              'Accept': 'application/json'
+            },
+            type: "GET", /* or type:"GET" or type:"PUT" */
+            dataType: "json",
+            data: {
+            },
+            success: function (result) {
               localStorage.setItem('ip',data.ip);
-            })      
+              localStorage.setItem('ip_state',result.region_name);
+              localStorage.setItem('ip_city',result.city_name);
+            },
+            error: function () {
+              console.log("error", ipLocationURL);
+            }
+          });
+      }
+    })
+  }
+
+  handleDirectionsOnChange = (event, index, value) => this.setState({ directionValue: event.target.innerText});
+
+  componentWillMount(){
+    this.searchAPILocation();  
+    const tripDirections = ['N','W','E','S'];
+    const randomDirectionIdx = Math.floor(Math.random()*tripDirections.length);
+    this.setState({
+      searchInputValue: this.state.ipCity + ', ' + this.state.ipState,
+      directionValue: tripDirections[randomDirectionIdx]
+    }) 
+  }
+
+  getOutsideTripTileTapName(updateOutsideTripId) {
+    this.setState({
+        updateOutsideTripId: updateOutsideTripId,
+        addEventDataSource: [],
+        searchEventValue: '',
+    });
+    console.log(updateOutsideTripId, 'aha')
   }
 
   render() { 
@@ -361,22 +420,32 @@ class OutsideTripPage extends React.Component {
                 <SearchInputField 
                   name ='searchCityState'
                   searchText={this.state.searchInputValue}
-                  floatingLabelText='Location' 
+                  floatingLabelText='Current Location' 
                   dataSource={this.state.cityStateDataSource} 
-                  onUpdateInput={this.onUpdateInput} />
+                  onUpdateInput={this.onUpdateInput} 
+                  />
+
               </div>
               <div className="col-md-5">
-                <MenuItemDays daysValue={this.state.daysValue} handleDaysOnChange={this.handleDaysOnChange}/>
+                <MenuItemDirections directionValue={this.state.directionValue} handleDirectionsOnChange={this.handleDirectionsOnChange}/>
+
               </div>
               <div className="col-md-2">
                 <FullTripSearchButton onFullTripSubmit={this.onFullTripSubmit}/>
               </div>
-
-              
+              <div className="col-md-12">
+                <OutsideTripGrid getOutsideTripTileTapName={this.getOutsideTripTileTapName} />
+              </div>
             </div>
+
           </CardActions>
         </div>
         <br />
+
+
+
+
+
 
         <div className="col-md-12">
           <br/>
@@ -384,24 +453,15 @@ class OutsideTripPage extends React.Component {
           <CardText>
             Pick the city and the direction to explore.  You will find great funs.
           </CardText>
+
+          <CardMedia
+            overlay={<CardTitle title="Chicago is Fun" subtitle="Here is the picture" />}
+          >
+            <img src="images/nature-600-337.jpg" alt="" />
+          </CardMedia>
+
           <CardActions>
-            
             <div className="col-md-8 col-md-offset-2">
-              <div className="col-md-5">
-                <SearchInputField 
-                  name ='searchCityState'
-                  searchText={this.state.searchInputValue}
-                  floatingLabelText='Location' 
-                  dataSource={this.state.cityStateDataSource} 
-                  onUpdateInput={this.onUpdateInput} />
-              </div>
-              <div className="col-md-5">
-                <MenuItemDays daysValue={this.state.daysValue} handleDaysOnChange={this.handleDaysOnChange}/>
-              </div>
-              <div className="col-md-2">
-                <FullTripSearchButton onFullTripSubmit={this.onFullTripSubmit}/>
-              </div>
-              <br/>
               <div className="col-md-12 ">
                 {this.state.fullTripDetails.length>0 && 
                   <FullTripList 

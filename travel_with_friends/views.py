@@ -6,7 +6,8 @@ from rest_framework import generics, status
 from django.contrib.auth.models import User
 from travel_with_friends.serializers import UserSerializer, FullTripSearchSerializer, \
         OutsideTripSearchSerializer,CityStateSearchSerializer, FullTripSuggestDeleteSerializer, \
-        FullTripAddSearchSerializer, FullTripAddEventSerializer, FullTripSuggestConfirmSerializer
+        FullTripAddSearchSerializer, FullTripAddEventSerializer, FullTripSuggestConfirmSerializer, \
+        IPGeoLocationSerializer
 from rest_framework import permissions
 from travel_with_friends.permissions import IsOwnerOrReadOnly, IsStaffOrTargetUser
 from rest_framework.decorators import api_view
@@ -305,6 +306,31 @@ class FullTripCreate(APIView):
         response = trip_update.create_full_trip(full_trip_id, username_id)
         return Response({
             "response": response,
+        })
+
+class IPGeoLocation(APIView):
+    # def get_permissions(self):
+    #     '''
+    #     response = requests.get(myurl, headers={'Authorization': 'Token {}'.format(mytoken)})
+    #     '''
+    #     return (permissions.IsAuthenticated()),
+    def get(self,request):
+        # Validate the incoming input (provided through query parameters)
+        # serializer = FullTripSuggestConfirmSerializer(data=request.data)
+        # serializer.is_valid(raise_exception=True)
+        # Get the model input
+        print 'ok?'
+        serializer = IPGeoLocationSerializer(data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+        # Get the model input
+        data = serializer.validated_data
+
+        country_code, country_name, region_name, city_name = find_ip_geo_location(data['ip'])
+        return Response({
+            "country_code": country_code,
+            "country_name": country_name,
+            "region_name": region_name,
+            "city_name": city_name
         })
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):

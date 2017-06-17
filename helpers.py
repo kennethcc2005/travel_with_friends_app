@@ -31,9 +31,11 @@ def abb_to_full_state(state):
     conn = psycopg2.connect(conn_str)
     cur = conn.cursor()
     cur.execute("SELECT distinct state from city_state_coords_table where state_abb = '{}';".format(state))
-    full_state = cur.fetchone()[0]
+    full_state = cur.fetchone()
     conn.close()
-    return full_state
+    if full_state:
+        return full_state[0]
+    else: return state
 
 
 def serach_city_state(city_state):
@@ -498,3 +500,16 @@ def db_address(event_ids):
 
 def kmeans_leabels_day_order(day_labels):
     return [k for k, v in Counter(day_labels).most_common()]
+
+def find_ip_geo_location(ip_address):
+    import socket, struct
+    packedIP = socket.inet_aton(ip_address)
+    ip_number = struct.unpack("!L", packedIP)[0]
+    conn = psycopg2.connect(conn_str)
+    cur = conn.cursor()
+    cur.execute("select country_code, country_name, region_name, city_name from ip2location_db3 where ip_from<{0} and ip_to>{0} limit 1;".format(ip_number))
+    a=cur.fetchone()
+    conn.close()
+    return a 
+
+
