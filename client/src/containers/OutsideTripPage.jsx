@@ -73,7 +73,6 @@ class OutsideTripPage extends React.Component {
     this.performSearch = this.performSearch.bind(this)
     this.onUpdateInput = this.onUpdateInput.bind(this)
 
-    this.onFullTripSubmit = this.onFullTripSubmit.bind(this)
     this.onFullTripUserSubmit = this.onFullTripUserSubmit.bind(this)
     this.onDeleteEvent = this.onDeleteEvent.bind(this)
     this.onSuggestEvent = this.onSuggestEvent.bind(this)
@@ -117,6 +116,7 @@ class OutsideTripPage extends React.Component {
     });
   }
 
+  //outside trip only 
   onOutsideTripSubmit = () => {
     const dbLocationURI = 'http://127.0.0.1:8000/outside_trip_search/?';
     const _this = this;
@@ -132,6 +132,7 @@ class OutsideTripPage extends React.Component {
         type: "GET",
         url: myUrl,
       }).done(function(res) {
+        console.log('outside result: ', res)
         _this.setState({
           fullTripDetails : res.full_trip_details,  
           fullTripId: res.full_trip_id,
@@ -394,7 +395,7 @@ class OutsideTripPage extends React.Component {
     })
   }
 
-  handleDirectionsOnChange = (event, index, value) => this.setState({ directionValue: event.target.innerText});
+  handleDirectionsOnChange = (event, index, value) => this.setState({ directionValue: value});
 
   componentWillMount(){
     this.searchAPILocation();  
@@ -436,7 +437,7 @@ class OutsideTripPage extends React.Component {
 
               </div>
               <div className="col-md-2">
-                <FullTripSearchButton onFullTripSubmit={this.onFullTripSubmit}/>
+                <FullTripSearchButton onFullTripSubmit={this.onOutsideTripSubmit}/>
               </div>
               <div className="col-md-12">
                 <OutsideTripGrid getOutsideTripTileTapName={this.getOutsideTripTileTapName} />

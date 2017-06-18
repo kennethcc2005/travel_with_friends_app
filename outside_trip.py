@@ -11,10 +11,10 @@ outside route table: route_id, event_id_lst, event_type, origin_city, state, dir
 # origin_state = 'California'
 # conn_str = "dbname='travel_with_friends' user='zoesh' host='localhost'"
 
-def outside_trip_poi(origin_city, origin_state, target_direction = 'N', n_days = 1, \
-                    full_day = True, regular = True, debug = True, user_id = 'admin'):
+def outside_trip_poi(origin_city, origin_state, target_direction = 'N', \
+                    full_day = True, regular = True, debug = True, username_id = 1, n_days = 1):
     outside_trip_id = '-'.join([str(origin_state.upper().replace(' ','-')), str(origin_city.upper().replace(' ','-')), \
-                        target_direction,str(int(regular)), str(n_days)])
+                        target_direction,str(int(regular))])
     if not check_outside_trip_id(outside_trip_id, debug):
         furthest_len = 100
         if n_days == 1:
@@ -35,7 +35,6 @@ def outside_trip_poi(origin_city, origin_state, target_direction = 'N', n_days =
         #     city_infos.extend(city_info)
         city_id, coord_lat, coord_long, city_infos = travel_outside_with_direction(origin_city, origin_state, target_direction, furthest_len, n_days=1)
         if len(city_infos)<=0:
-            username_id = 1
             conn = psycopg2.connect(conn_str)
             cur = conn.cursor()
             cur.execute('SELECT MAX(index) from outside_trip_table;')
@@ -50,6 +49,7 @@ def outside_trip_poi(origin_city, origin_state, target_direction = 'N', n_days =
         # city_infos = np.array(city_infos)
         poi_coords = city_infos[:,1:3]
         n_routes = sum(1 for t in np.array(city_infos)[:,3] if t >= 120)/10
+        print 'poi details: ',np.array(city_infos).shape, n_routes
         if (n_routes>1) and (city_infos.shape[0]>=10):
             kmeans = KMeans(n_clusters=n_routes).fit(poi_coords)
         elif (city_infos.shape[0]> 20) or (n_routes>1):
@@ -87,7 +87,7 @@ def outside_trip_poi(origin_city, origin_state, target_direction = 'N', n_days =
             if check_outside_route_id(outside_route_id):
                 conn = psycopg2.connect(conn_str)
                 cur = conn.cursor()
-                cur.execute('DELETE FROM outside_route_table WHERE outside_route_id = %s;' %(outside_route_id))
+                cur.execute("DELETE FROM outside_route_table WHERE outside_route_id = '%s';" %(outside_route_id))
                 conn.commit()
                 conn.close()
             details = db_outside_route_trip_details(event_ids,i)

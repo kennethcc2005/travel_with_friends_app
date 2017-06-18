@@ -103128,6 +103128,7 @@ var OutsideTripPage = function (_React$Component) {
           type: "GET",
           url: myUrl
         }).done(function (res) {
+          console.log('outside result: ', res);
           _this.setState({
             fullTripDetails: res.full_trip_details,
             fullTripId: res.full_trip_id,
@@ -103200,7 +103201,7 @@ var OutsideTripPage = function (_React$Component) {
     };
 
     _this2.handleDirectionsOnChange = function (event, index, value) {
-      return _this2.setState({ directionValue: event.target.innerText });
+      return _this2.setState({ directionValue: value });
     };
 
     _this2.state = {
@@ -103237,7 +103238,6 @@ var OutsideTripPage = function (_React$Component) {
     _this2.performSearch = _this2.performSearch.bind(_this2);
     _this2.onUpdateInput = _this2.onUpdateInput.bind(_this2);
 
-    _this2.onFullTripSubmit = _this2.onFullTripSubmit.bind(_this2);
     _this2.onFullTripUserSubmit = _this2.onFullTripUserSubmit.bind(_this2);
     _this2.onDeleteEvent = _this2.onDeleteEvent.bind(_this2);
     _this2.onSuggestEvent = _this2.onSuggestEvent.bind(_this2);
@@ -103288,6 +103288,9 @@ var OutsideTripPage = function (_React$Component) {
         this.performSearch();
       });
     }
+
+    //outside trip only 
+
   }, {
     key: 'performDeleteEventId',
 
@@ -103535,7 +103538,7 @@ var OutsideTripPage = function (_React$Component) {
               _react2.default.createElement(
                 'div',
                 { className: 'col-md-2' },
-                _react2.default.createElement(_FullTripSearchButton2.default, { onFullTripSubmit: this.onFullTripSubmit })
+                _react2.default.createElement(_FullTripSearchButton2.default, { onFullTripSubmit: this.onOutsideTripSubmit })
               ),
               _react2.default.createElement(
                 'div',

@@ -110,7 +110,6 @@ class OutsideTripSearch(APIView):
         data = serializer.validated_data
         city = data["city"].replace('_',' ').title()
         state = data["state"].replace('_',' ').title()
-        n_days = int(data["n_days"])
         direction = data["direction"].upper()
         valid_state = check_valid_state(state)
         if not valid_state:
@@ -122,7 +121,8 @@ class OutsideTripSearch(APIView):
             return Response({
             "invalid city result": '%s is not valid city name for state %s' %(city, state),
         })
-        outside_trip_id, details = outside_trip_poi(origin_city=city, origin_state=state, target_direction = direction, n_days = n_days, full_day = True, regular = True, debug = True, user_id = 'zoesh')
+        print 'outsdie trip: ', city, state, direction
+        outside_trip_id, details = outside_trip_poi(origin_city=city, origin_state=state, target_direction = direction, full_day = True, regular = True, debug = True, username_id = 1)
         return Response({
             "outside_trip_id": outside_trip_id,
             "outside_trip_details": details,
