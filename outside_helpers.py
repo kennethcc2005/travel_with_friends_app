@@ -94,11 +94,11 @@ def travel_outside_with_direction (origin_city,origin_state, target_direction, f
     cur.execute("select index, coord_lat, coord_long from all_cities_coords_table where city ='%s' and state = '%s';" %(origin_city,origin_state)) 
     id_, start_lat, start_long = cur.fetchone()
 
-    cur.execute("SELECT index, name, coord_lat, coord_long, adjusted_visit_length, ranking, review_score, num_reviews FROM poi_detail_table_v2 WHERE city != '%s' and ST_Distance_Sphere(geom, ST_MakePoint(%s,%s)) <= %s * 1609.34;"%(origin_city, start_long, start_lat,furthest_len)) 
+    cur.execute("SELECT index, coord_lat, coord_long, adjusted_visit_length, ranking, review_score, num_reviews FROM poi_detail_table_v2 WHERE city != '%s' and ST_Distance_Sphere(geom, ST_MakePoint(%s,%s)) <= %s * 1609.34;"%(origin_city, start_long, start_lat,furthest_len)) 
     item = cur.fetchall()
     conn.close()
     for coords in item:
-        if check_direction(start_lat, start_long, coords[2] ,coords[3], target_direction):
+        if check_direction(start_lat, start_long, coords[1] ,coords[2], target_direction):
             poi_info.append(coords)
     return id_, start_lat, start_long, np.array(poi_info)
     

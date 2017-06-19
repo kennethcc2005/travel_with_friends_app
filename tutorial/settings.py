@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'webpack_loader',
     'travel_with_friends.apps.TravelWithFriendsConfig',
-    'snippets.apps.SnippetsConfig',
     'rest_framework',
     'rest_framework.authtoken',
     'django.contrib.admin',

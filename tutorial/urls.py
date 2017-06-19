@@ -21,7 +21,6 @@ schema_view = get_schema_view(title='Pastebin API')
 
 urlpatterns = [
     url(r'^schema/$', schema_view),
-    # url(r'^', include('snippets.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^', include('travel_with_friends.urls')),
     url(r'^api-auth/', include('rest_framework.urls',)),

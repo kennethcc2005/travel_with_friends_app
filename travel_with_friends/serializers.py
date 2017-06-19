@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from travel_with_friends.models import AuthUser, FullTripTable
 from django.contrib.auth.models import User
-from snippets.models import Snippet
 from django.contrib.auth import get_user_model
 from rest_auth.serializers import UserDetailsSerializer
 
