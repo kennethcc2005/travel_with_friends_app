@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon --use_strict index.js",
-    "bundle": "webpack"
+    "bundle": "webpack",
+    "build": "react-scripts build"
   },
   "author": "Kenneth Chen",
   "license": "MIT",
@@ -49,7 +50,9 @@
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
     "webpack": "^2.5.1",
-    "webpack-bundle-tracker": "^0.2.0"
+    "webpack-bundle-tracker": "^0.2.0",
+    "react-scripts": "0.8.5"
+
   },
   "description": ""
 }
